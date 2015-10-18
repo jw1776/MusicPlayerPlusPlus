@@ -1,5 +1,7 @@
 package group1.musicplayer;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.media.session.MediaController;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -12,6 +14,7 @@ import java.util.Comparator;
 import android.net.Uri;
 import android.content.ContentResolver;
 import android.database.Cursor;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.os.IBinder;
 import android.content.ComponentName;
@@ -21,6 +24,7 @@ import android.content.ServiceConnection;
 import android.view.View;
 import group1.musicplayer.MusicService.MusicBinder;
 import android.widget.MediaController.MediaPlayerControl;
+import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity implements MediaPlayerControl {
 
@@ -32,6 +36,7 @@ public class MainActivity extends ActionBarActivity implements MediaPlayerContro
     private MusicController controller;
     private boolean paused = false; //true if activity is in onPause state
     private boolean playbackPaused = false;
+    private AlertDialog.Builder dialogBuilder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,6 +135,9 @@ public class MainActivity extends ActionBarActivity implements MediaPlayerContro
                 musicServiceObject = null;
                 System.exit(0);
                 break;
+            case R.id.action_search:
+                this.search();
+                break;
         }//end switch
         return super.onOptionsItemSelected(item);
     }
@@ -201,6 +209,28 @@ public class MainActivity extends ActionBarActivity implements MediaPlayerContro
             playbackPaused = false;
         }
         controller.show(0);
+    }
+
+    private void search(){
+        dialogBuilder = new AlertDialog.Builder(this);
+        EditText textInput = new EditText(this);
+        dialogBuilder.setTitle("Find a Song");
+        dialogBuilder.setMessage("Artist, Song, etc.");
+        dialogBuilder.setView(textInput);
+        dialogBuilder.setPositiveButton("Search", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(getApplicationContext(), "Searching..", Toast.LENGTH_SHORT).show();
+            }
+        });
+        dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(getApplicationContext(), "Cancelled", Toast.LENGTH_SHORT).show();
+            }
+        });
+        AlertDialog searchBox = dialogBuilder.create();
+        searchBox.show();
     }
 //MediaPlayerControl interface methods
     @Override
