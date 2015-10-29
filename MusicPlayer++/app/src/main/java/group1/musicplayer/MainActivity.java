@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.media.session.MediaController;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -29,6 +30,10 @@ import android.widget.Toast;
 public class MainActivity extends ActionBarActivity implements MediaPlayerControl {
 
     private ArrayList<Song> songList;
+    private ArrayList<Song> searchList;
+    private ArrayList<Integer> searchIndex;
+    private boolean searching;
+    private String searchTerm;
     private ListView songView;
     private MusicService musicServiceObject;
     private Intent playIntent;
@@ -193,7 +198,7 @@ public class MainActivity extends ActionBarActivity implements MediaPlayerContro
         controller.setEnabled(true);
     }
 
-    private void playNext(){ //called above by the Controller's onClick methods
+    protected void playNext(){ //called above by the Controller's onClick methods
         musicServiceObject.playNext();
         if(playbackPaused){
             setController();
@@ -202,7 +207,7 @@ public class MainActivity extends ActionBarActivity implements MediaPlayerContro
         controller.show(0);
     }
 
-    private void playPrev() {
+    protected void playPrev() {
         musicServiceObject.playPrev();
         if(playbackPaused){
             setController();
@@ -212,25 +217,56 @@ public class MainActivity extends ActionBarActivity implements MediaPlayerContro
     }
 
     private void search(){
+        searchList = new ArrayList<Song>();
+        searchIndex = new ArrayList<Integer>();
         dialogBuilder = new AlertDialog.Builder(this);
-        EditText textInput = new EditText(this);
+        searchTerm = "";
+        searching = false;
+        final EditText textInput = new EditText(this);
         dialogBuilder.setTitle("Find a Song");
         dialogBuilder.setMessage("Artist, Song, etc.");
         dialogBuilder.setView(textInput);
         dialogBuilder.setPositiveButton("Search", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(getApplicationContext(), "Searching..", Toast.LENGTH_SHORT).show();
+                searchTerm += textInput.getText().toString();
+                for(int i = 0; i<songList.size();i++){
+                    Song current = songList.get(i);
+                    if(current.getTitle().toLowerCase().contains(searchTerm.toLowerCase()) ||
+                            current.getArtist().toLowerCase().contains(searchTerm.toLowerCase())){
+                        Log.d("stuff", current.getTitle());
+                        searchList.add(current);
+                        searchIndex.add(i);
+                    }
+                }
+                Intent i = new Intent(getApplicationContext(),Search.class);
+                i.putParcelableArrayListExtra("search_results",searchList);
+                i.putIntegerArrayListExtra("search_index",searchIndex);
+                startActivityForResult(i, 1);
             }
         });
         dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Toast.makeText(getApplicationContext(), "Cancelled", Toast.LENGTH_SHORT).show();
+                searchTerm = "";
             }
         });
+
         AlertDialog searchBox = dialogBuilder.create();
         searchBox.show();
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1 && resultCode == 1 && data != null) {
+            musicServiceObject.setSong(data.getIntExtra("searchChoice",-1));
+            musicServiceObject.playSong();
+            if(playbackPaused){
+                setController();
+                playbackPaused = false;
+            }
+            controller.show(0);
+        }
     }
 //MediaPlayerControl interface methods
     @Override
