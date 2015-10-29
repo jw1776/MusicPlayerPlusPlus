@@ -15,7 +15,7 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-public class Search extends MainActivity{
+public class Search extends ActionBarActivity{
     private ArrayList<Song> searchList;
     private ArrayList<Integer> searchIndex;
     private ListView songView;
@@ -65,23 +65,5 @@ public class Search extends MainActivity{
         setResult(1, output);
         finish();
     }
-    private void setController(){
-        controller = new MusicController(this);
-
-        controller.setPrevNextListeners(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playNext();
-            }
-        }, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playPrev();
-            }
-        });
-
-        controller.setMediaPlayer(this);
-        controller.setAnchorView(findViewById(R.id.song_list));
-        controller.setEnabled(true);
-    }
+   
 }
