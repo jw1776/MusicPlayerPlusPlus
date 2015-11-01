@@ -27,9 +27,14 @@ import group1.musicplayer.MusicService.MusicBinder;
 import android.widget.MediaController.MediaPlayerControl;
 import android.widget.Toast;
 
-public class MainActivity extends ActionBarActivity implements MediaPlayerControl {
+import android.app.ActionBar;
+import android.app.Activity;
+import android.app.Fragment;
+import android.os.Bundle;
 
-    private ArrayList<Song> songList;
+public class MainActivity extends Activity implements MediaPlayerControl {
+
+    private static ArrayList<Song> songList;
     private ArrayList<Song> searchList;
     private ArrayList<Integer> searchIndex;
     private boolean searching;
@@ -43,24 +48,48 @@ public class MainActivity extends ActionBarActivity implements MediaPlayerContro
     private boolean playbackPaused = false;
     private AlertDialog.Builder dialogBuilder;
 
+    ActionBar.Tab songTab, artistTab, albumTab, playlistTab;
+    Fragment songTabFragment = new SongTabFragment();
+    Fragment artistTabFragment = new ArtistTabFragment();
+    Fragment albumTabFragment = new AlbumTabFragment();
+    Fragment playlistTabFragment = new PlaylistTabFragment();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        songView = (ListView) findViewById(R.id.song_list);
         songList = new ArrayList<Song>();
-
         getSongList(); //fill the array with all songs
 
-        Collections.sort(songList, new Comparator<Song>(){
-            public int compare(Song a, Song b){
+        Collections.sort(songList, new Comparator<Song>() {
+            public int compare(Song a, Song b) {
                 return a.getTitle().compareTo(b.getTitle());
             }
         }); //sort alphabetically. Change getTitle to get Artist to sort by artist
 
-        SongAdapter theAdapter = new SongAdapter(this, songList);
-        songView.setAdapter(theAdapter); //pass the ListView object the appropriate adapter
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayShowHomeEnabled(false); //hide icon
+        actionBar.setDisplayShowTitleEnabled(true); //show title
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
+        //Create and set the names for each tab
+        songTab = actionBar.newTab().setText("Songs");
+        artistTab = actionBar.newTab().setText("Artists");
+        albumTab = actionBar.newTab().setText("Albums");
+        playlistTab = actionBar.newTab().setText("Playlists");
+
+        //Set tab listeners
+        songTab.setTabListener(new TabListener(songTabFragment));
+        artistTab.setTabListener(new TabListener(artistTabFragment));
+        albumTab.setTabListener(new TabListener(albumTabFragment));
+        playlistTab.setTabListener(new TabListener(playlistTabFragment));
+
+        //Add tabs to action bar
+        actionBar.addTab(songTab);
+        actionBar.addTab(artistTab);
+        actionBar.addTab(albumTab);
+        actionBar.addTab(playlistTab);
 
         setController(); //initializes the MediaController
     }
@@ -168,6 +197,10 @@ public class MainActivity extends ActionBarActivity implements MediaPlayerContro
 
     }// end getSongList() function
 
+    public static ArrayList<Song> getSongArray(){ //for use in SongTabFragment
+        return songList;
+    }
+
     public void songPicked(View view){ //executes when an item in the ListView is clicked. Defined in xml
         musicServiceObject.setSong(Integer.parseInt(view.getTag().toString()));
         musicServiceObject.playSong();
@@ -194,7 +227,7 @@ public class MainActivity extends ActionBarActivity implements MediaPlayerContro
         });
 
         controller.setMediaPlayer(this);
-        controller.setAnchorView(findViewById(R.id.song_list));
+        controller.setAnchorView(findViewById(R.id.activity_main));
         controller.setEnabled(true);
     }
 

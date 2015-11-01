@@ -7,7 +7,7 @@
         android:id="@+id/action_shuffle"
         android:icon="@drawable/rand"
         android:orderInCategory="1"
-        app:showAsAction="always"
+        android:showAsAction="ifRoom"
         android:title="Shuffle" />
 
 
@@ -15,7 +15,7 @@
         android:id="@+id/back"
         android:icon="@drawable/back"
         android:orderInCategory="2"
-        app:showAsAction="always"
+        android:showAsAction="ifRoom"
         android:title="Back" />
 
 </menu>
