@@ -35,6 +35,7 @@ import android.os.Bundle;
 public class MainActivity extends Activity implements MediaPlayerControl {
 
     private static ArrayList<Song> songList;
+    private static ArrayList<Playlist> playlistArray;
     private ArrayList<Song> searchList;
     private ArrayList<Integer> searchIndex;
     private boolean searching;
