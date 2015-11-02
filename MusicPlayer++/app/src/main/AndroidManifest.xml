@@ -29,6 +29,10 @@
             android:name=".Search"
             android:label="@string/title_activity_search" >
         </activity>
+        <activity
+            android:name=".Audio"
+            android:label="@string/title_activity_audio" >
+        </activity>
     </application>
 
 </manifest>

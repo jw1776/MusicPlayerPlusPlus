@@ -65,5 +65,5 @@ public class Search extends ActionBarActivity{
         setResult(1, output);
         finish();
     }
-   
+
 }

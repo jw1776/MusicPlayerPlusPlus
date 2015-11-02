@@ -1,8 +1,10 @@
 package group1.musicplayer;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.media.session.MediaController;
+import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +14,8 @@ import android.view.MenuItem;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Random;
+
 import android.net.Uri;
 import android.content.ContentResolver;
 import android.database.Cursor;
@@ -48,6 +52,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private boolean paused = false; //true if activity is in onPause state
     private boolean playbackPaused = false;
     private AlertDialog.Builder dialogBuilder;
+    private ArrayList<String> audioList = null;
 
     ActionBar.Tab songTab, artistTab, albumTab, playlistTab;
     Fragment songTabFragment = new SongTabFragment();
@@ -63,11 +68,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         songList = new ArrayList<Song>();
         getSongList(); //fill the array with all songs
 
-        Collections.sort(songList, new Comparator<Song>() {
-            public int compare(Song a, Song b) {
-                return a.getTitle().compareTo(b.getTitle());
-            }
-        }); //sort alphabetically. Change getTitle to get Artist to sort by artist
+        sortSongsByTitle();
 
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowHomeEnabled(false); //hide icon
@@ -95,6 +96,17 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         setController(); //initializes the MediaController
     }
 
+    private void sortSongsByTitle(){
+
+        Collections.sort(songList, new Comparator<Song>() {
+            public int compare(Song a, Song b) {
+                return a.getTitle().compareTo(b.getTitle());
+            }
+        });
+
+        //   SongAdapter theAdapter = new SongAdapter(this, songList);
+        //    songView.setAdapter(theAdapter); //pass the ListView object the appropriate adapter
+    }
     private ServiceConnection musicConnection = new ServiceConnection(){ //connect to service, create ServiceConnection object
 
         @Override
@@ -173,14 +185,118 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             case R.id.action_search:
                 this.search();
                 break;
+            case R.id.folder_button://the user wants to browse for music
+                System.out.println("music folder CLICKED!");
+                beginAudioActivity();
+                break;
+
         }//end switch
         return super.onOptionsItemSelected(item);
+    }
+
+    private void beginAudioActivity(){
+
+        ProgressDialog loading= new ProgressDialog(this);
+        loading.setTitle("Loading");
+        loading.setMessage("Please wait...");
+        loading.show();
+
+        AudioSearcher searcher = new AudioSearcher();
+        searcher.createAudioList();
+        loading.dismiss();
+        ArrayList<String> filteredList = filterDuplicateSongs(searcher.getAudioTitleList());
+
+        Intent i = new Intent(this, Audio.class);
+        i.putStringArrayListExtra("filteredAudioList", filteredList);
+        startActivityForResult(i, 1);
+    }
+
+    //converts the additional audio files, that the user selected, into Songs
+    public ArrayList<Song> convertAudioToSongs(){
+
+        if(audioList == null) {//by default it is null
+            return null;
+        }
+        ArrayList<Song> songs = new ArrayList<Song>();
+        Random random = new Random();
+        String title, artist;
+        long id;
+
+        for(int i = 0; i < audioList.size(); i++){
+
+            //split the title and artist based on -
+            String[] split = audioList.get(i).split(" - ");
+
+            if(split.length == 1){//there is no '-' to distinguish artist and title
+                artist = "unknown artist";
+                title = split[0];
+            }
+            else {
+                artist = split[0];
+                title = split[1];
+            }
+            id = Math.abs(random.nextLong());//create a positive random id number
+            songs.add(new Song(id, title, artist));
+        }
+        return songs;
+    }
+
+    //add the new songs to the default list
+    private void addAdditionalSongs(ArrayList<Song> additionalSongs){
+
+        System.out.println("\n.\n.THE SIZE OF THE OLD LIST IS: " + songList.size());
+
+        for(int i = 0; i < additionalSongs.size(); i++)
+            songList.add(additionalSongs.get(i));
+
+        System.out.println("\n.\n.THE SIZE OF THE new LIST IS: " + songList.size());
+
+    }
+
+    //filter out any songs that already exist in the main player if it is found in the audio list
+    private ArrayList<String> filterDuplicateSongs(ArrayList<String> audioTitleList) {
+
+        System.out.println("Filtering list...");
+        for (int i = 0; i < songList.size(); i++) {
+            //  System.out.println("******************Audio list is at: " + audioList.get(i));
+            for (int j = 0; j < audioTitleList.size(); j++) {
+                // System.out.println("Comparing: " + songList.get(i).getTitle() + " and "
+                //    + songList.get(i).getArtist() + "   with : " + audioTitleList.get(j).toString());
+                //check if the audio exists already by check if it contains both the title and artist
+                //               if(audioTitleList.get(j).contains(songList.get(i).getTitle()) &&
+                //                       audioTitleList.get(j).contains(songList.get(i).getArtist())) {
+                if (audioTitleList.get(j).contains(songList.get(i).getTitle())) {
+
+                    //   System.out.println(x++ + "*****removed: " + audioTitleList.get(j).toString());
+                    audioTitleList.remove(audioTitleList.get(j).toString());
+                    break;
+                }
+            }
+        }
+        return audioTitleList;
     }
 
     public void getSongList() {
         ContentResolver musicResolver = getContentResolver();
         Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
+
+        //Some audio may be explicitly marked as not being music
+        String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
+        //ONLY include actual music files, aight?!?!
+        String[] musicContents = {
+                MediaStore.Audio.Media._ID,
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.DATA,
+                MediaStore.Audio.Media.DISPLAY_NAME,
+                MediaStore.Audio.Media.DURATION
+        };
+        Cursor musicCursor = musicResolver.query(
+                musicUri,
+                musicContents,
+                selection,
+                null,
+                null);
 
         if (musicCursor != null && musicCursor.moveToFirst()) {
             int titleColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.TITLE);
@@ -198,6 +314,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     }// end getSongList() function
 
+
     public static ArrayList<Song> getSongArray(){ //for use in SongTabFragment
         return songList;
     }
@@ -211,7 +328,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         }
         controller.show(0);
     }
-// Methods below this point handle the MediaController
+    // Methods below this point handle the MediaController
     private void setController(){
         controller = new MusicController(this);
 
@@ -292,6 +409,25 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (resultCode == RESULT_OK) {
+
+            audioList = data.getStringArrayListExtra("additionalSongs");
+            //LINK THE AUDIO FILES WITH THE PATH OF THE ACTUAL SONG
+            //left off here**************************************************************************
+
+
+            //convert the audioList to a list songList
+            ArrayList<Song> additionalSongs = convertAudioToSongs();
+            if(additionalSongs != null) {
+                addAdditionalSongs(additionalSongs);//add the additional songs to the main list
+                sortSongsByTitle();
+                System.out.println("\n.\n.\n.UPDATING THE SCREEEEEEEEEEEEEEEEN");
+                songTabFragment = new SongTabFragment();//update the list on the screen
+                songTab.setTabListener(new TabListener(songTabFragment));
+            }
+        }
+
         if (requestCode == 1 && resultCode == 1 && data != null) {
             musicServiceObject.setSong(data.getIntExtra("searchChoice",-1));
             musicServiceObject.playSong();
@@ -302,7 +438,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             controller.show(0);
         }
     }
-//MediaPlayerControl interface methods
+    //MediaPlayerControl interface methods
     @Override
     public void start() {
         musicServiceObject.go();
