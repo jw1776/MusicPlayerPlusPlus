@@ -331,6 +331,10 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         }
         controller.show(0);
     }
+
+    public void artistPicked(View view){
+
+    }
     // Methods below this point handle the MediaController
     private void setController(){
         controller = new MusicController(this);
