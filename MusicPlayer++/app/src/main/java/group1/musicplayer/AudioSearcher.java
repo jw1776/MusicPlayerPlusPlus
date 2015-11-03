@@ -19,7 +19,7 @@ public class AudioSearcher {
 
     final String MEDIA_PATH = Environment.getExternalStorageDirectory()
             .getPath() + "/";
-    private ArrayList<HashMap<String, String>> audioList = new ArrayList<HashMap<String, String>>();
+    private ArrayList<HashMap<String, String>> audioAndPathList = new ArrayList<HashMap<String, String>>();
     private String[] audioPattern = {".mp3", ".m4a", ".amr", ".wav", ".wma" };
     private ArrayList<String> audioTitleList = new ArrayList<String>();
 
@@ -38,7 +38,7 @@ public class AudioSearcher {
     }
 
     public ArrayList<HashMap<String, String>> getAudioList(){
-        return audioList;
+        return audioAndPathList;
     }
 
     /**
@@ -82,7 +82,7 @@ public class AudioSearcher {
         }
     }
 
-    private void addAudioToList(File audio) {
+    private void addAudioToList(File audio) {//find all audio list files, including songs
 
         for(int i = 0; i < audioPattern.length; i++) {
             //if the file contains any audio pattern add it to the list
@@ -92,7 +92,8 @@ public class AudioSearcher {
                         audio.getName().substring(0, (audio.getName().length() - 4)));
                 audioMap.put("audioPath", audio.getPath());
                 audioTitleList.add(audio.getName().substring(0, (audio.getName().length() - 4)));
-                audioList.add(audioMap);
+               // System.out.println(i + audioTitleList.get(i));
+                audioAndPathList.add(audioMap);
             }
         }
     }

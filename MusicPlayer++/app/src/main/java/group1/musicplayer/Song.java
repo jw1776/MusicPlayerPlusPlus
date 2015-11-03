@@ -24,6 +24,10 @@ public class Song implements Parcelable {
         this.artist = data[2];
     }
 
+    public String toString(){
+        return artist + " " + title;
+    }
+
     public long getID(){
         return id;
     }
