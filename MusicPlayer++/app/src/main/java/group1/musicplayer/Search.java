@@ -1,5 +1,7 @@
 package group1.musicplayer;
 
+import android.app.ActionBar;
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -15,13 +17,15 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-public class Search extends ActionBarActivity{
+public class Search extends Activity {
     private ArrayList<Song> searchList;
     private ArrayList<Integer> searchIndex;
     private ListView songView;
     private MusicController controller;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayShowHomeEnabled(false); //hide icon
         super.onCreate(savedInstanceState);
         super.onPause();
         searchList = getIntent().getParcelableArrayListExtra("search_results");
