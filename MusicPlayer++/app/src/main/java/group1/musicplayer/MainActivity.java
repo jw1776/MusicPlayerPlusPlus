@@ -339,31 +339,21 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
 
     private void search(){
-        searchList = new ArrayList<Song>();
-        searchIndex = new ArrayList<Integer>();
         dialogBuilder = new AlertDialog.Builder(this);
         searchTerm = "";
         searching = false;
         final EditText textInput = new EditText(this);
         dialogBuilder.setTitle("Find a Song");
         dialogBuilder.setMessage("Artist, Song, etc.");
+
         dialogBuilder.setView(textInput);
         dialogBuilder.setPositiveButton("Search", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 searchTerm += textInput.getText().toString();
-                for(int i = 0; i<songList.size();i++){
-                    Song current = songList.get(i);
-                    if(current.getTitle().toLowerCase().contains(searchTerm.toLowerCase()) ||
-                            current.getArtist().toLowerCase().contains(searchTerm.toLowerCase())){
-                        Log.d("stuff", current.getTitle());
-                        searchList.add(current);
-                        searchIndex.add(i);
-                    }
-                }
                 Intent i = new Intent(getApplicationContext(),Search.class);
-                i.putParcelableArrayListExtra("search_results",searchList);
-                i.putIntegerArrayListExtra("search_index",searchIndex);
+                i.putExtra("search_term",searchTerm);
+                i.putParcelableArrayListExtra("song_list",songList);
                 startActivityForResult(i, 1);
             }
         });

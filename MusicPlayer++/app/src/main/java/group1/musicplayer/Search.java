@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcelable;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,18 +19,47 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 public class Search extends Activity {
+    private ArrayList<Song> songList;
     private ArrayList<Song> searchList;
+    private String searchTerm;
+    private int choice;
     private ArrayList<Integer> searchIndex;
     private ListView songView;
     private MusicController controller;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        choice = -1;
+        searchIndex = new ArrayList<Integer>();
+        searchList = new ArrayList<Song>();
+        songList = getIntent().getParcelableArrayListExtra("song_list");
+        searchTerm = getIntent().getStringExtra("search_term");
+        if(choice ==-1){
+            for(int i = 0; i<songList.size();i++){
+                Song current = songList.get(i);
+                if((current.getTitle() != null &&current.getTitle().toLowerCase().contains(searchTerm.toLowerCase()))||
+                        (current.getArtist()!=null &&current.getArtist().toLowerCase().contains(searchTerm.toLowerCase()))){
+                    Log.d("stuff", current.getTitle());
+                    searchList.add(current);
+                    searchIndex.add(i);
+                }
+            }
+        }
+        else if(choice == 1){
+            for(int i = 0; i<songList.size();i++){
+                Song current = songList.get(i);
+                if(current != null &&current.getArtist().toLowerCase().contains(searchTerm.toLowerCase())){
+                    Log.d("stuff", current.getArtist());
+                    searchList.add(current);
+                    searchIndex.add(i);
+                }
+            }
+        }
+
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowHomeEnabled(false); //hide icon
         super.onCreate(savedInstanceState);
         super.onPause();
-        searchList = getIntent().getParcelableArrayListExtra("search_results");
-        searchIndex = getIntent().getIntegerArrayListExtra("search_index");
+
         setContentView(R.layout.activity_search);
         songView = (ListView) findViewById(R.id.search_list);
 
@@ -57,7 +87,7 @@ public class Search extends Activity {
                 break;
 
             case R.id.back:
-                System.exit(0);
+                finish();
                 break;
         }//end switch
         return super.onOptionsItemSelected(item);
