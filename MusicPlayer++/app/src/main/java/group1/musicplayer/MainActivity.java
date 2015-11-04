@@ -78,11 +78,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         albumTab = actionBar.newTab().setText("Albums");
         playlistTab = actionBar.newTab().setText("Playlists");
 
-        //Set tab listeners
-        songTab.setTabListener(new TabListener(songTabFragment));
-        artistTab.setTabListener(new TabListener(artistTabFragment));
-        albumTab.setTabListener(new TabListener(albumTabFragment));
-        playlistTab.setTabListener(new TabListener(playlistTabFragment));
+        setAllTabListeners();
 
         //Add tabs to action bar
         actionBar.addTab(songTab);
@@ -91,6 +87,14 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         actionBar.addTab(playlistTab);
 
         setController(); //initializes the MediaController
+    }
+
+    private void setAllTabListeners(){
+        //Set tab listeners
+        songTab.setTabListener(new TabListener(songTabFragment));
+        artistTab.setTabListener(new TabListener(artistTabFragment));
+        albumTab.setTabListener(new TabListener(albumTabFragment));
+        playlistTab.setTabListener(new TabListener(playlistTabFragment));
     }
 
     private void sortSongsByTitle(){
@@ -278,7 +282,6 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         }
     }
 
-
     public static ArrayList<Song> getSongArray(){ //for use in SongTabFragment
         return songList;
     }
@@ -382,14 +385,14 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
             ArrayList<String> audioListString = data.getStringArrayListExtra("additionalSongs");
 
-            //find the Song objects that where added
+            //find the Song objects that were added
             ArrayList<Song> additionalSongs = findAdditionalSongs(audioListString);
             if(additionalSongs != null) {
                 addAdditionalSongs(additionalSongs);//add the additional songs to the main list
                 sortSongsByTitle();
               //  System.out.println("\n.\n.\n.UPDATING THE SCREEEEEEEEEEEEEEEEN");
                 songTabFragment = new SongTabFragment();//update the list on the screen
-                songTab.setTabListener(new TabListener(songTabFragment));
+                setAllTabListeners();
             }
         }
 
