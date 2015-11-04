@@ -50,7 +50,6 @@ public class Audio extends Activity {
                         //send the list of audio titles back to the main activity
                         Intent intent = new Intent();
                         intent.putStringArrayListExtra("additionalSongs", selectedItems);
-                        intent.putExtra("extra", selectedItems);
                         setResult(RESULT_OK, intent);
                         finish();//go back to the previous page
                     }

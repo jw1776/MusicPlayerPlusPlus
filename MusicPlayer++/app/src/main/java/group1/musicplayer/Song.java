@@ -47,7 +47,7 @@ public class Song implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeStringArray(new String[]{String.valueOf(this.id),this.artist,this.title});
+        dest.writeStringArray(new String[]{String.valueOf(this.id),this.title,this.artist});
     }
     public static final Parcelable.Creator<Song> CREATOR = new Parcelable.Creator<Song>(){
         @Override

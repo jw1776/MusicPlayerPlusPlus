@@ -1,7 +1,6 @@
 package group1.musicplayer;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.provider.MediaStore;
 import android.os.Bundle;
@@ -13,8 +12,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-
-import java.util.Random;
 
 import android.net.Uri;
 import android.content.ContentResolver;
@@ -38,7 +35,7 @@ import android.os.Bundle;
 
 public class MainActivity extends Activity implements MediaPlayerControl {
 
-    private static ArrayList<Song> songList;
+    private static ArrayList<Song> songList, audioList;
     private static ArrayList<Playlist> playlistArray;
     private ArrayList<Song> searchList;
     private ArrayList<Integer> searchIndex;
@@ -52,7 +49,6 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private boolean paused = false; //true if activity is in onPause state
     private boolean playbackPaused = false;
     private AlertDialog.Builder dialogBuilder;
-    private ArrayList<String> audioList = null;
 
     ActionBar.Tab songTab, artistTab, albumTab, playlistTab;
     Fragment songTabFragment = new SongTabFragment();
@@ -66,6 +62,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         setContentView(R.layout.activity_main);
 
         songList = new ArrayList<Song>();
+        audioList = new ArrayList<Song>();
         getSongList(); //fill the array with all songs
         removeDuplicates();
         sortSongsByTitle();
@@ -195,51 +192,9 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     private void beginAudioActivity(){
 
-        ProgressDialog loading= new ProgressDialog(this);
-        loading.setTitle("Loading");
-        loading.setMessage("Please wait...");
-        loading.show();
-
-        AudioSearcher searcher = new AudioSearcher();
-        searcher.createAudioList();
-        loading.dismiss();
-
-        //the list of all audio files that are not in the songList, ie voice recordings, ringtones, etc
-        ArrayList<String> filteredList = filterAudio(searcher.getAudioTitleList());
-
         Intent i = new Intent(this, Audio.class);
-        i.putStringArrayListExtra("filteredAudioList", filteredList);
+        i.putExtra("filteredAudioList", audioList);
         startActivityForResult(i, 1);
-    }
-
-    //converts the additional audio files, that the user selected, into Song objects
-    public ArrayList<Song> convertAudioToSongs(){
-
-        if(audioList == null) {//by default it is null
-            return null;
-        }
-        ArrayList<Song> songs = new ArrayList<Song>();
-        Random random = new Random();
-        String title, artist;
-        long id;
-
-        for(int i = 0; i < audioList.size(); i++){
-
-            //split the title and artist based on -
-            String[] split = audioList.get(i).split(" - ");
-
-            if(split.length == 1){//there is no '-' to distinguish artist and title
-                artist = "unknown artist";
-                title = split[0];
-            }
-            else {
-                artist = split[0];
-                title = split[1];
-            }
-            id = Math.abs(random.nextLong());//create a positive random id number
-            songs.add(new Song(id, title, artist));
-        }
-        return songs;
     }
 
     //add the new songs to the default list
@@ -262,31 +217,11 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         songList = new ArrayList<Song>(map.values());
     }
 
-    //filter out any songs that already exist in the main player if it is found in the audio list
-    private ArrayList<String> filterAudio(ArrayList<String> audioTitleList) {
-
-       // System.out.println("Filtering list...");
-        for (int i = 0; i < songList.size(); i++) {
-            for (int j = 1; j < audioTitleList.size(); j++) {
-                 //System.out.println("Comparing: " + songList.get(i).getTitle() + " and "
-                  //  + songList.get(i).getArtist() + "   with : " + audioTitleList.get(j).toString());
-                if (audioTitleList.get(j).contains(songList.get(i).getTitle())) {//check if titles match
-                    audioTitleList.remove(audioTitleList.get(j).toString());
-                   // break;
-                }
-            }
-        }
-        return audioTitleList;
-    }
-
     public void getSongList() {
 
         ContentResolver musicResolver = getContentResolver();
         Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
 
-        //ONLY include actual music files
-        //Some audio may be explicitly marked as not being music
-        String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         String[] musicContents = {
                 MediaStore.Audio.Media._ID,
                 MediaStore.Audio.Media.ARTIST,
@@ -295,28 +230,54 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 MediaStore.Audio.Media.DISPLAY_NAME,
                 MediaStore.Audio.Media.DURATION
         };
+
+        createList(musicResolver, musicUri, musicContents, " != 0", songList);
+        createList(musicResolver, musicUri, musicContents, " == 0", audioList);
+        //left off here: add the audioList to the audio serach thing
+
+        System.out.println("THE ENTIRE SONG LIST: ");
+        for(int i = 0; i < songList.size(); i++)
+            System.out.println(songList.get(i).toString());
+        System.out.println("THE ENTIRE audio LIST: ");
+        for(int i = 0; i < audioList.size(); i++)
+            System.out.println(audioList.get(i).toString());
+
+    }// end getSongList() function
+
+    //create a list of Song objects for actual song files vs audio files (voice recordings and stuff)
+    private void createList(ContentResolver musicResolver, Uri musicUri, String[] musicContents,
+                            String type, ArrayList<Song> list){
+
+        //the type determines if its a song or not. if != 0 its an actual song, if == 0 its not a song
+        String selection = MediaStore.Audio.Media.IS_MUSIC + type;
+
+        if(!type.equals(" == 0")) {//its not an actual music file
+            musicContents = null;
+        }
+
         Cursor musicCursor = musicResolver.query(
                 musicUri,
                 musicContents,
-                selection,
+                selection,//selection for music only, null for everything
                 null,
                 null);
 
         if (musicCursor != null && musicCursor.moveToFirst()) {
+
             int titleColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.TITLE);
             int idColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media._ID);
             int artistColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ARTIST);
 
-            do { //add all songs to the songList array
+            do { //add the Song objects to the appropriate list: songList or audioList
                 long thisId = musicCursor.getLong(idColumn);
                 String thisTitle = musicCursor.getString(titleColumn);
                 String thisArtist = musicCursor.getString(artistColumn);
-                songList.add(new Song(thisId, thisTitle, thisArtist));
+                list.add(new Song(thisId, thisTitle, thisArtist));
             }
             while (musicCursor.moveToNext()); //while there are still items left
-        }//end if
+        }
+    }
 
-    }// end getSongList() function
 
     public static ArrayList<Song> getSongArray(){ //for use in SongTabFragment
         return songList;
@@ -330,6 +291,10 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             playbackPaused = false;
         }
         controller.show(0);
+    }
+
+    public void artistPicked(View view){
+
     }
     // Methods below this point handle the MediaController
     private void setController(){
@@ -415,17 +380,14 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
         if (resultCode == RESULT_OK) {
 
-            audioList = data.getStringArrayListExtra("additionalSongs");
-            //LINK THE AUDIO FILES WITH THE PATH OF THE ACTUAL SONG
-            //left off here**************************************************************************
+            ArrayList<String> audioListString = data.getStringArrayListExtra("additionalSongs");
 
-
-            //convert the audioList to a list songList
-            ArrayList<Song> additionalSongs = convertAudioToSongs();
+            //find the Song objects that where added
+            ArrayList<Song> additionalSongs = findAdditionalSongs(audioListString);
             if(additionalSongs != null) {
                 addAdditionalSongs(additionalSongs);//add the additional songs to the main list
                 sortSongsByTitle();
-                System.out.println("\n.\n.\n.UPDATING THE SCREEEEEEEEEEEEEEEEN");
+              //  System.out.println("\n.\n.\n.UPDATING THE SCREEEEEEEEEEEEEEEEN");
                 songTabFragment = new SongTabFragment();//update the list on the screen
                 songTab.setTabListener(new TabListener(songTabFragment));
             }
@@ -441,6 +403,23 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             controller.show(0);
         }
     }
+
+    private ArrayList<Song> findAdditionalSongs(ArrayList<String> additionalListString){
+
+        ArrayList<Song> additionalSongs = new ArrayList<Song>();
+
+        for(int i = 0; i < additionalListString.size(); i++){
+            for(int j = 0; j < audioList.size(); j++){
+                if(audioList.get(j).toString().equals(additionalListString.get(i))){
+                   // System.out.println("additional found: " + audioList.get(i).toString());
+                    additionalSongs.add(audioList.remove(j));
+                    break;
+                }
+            }
+        }
+        return additionalSongs;
+    }
+
     //MediaPlayerControl interface methods
     @Override
     public void start() {
