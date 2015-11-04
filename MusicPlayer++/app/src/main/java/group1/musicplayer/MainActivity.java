@@ -16,6 +16,7 @@ import java.util.HashMap;
 import android.net.Uri;
 import android.content.ContentResolver;
 import android.database.Cursor;
+import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.os.IBinder;
