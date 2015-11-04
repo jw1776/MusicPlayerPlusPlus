@@ -235,34 +235,47 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 MediaStore.Audio.Media.DURATION
         };
 
-        createList(musicResolver, musicUri, musicContents, " != 0", songList);
-        createList(musicResolver, musicUri, musicContents, " == 0", audioList);
-        //left off here: add the audioList to the audio serach thing
+        ArrayList<Song> ringtones = new ArrayList<Song>();
+        ArrayList<Song> notifications = new ArrayList<Song>();
 
-        System.out.println("THE ENTIRE SONG LIST: ");
-        for(int i = 0; i < songList.size(); i++)
-            System.out.println(songList.get(i).toString());
-        System.out.println("THE ENTIRE audio LIST: ");
-        for(int i = 0; i < audioList.size(); i++)
-            System.out.println(audioList.get(i).toString());
+        //create 4 separate lists of: songs only, ringtones only, notifications only, list of everything
+        createList(musicResolver, musicUri, musicContents, MediaStore.Audio.Media.IS_MUSIC + " != 0", songList);
+        createList(musicResolver, musicUri, musicContents, MediaStore.Audio.Media.IS_RINGTONE + " != 0", ringtones);
+        createList(musicResolver, musicUri, musicContents, MediaStore.Audio.Media.IS_NOTIFICATION + " != 0", notifications);
+        createList(musicResolver, musicUri, musicContents, null, audioList);//default audio consists of everything
 
-    }// end getSongList() function
+        filterOut(songList);
+        filterOut(ringtones);
+        filterOut(notifications);
+    }
+
+    //filter out nonsense (ie songs, ringtones and notications) from audioList,
+    // which will consist of everything else, such as voice recordings
+    private void filterOut(ArrayList<Song> nonsense){
+
+        for(int i = 0; i < audioList.size(); i++){
+            for(int j = 0; j < nonsense.size(); j++){
+                if(audioList.get(i).toString().equals(nonsense.get(j).toString())){
+                    audioList.remove(i);
+                }
+            }
+        }
+    }
+
+    private void printList(ArrayList<Song> list){//for debugging
+
+        for(int i = 0; i < list.size(); i++)
+            System.out.println(list.get(i).toString());
+    }
 
     //create a list of Song objects for actual song files vs audio files (voice recordings and stuff)
     private void createList(ContentResolver musicResolver, Uri musicUri, String[] musicContents,
-                            String type, ArrayList<Song> list){
-
-        //the type determines if its a song or not. if != 0 its an actual song, if == 0 its not a song
-        String selection = MediaStore.Audio.Media.IS_MUSIC + type;
-
-        if(!type.equals(" == 0")) {//its not an actual music file
-            musicContents = null;
-        }
+                            String selection, ArrayList<Song> list){
 
         Cursor musicCursor = musicResolver.query(
                 musicUri,
                 musicContents,
-                selection,//selection for music only, null for everything
+                selection,
                 null,
                 null);
 
