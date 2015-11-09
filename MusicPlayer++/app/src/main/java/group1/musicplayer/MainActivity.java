@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -245,45 +246,38 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         createList(musicResolver, musicUri, musicContents, MediaStore.Audio.Media.IS_NOTIFICATION + " != 0", notifications);
         createList(musicResolver, musicUri, musicContents, null, audioList);//default audio consists of everything
         //MediaStore.Audio.Media.IS_PODCAST != 0
-        filterOut(songList);
-        filterOut(ringtones);
-        filterOut(notifications);
+
+        HashMap<String, Song> map = new HashMap<String, Song>();
+        addListToMap(audioList, map);
+        removeNonsenseFromMap(songList, map);
+        removeNonsenseFromMap(ringtones, map);
+        removeNonsenseFromMap(notifications, map);
+
+        //left off here. add shit to the additional if it also contains the key word unknown for title
+        audioList = new ArrayList<Song>(map.values());
+       // System.out.println("audio list after swag " + audioList.size());
+    //    printList(audioList);
+
     }
 
-    //filter out nonsense (ie songs, ringtones and notications) from audioList,
-    // which will consist of everything else, such as voice recordings
-    private void filterOut(ArrayList<Song> nonsense){
+    private void addListToMap(ArrayList<Song> list, HashMap<String, Song> map){
 
-//        printList(audioList);
-//        System.out.println("ANDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
-//        printList(nonsense);
-//        System.out.println("-------------------------------------------------");
+        //add all of the song items to a map, to remove the duplicates
+        for(int i = 0; i < list.size(); i++) {
+            if(!map.containsKey(list.get(i).toString()))//toString is the artist and title
+                map.put(list.get(i).toString(), list.get(i));
+        }
+    }
 
-        ArrayList<Song> duplicates = new ArrayList<Song>();
+    private void removeNonsenseFromMap(ArrayList<Song> list, HashMap<String, Song> map){
 
-        for(int i = 0; i < audioList.size(); i++){
-          //  System.out.println("seaching............");
-            for(int j = 0; j < nonsense.size(); j++){
-                if(audioList.get(i).toString().equals(nonsense.get(j).toString())){
-                    duplicates.add(audioList.get(i));
-                }
+       // System.out.println("BEORE REMOVE: " + map.size() + " *****************************");
+        for(int i = 0; i < list.size(); i++){
+            if(map.containsKey(list.get(i).toString())) {
+                map.remove(list.get(i).toString());
             }
         }
-
-        for(int i = 0; i < duplicates.size(); i++){
-         //   System.out.println("deleting............"  + i);
-            if(audioList.contains(duplicates.get(i)))
-                audioList.remove(duplicates.get(i));
-        }
-    }
-
-    private ArrayList<Song> copyArray(ArrayList<Song> list){
-
-        ArrayList<Song> copy = new ArrayList<Song>();
-
-        for(int i = 0; i < list.size(); i++)
-            copy.add(list.get(i));
-        return copy;
+      //  System.out.println("after REMOVE: " + map.size() + " *****************************");
     }
 
     private void printList(ArrayList<Song> list){//for debugging
