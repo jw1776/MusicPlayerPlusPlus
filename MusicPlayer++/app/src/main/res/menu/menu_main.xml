@@ -18,7 +18,7 @@
         android:title="Search" />
 
     <item android:id="@+id/folder_button"
-        android:icon="@drawable/play"
+        android:icon="@drawable/plus"
         android:orderInCategory="3"
         android:showAsAction="always"
         android:title="Select Folder"/>

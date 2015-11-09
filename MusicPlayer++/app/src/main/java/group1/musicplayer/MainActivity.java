@@ -244,7 +244,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         createList(musicResolver, musicUri, musicContents, MediaStore.Audio.Media.IS_RINGTONE + " != 0", ringtones);
         createList(musicResolver, musicUri, musicContents, MediaStore.Audio.Media.IS_NOTIFICATION + " != 0", notifications);
         createList(musicResolver, musicUri, musicContents, null, audioList);//default audio consists of everything
-
+        //MediaStore.Audio.Media.IS_PODCAST != 0
         filterOut(songList);
         filterOut(ringtones);
         filterOut(notifications);
@@ -254,13 +254,36 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     // which will consist of everything else, such as voice recordings
     private void filterOut(ArrayList<Song> nonsense){
 
+//        printList(audioList);
+//        System.out.println("ANDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
+//        printList(nonsense);
+//        System.out.println("-------------------------------------------------");
+
+        ArrayList<Song> duplicates = new ArrayList<Song>();
+
         for(int i = 0; i < audioList.size(); i++){
+          //  System.out.println("seaching............");
             for(int j = 0; j < nonsense.size(); j++){
                 if(audioList.get(i).toString().equals(nonsense.get(j).toString())){
-                    audioList.remove(i);
+                    duplicates.add(audioList.get(i));
                 }
             }
         }
+
+        for(int i = 0; i < duplicates.size(); i++){
+         //   System.out.println("deleting............"  + i);
+            if(audioList.contains(duplicates.get(i)))
+                audioList.remove(duplicates.get(i));
+        }
+    }
+
+    private ArrayList<Song> copyArray(ArrayList<Song> list){
+
+        ArrayList<Song> copy = new ArrayList<Song>();
+
+        for(int i = 0; i < list.size(); i++)
+            copy.add(list.get(i));
+        return copy;
     }
 
     private void printList(ArrayList<Song> list){//for debugging
@@ -341,6 +364,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             playbackPaused = false;
         }
         controller.show(0);
+
     }
 
     protected void playPrev() {
