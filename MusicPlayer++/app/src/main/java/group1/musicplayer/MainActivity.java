@@ -234,7 +234,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 MediaStore.Audio.Media.TITLE,
                 MediaStore.Audio.Media.DATA,
                 MediaStore.Audio.Media.DISPLAY_NAME,
-                MediaStore.Audio.Media.DURATION
+                MediaStore.Audio.Media.DURATION,
+                MediaStore.Audio.Media.ALBUM
         };
 
         ArrayList<Song> ringtones = new ArrayList<Song>();
@@ -309,6 +310,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 String thisTitle = musicCursor.getString(titleColumn);
                 String thisArtist = musicCursor.getString(artistColumn);
                 String thisAlbum = musicCursor.getString(albumColumn);
+
                 list.add(new Song(thisId, thisTitle, thisArtist, thisAlbum));
             }
             while (musicCursor.moveToNext()); //while there are still items left
