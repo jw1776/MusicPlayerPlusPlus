@@ -302,12 +302,14 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             int titleColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.TITLE);
             int idColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media._ID);
             int artistColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ARTIST);
+            int albumColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ALBUM);
 
             do { //add the Song objects to the appropriate list: songList or audioList
                 long thisId = musicCursor.getLong(idColumn);
                 String thisTitle = musicCursor.getString(titleColumn);
                 String thisArtist = musicCursor.getString(artistColumn);
-                list.add(new Song(thisId, thisTitle, thisArtist));
+                String thisAlbum = musicCursor.getString(albumColumn);
+                list.add(new Song(thisId, thisTitle, thisArtist, thisAlbum));
             }
             while (musicCursor.moveToNext()); //while there are still items left
         }
@@ -328,6 +330,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
 
     public void artistPicked(View view){
+        String artistChoice = view.getTag().toString();
 
     }
     // Methods below this point handle the MediaController

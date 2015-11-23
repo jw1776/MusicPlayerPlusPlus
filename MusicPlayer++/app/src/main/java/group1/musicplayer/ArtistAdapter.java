@@ -47,7 +47,7 @@ public class ArtistAdapter extends BaseAdapter {
 
         String thisArtist = artistArray.get(position);
         nameView.setText(thisArtist); //pass artist name string to textView objects in each list item
-        listLayout.setTag(position); //use the artists position in list as a tag
+        listLayout.setTag(thisArtist); //use the artists name as a tag
 
         return listLayout;
     }
