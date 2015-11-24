@@ -337,7 +337,9 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
     // Methods below this point handle the MediaController
     private void setController(){
-        controller = new MusicController(this);
+        if (controller == null) controller = new MusicController(this);
+
+        //controller = new MusicController(this);
 
         controller.setPrevNextListeners(new View.OnClickListener() {
             @Override
