@@ -55,6 +55,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private boolean playbackPaused = false;
     private static boolean userAction = false;
     private AlertDialog.Builder dialogBuilder;
+    private static int lastKnownDuration = 0;
+    private static int lastKnownPosition = 0;
 
     ActionBar.Tab songTab, artistTab, albumTab, playlistTab;
     Fragment songTabFragment = new SongTabFragment();
@@ -505,16 +507,19 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     @Override
     public int getDuration() {
-        if(musicServiceObject!=null && musicBound && userAction){ //make sure MusicService is instantiated and bound to this activity
-            return musicServiceObject.getDur();
-        } else return 0;
+        if(musicServiceObject!=null && musicBound && musicServiceObject.isPng()){ //make sure MusicService is instantiated and bound to this activity
+            lastKnownDuration = musicServiceObject.getDur();
+            return lastKnownDuration;
+
+        } else return lastKnownDuration;
     }
 
     @Override
     public int getCurrentPosition() {
-        if(musicServiceObject!=null && musicBound && userAction){
-            return musicServiceObject.getPosn();
-        } else return 0;
+        if(musicServiceObject!=null && musicBound && musicServiceObject.isPng()){
+            lastKnownPosition = musicServiceObject.getPosn();
+            return lastKnownPosition;
+        } else return lastKnownPosition;
     }
 
     @Override
