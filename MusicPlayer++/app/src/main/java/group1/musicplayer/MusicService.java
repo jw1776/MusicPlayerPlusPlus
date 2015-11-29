@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.app.Service;
 import java.util.Random;
@@ -96,6 +97,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
         startForeground(NOTIFY_ID, not);
 
+        // Broadcast intent to activity to let it know the media player has been prepared
+        Intent onPreparedIntent = new Intent("MEDIA_PLAYER_PREPARED");
+        LocalBroadcastManager.getInstance(this).sendBroadcast(onPreparedIntent);
+
     }
 
     public void setSong(int songIndex){
@@ -142,10 +147,11 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     public void playNext(){
-        songPosition++;
-        if(songPosition>=songArray.size()) songPosition = 0; //wrap around
-        playSong();
+            songPosition++;
+            if (songPosition >= songArray.size()) songPosition = 0; //wrap around
+            playSong();
     }
+
 // Methods below parallel MediaController actions
     public int getPosn(){
         return player.getCurrentPosition();

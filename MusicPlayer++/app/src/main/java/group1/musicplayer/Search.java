@@ -93,6 +93,7 @@ public class Search extends Activity {
         return super.onOptionsItemSelected(item);
     }
     public void songPicked(View view){ //executes when an item in the ListView is clicked. Defined in xml
+        MainActivity.setUserAction();
         int picked = searchIndex.get(Integer.parseInt(view.getTag().toString()));
         Intent output = new Intent();
         output.putExtra("searchChoice", picked);

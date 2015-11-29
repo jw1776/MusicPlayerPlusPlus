@@ -1,9 +1,12 @@
 package group1.musicplayer;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
+import android.content.IntentFilter;
 import android.provider.MediaStore;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -50,6 +53,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private MusicController controller;
     private boolean paused = false; //true if activity is in onPause state
     private boolean playbackPaused = false;
+    private static boolean userAction = false;
     private AlertDialog.Builder dialogBuilder;
 
     ActionBar.Tab songTab, artistTab, albumTab, playlistTab;
@@ -127,6 +131,17 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         }
     };
 
+    // Broadcast receiver to determine when music player has been prepared
+    private BroadcastReceiver onPrepareReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context c, Intent i) {
+            // When music player has been prepared, show controller
+            if(userAction){
+                controller.show(0);
+            }
+        }
+    };
+
     @Override
     protected void onStart(){
         super.onStart();
@@ -148,10 +163,25 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     @Override
     protected void onResume(){
         super.onResume();
+
+        // Set up receiver for media player onPrepared broadcast
+        LocalBroadcastManager.getInstance(this).registerReceiver(onPrepareReceiver,
+                new IntentFilter("MEDIA_PLAYER_PREPARED"));
+
         if(paused){
             setController(); //needed for controller to display upon returning to the app
             paused = false;
         }
+        findViewById(R.id.activity_main).post(new Runnable() { //defer showing the controller until all lifecycle methods are called
+            public void run() {
+
+                if(userAction){
+                    controller.show(0);
+                }
+
+            }
+        });
+
     }
 
     @Override
@@ -322,13 +352,14 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
 
     public void songPicked(View view){ //executes when an item in the ListView is clicked. Defined in xml
+        userAction = true;
         musicServiceObject.setSong(Integer.parseInt(view.getTag().toString()));
         musicServiceObject.playSong();
-        if(playbackPaused){
-            setController();
-            playbackPaused = false;
-        }
-        controller.show(0);
+        //if(playbackPaused){
+        //    setController();
+        //    playbackPaused = false;
+        //}
+        //controller.show(0);
     }
 
     public void artistPicked(View view){
@@ -360,21 +391,21 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     protected void playNext(){ //called above by the Controller's onClick methods
         musicServiceObject.playNext();
-        if(playbackPaused){
-            setController();
-            playbackPaused = false;
-        }
-        controller.show(0);
+        //if(playbackPaused){
+        //    setController();
+        //    playbackPaused = false;
+        //}
+        //controller.show(0);
 
     }
 
     protected void playPrev() {
         musicServiceObject.playPrev();
-        if(playbackPaused){
-            setController();
-            playbackPaused = false;
-        }
-        controller.show(0);
+        //if(playbackPaused){
+        //    setController();
+        //    playbackPaused = false;
+        //}
+        //controller.show(0);
     }
 
     private void search(){
@@ -428,11 +459,11 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         if (requestCode == 1 && resultCode == 1 && data != null) {
             musicServiceObject.setSong(data.getIntExtra("searchChoice",-1));
             musicServiceObject.playSong();
-            if(playbackPaused){
-                setController();
-                playbackPaused = false;
-            }
-            controller.show(0);
+            //if(playbackPaused){
+            //    setController();
+            //    playbackPaused = false;
+            //}
+            //controller.show(0);
         }
     }
 
@@ -452,6 +483,14 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         return additionalSongs;
     }
 
+    public static void setUserAction() {
+        userAction = true;
+    }
+
+    public static boolean getUserAction() {
+        return userAction;
+    }
+
     //MediaPlayerControl interface methods
     @Override
     public void start() {
@@ -466,14 +505,14 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     @Override
     public int getDuration() {
-        if(musicServiceObject!=null && musicBound && musicServiceObject.isPng()){ //make sure MusicService is instantiated and bound to this activity
+        if(musicServiceObject!=null && musicBound && userAction){ //make sure MusicService is instantiated and bound to this activity
             return musicServiceObject.getDur();
         } else return 0;
     }
 
     @Override
     public int getCurrentPosition() {
-        if(musicServiceObject!=null && musicBound && musicServiceObject.isPng()){
+        if(musicServiceObject!=null && musicBound && userAction){
             return musicServiceObject.getPosn();
         } else return 0;
     }
