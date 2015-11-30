@@ -42,6 +42,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     private static ArrayList<Song> songList, audioList;
     private static ArrayList<Playlist> playlistArray;
+    private static ArrayList<Artist> artistArray;
+    private static ArrayList<Album> albumArray;
     private ArrayList<Song> searchList;
     private ArrayList<Integer> searchIndex;
     private boolean searching;
@@ -71,9 +73,27 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
         songList = new ArrayList<Song>();
         audioList = new ArrayList<Song>();
+        artistArray = new ArrayList<Artist>();
+
         getSongList(); //fill the array with all songs
         removeDuplicates();
         sortSongsByTitle();
+
+        populateArtistArray();
+        sortArtistsByTitle();
+
+        //For testing purposes, do not remove
+        /*
+        for(int p = 0; p < artistArray.size(); p++){
+            System.out.println("ARTIST: " + artistArray.get(p).getTitle());
+            for(int i = 0; i < artistArray.get(p).getAlbums().size(); i++){
+                System.out.println("ALBUM: " + artistArray.get(p).getAlbums().get(i).getTitle());
+                for (int j = 0; j < artistArray.get(p).getAlbums().get(i).getSongs().size(); j++){
+                    System.out.println("SONG: " + artistArray.get(p).getAlbums().get(i).getSongs().get(j).getTitle());
+                }
+            }
+        }
+        */
 
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowHomeEnabled(false); //hide icon
@@ -109,13 +129,43 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
         Collections.sort(songList, new Comparator<Song>() {
             public int compare(Song a, Song b) {
-                return a.getTitle().compareTo(b.getTitle());
+                return a.getTitle().compareToIgnoreCase(b.getTitle());
             }
         });
 
-        //   SongAdapter theAdapter = new SongAdapter(this, songList);
-        //    songView.setAdapter(theAdapter); //pass the ListView object the appropriate adapter
     }
+
+    private void sortArtistsByTitle(){
+
+        Collections.sort(artistArray, new Comparator<Artist>() {
+            public int compare(Artist a, Artist b) {
+                return a.getTitle().compareToIgnoreCase(b.getTitle());
+            }
+        });
+
+    }
+
+    private void populateArtistArray(){
+        //populate artistArray from the songList
+        for(int i = 0; i < songList.size(); i++){
+            String thisArtist = songList.get(i).getArtist();
+            boolean artistFound = false;
+
+            for(int j = 0; j < artistArray.size(); j++){
+                if(artistArray.get(j).getTitle().equalsIgnoreCase(thisArtist)){     //if the artist already exists in our array
+                    artistFound = true;
+                    artistArray.get(j).addSong(songList.get(i));        //add this song to the artist's array of songs
+                    break;
+                }
+            }// inner for
+            if(!artistFound){   //if the artist was not found in the array
+                Artist newArtist = new Artist(thisArtist);
+                newArtist.addSong(songList.get(i));
+                artistArray.add(newArtist);
+            }
+        }// outer for
+    }
+
     private ServiceConnection musicConnection = new ServiceConnection(){ //connect to service, create ServiceConnection object
 
         @Override
@@ -267,7 +317,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 MediaStore.Audio.Media.DATA,
                 MediaStore.Audio.Media.DISPLAY_NAME,
                 MediaStore.Audio.Media.DURATION,
-                MediaStore.Audio.Media.ALBUM
+                MediaStore.Audio.Media.ALBUM,
+                MediaStore.Audio.Media.ALBUM_ID
         };
 
         ArrayList<Song> ringtones = new ArrayList<Song>();
@@ -336,14 +387,16 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             int idColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media._ID);
             int artistColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ARTIST);
             int albumColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ALBUM);
+            int albumIdColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ALBUM_ID);
 
             do { //add the Song objects to the appropriate list: songList or audioList
                 long thisId = musicCursor.getLong(idColumn);
                 String thisTitle = musicCursor.getString(titleColumn);
                 String thisArtist = musicCursor.getString(artistColumn);
                 String thisAlbum = musicCursor.getString(albumColumn);
+                long thisAlbumId = musicCursor.getLong(albumIdColumn);
 
-                list.add(new Song(thisId, thisTitle, thisArtist, thisAlbum));
+                list.add(new Song(thisId, thisTitle, thisArtist, thisAlbum, thisAlbumId));
             }
             while (musicCursor.moveToNext()); //while there are still items left
         }

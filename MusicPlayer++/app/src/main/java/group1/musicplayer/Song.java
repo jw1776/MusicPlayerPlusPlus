@@ -11,12 +11,14 @@ public class Song implements Parcelable {
     private String title;
     private String artist;
     private String album;
+    private long albumId;
 
-    public Song(long songID, String songTitle, String songArtist, String songAlbum){
+    public Song(long songID, String songTitle, String songArtist, String songAlbum, long songAlbumId){
         id=songID;
         title=songTitle;
         artist=songArtist;
         album=songAlbum;
+        albumId=songAlbumId;
     }
     public Song(Parcel in){
         String [] data = new String[3];
@@ -43,6 +45,10 @@ public class Song implements Parcelable {
     }
 
     public String getAlbum() { return album; }
+
+    public long getAlbumId(){
+        return albumId;
+    }
 
     @Override
     public int describeContents() {

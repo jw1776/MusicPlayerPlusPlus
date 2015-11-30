@@ -8,19 +8,24 @@ import java.util.ArrayList;
  */
 public class Album {
     private String title;
+    private long id;
     private String artist;
     private Bitmap coverArt;
     private ArrayList<Song> albumSongs;
 
-    public void Album (String albumTitle, String albumArtist, Bitmap albumCoverArt) {
+    public Album (String albumTitle, long albumId, String albumArtist) {
         title = albumTitle;
+        id = albumId;
         artist = albumArtist;
-        coverArt = albumCoverArt;
         albumSongs = new ArrayList<Song>();
     }
 
     public String getTitle() {
         return title;
+    }
+
+    public long getId(){
+        return id;
     }
 
     public String getArtist() {
@@ -29,6 +34,10 @@ public class Album {
 
     public Bitmap getCoverArt() {
         return coverArt;
+    }
+
+    public void setCoverArt(Bitmap art){
+        coverArt = art;
     }
 
     public ArrayList<Song> getSongs() {
