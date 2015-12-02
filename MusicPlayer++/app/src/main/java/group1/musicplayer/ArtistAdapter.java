@@ -14,10 +14,10 @@ import android.widget.TextView;
  */
 public class ArtistAdapter extends BaseAdapter {
 
-    private ArrayList<String> artistArray;
+    private ArrayList<Artist> artistArray;
     private LayoutInflater artistInf;
 
-    public ArtistAdapter(Context c, ArrayList<String> grabbedArtistArray){
+    public ArtistAdapter(Context c, ArrayList<Artist> grabbedArtistArray){
         artistArray = grabbedArtistArray;
         artistInf = LayoutInflater.from(c);
     }
@@ -45,9 +45,9 @@ public class ArtistAdapter extends BaseAdapter {
         //layout for each individual artist in the list uses artist.xml
         TextView nameView = (TextView)listLayout.findViewById(R.id.artist_name);
 
-        String thisArtist = artistArray.get(position);
+        String thisArtist = artistArray.get(position).getTitle();
         nameView.setText(thisArtist); //pass artist name string to textView objects in each list item
-        listLayout.setTag(thisArtist); //use the artists name as a tag
+        listLayout.setTag(position); //use the artists position as a tag
 
         return listLayout;
     }

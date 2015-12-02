@@ -5,6 +5,30 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <LinearLayout
+        android:id="@+id/header_layout"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:background="@android:color/darker_gray"
+        android:layout_width="fill_parent"
+        android:layout_height="48dp">
+        <Button
+            android:id="@+id/back_button"
+            android:text="Back"
+            android:onClick="backButton_artistTab"
+            android:layout_width="64dp"
+            android:layout_height="fill_parent" />
+        <TextView
+            android:id="@+id/header"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:text=""
+            android:textSize="20sp"
+            android:textColor="@android:color/black"
+            android:gravity="center" />
+    </LinearLayout>
+
+
     <ListView
         android:id="@+id/artist_list"
         android:layout_width="fill_parent"

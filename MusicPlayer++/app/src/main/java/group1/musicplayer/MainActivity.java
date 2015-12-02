@@ -80,7 +80,6 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         sortSongsByTitle();
 
         populateArtistArray();
-        sortArtistsByTitle();
 
         //For testing purposes, do not remove
         /*
@@ -96,8 +95,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         */
 
         ActionBar actionBar = getActionBar();
-        actionBar.setDisplayShowHomeEnabled(false); //hide icon
-        actionBar.setDisplayShowTitleEnabled(true); //show title
+        actionBar.setDisplayShowHomeEnabled(true); //hide icon
+        actionBar.setDisplayShowTitleEnabled(false); //show title
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
         //Create and set the names for each tab
@@ -164,6 +163,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 artistArray.add(newArtist);
             }
         }// outer for
+        sortArtistsByTitle();
     }
 
     private ServiceConnection musicConnection = new ServiceConnection(){ //connect to service, create ServiceConnection object
@@ -406,6 +406,10 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         return songList;
     }
 
+    public static ArrayList<Artist> getArtistArray() {
+        return artistArray;
+    }
+
     public void songPicked(View view){ //executes when an item in the ListView is clicked. Defined in xml
         userAction = true;
         musicServiceObject.setSong(Integer.parseInt(view.getTag().toString()));
@@ -418,9 +422,30 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
 
     public void artistPicked(View view){
-        String artistChoice = view.getTag().toString();
-
+        int artistPosition = (int) view.getTag();
+        ArtistTabFragment.showAlbums(artistArray.get(artistPosition).getAlbums());
     }
+
+    public void albumPicked_artistTab(View view){
+        int albumPosition = (int) view.getTag();
+        ArtistTabFragment.showSongs(albumPosition);
+    }
+
+    public void songPicked_artistTab(View view){
+        userAction = true;
+        long song_id = (long) view.getTag();
+        for(int i= 0; i < songList.size(); i++){
+            if(song_id == songList.get(i).getID()){
+                musicServiceObject.setSong(i);
+            }
+        }
+        musicServiceObject.playSong();
+    }
+
+    public void backButton_artistTab(View view){
+        ArtistTabFragment.backButtonPressed();
+    }
+
     // Methods below this point handle the MediaController
     private void setController(){
         if (controller == null) controller = new MusicController(this);

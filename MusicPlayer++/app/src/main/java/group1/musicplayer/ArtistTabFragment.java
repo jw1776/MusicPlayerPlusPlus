@@ -11,20 +11,26 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.app.Fragment;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class ArtistTabFragment extends Fragment {
 
-    private Context context;
-    private ArrayList<Song> songList;
-    private List<String> artistList;
-    private ListView artistView;
+    private static Context context;
+    private static ArrayList<Artist> artistList;
+    private static ArrayList<Album> currentAlbumList;
+    private static ArrayList<Song> currentSongList;
+    private static String currentArtist;
+    private static String currentAlbum;
+    private static ListView artistView;
+    private static Button backButton;
+    private static TextView header;
+    private static LinearLayout headerLayout; //contains both the header and the back button
+    private static int mode = 0;  //0 when viewing artists, 1 when viewing albums, 2 when viewing songs
 
     @Override
     public void onAttach(Activity activity) {
@@ -37,34 +43,95 @@ public class ArtistTabFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.artist_tab_layout, container, false);
 
-        songList = MainActivity.getSongArray();
-        artistList = new ArrayList<>();
+        artistList = MainActivity.getArtistArray();
+        artistView = (ListView) rootView.findViewById(R.id.artist_list); //get a reference to the ListView created in artist_tab_layout
+        backButton = (Button) rootView.findViewById(R.id.back_button);
+        header = (TextView) rootView.findViewById(R.id.header);
+        headerLayout = (LinearLayout) rootView.findViewById(R.id.header_layout);
 
-        //add all artists, including duplicates, to artistList
-        for(int i = 0; i < songList.size(); i++){
-            artistList.add(songList.get(i).getArtist());
+        switch(mode){
+            case 0: //Show artists
+                //hide back button and header
+                if(headerLayout.getVisibility() != View.GONE){
+                    headerLayout.setVisibility(View.GONE);
+                }
+                ArtistAdapter artistAdapter = new ArtistAdapter(context, artistList);
+                artistView.setAdapter(artistAdapter); //pass the ListView object the appropriate adapter
+                break;
+            case 1: //Show albums
+                //show header and back button
+                if(headerLayout.getVisibility() != View.VISIBLE){
+                    headerLayout.setVisibility(View.VISIBLE);
+                }
+                header.setText(currentArtist);
+                AlbumAdapter albumAdapter = new AlbumAdapter(context, currentAlbumList);
+                artistView.setAdapter(albumAdapter);
+                break;
+            case 2: //Show songs
+                if(headerLayout.getVisibility() != View.VISIBLE){
+                    headerLayout.setVisibility(View.VISIBLE);
+                }
+                header.setText(currentAlbum);
+                SongAdapter_ArtistTab songAdapter = new SongAdapter_ArtistTab(context, currentSongList);
+                artistView.setAdapter(songAdapter);
+                break;
+            default:
+                break;
         }
 
-        //add the artists to a hash set, which will not allow duplicates
-        Set<String> hs = new HashSet<>();
-        hs.addAll(artistList);
-        //clear artistList and fill it with the contents of the hash set
-        artistList.clear();
-        artistList.addAll(hs);
-
-        // remove null strings
-        for(int i=0; i<artistList.size(); i++){
-            if(artistList.get(i) == null){
-                artistList.remove(i);
-            }
-        }
-
-        Collections.sort(artistList, String.CASE_INSENSITIVE_ORDER); // sort alphabetically, ignoring case
-
-        artistView = (ListView) rootView.findViewById(R.id.artist_list); //get a reference to the ListView created in song_tab_layout
-        ArtistAdapter theAdapter = new ArtistAdapter(context,(ArrayList<String>) artistList);
-        artistView.setAdapter(theAdapter); //pass the ListView object the appropriate adapter
 
         return rootView;
+    }
+
+    public static void showAlbums(ArrayList<Album> albumArrayList){
+        mode = 1;
+        if(headerLayout.getVisibility() != View.VISIBLE){
+            headerLayout.setVisibility(View.VISIBLE);
+        }
+        currentAlbumList = albumArrayList;
+        currentArtist = currentAlbumList.get(0).getArtist();
+        header.setText(currentArtist);
+
+        AlbumAdapter theAdapter = new AlbumAdapter(context, currentAlbumList);
+        artistView.setAdapter(theAdapter);
+
+    }
+
+    public static void showSongs(int albumPosition){
+        mode = 2;
+        if(headerLayout.getVisibility() != View.VISIBLE){
+            headerLayout.setVisibility(View.VISIBLE);
+        }
+        currentAlbum = currentAlbumList.get(albumPosition).getTitle();
+        currentSongList = currentAlbumList.get(albumPosition).getSongs();
+        header.setText(currentAlbum);
+
+        SongAdapter_ArtistTab songAdapter = new SongAdapter_ArtistTab(context, currentSongList);
+        artistView.setAdapter(songAdapter);
+    }
+
+    public static void backButtonPressed(){
+        if(mode == 1){
+            // Go back to artists list
+            if(headerLayout.getVisibility() != View.GONE){
+                headerLayout.setVisibility(View.GONE);
+            }
+            ArtistAdapter artistAdapter = new ArtistAdapter(context, artistList);
+            artistView.setAdapter(artistAdapter); //pass the ListView object the appropriate adapter
+        }else
+        if(mode == 2){
+            //Go back to albums list
+            if(headerLayout.getVisibility() != View.VISIBLE){
+                headerLayout.setVisibility(View.VISIBLE);
+            }
+            header.setText(currentArtist);
+            AlbumAdapter albumAdapter = new AlbumAdapter(context, currentAlbumList);
+            artistView.setAdapter(albumAdapter);
+        }
+        mode--;
+        if(mode < 0){
+            mode = 0;
+        }
+
     }
 }

@@ -2,18 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:onClick="artistPicked"
+    android:onClick="songPicked_artistTab"
     android:orientation="vertical"
-    android:padding ="5dp" >
+    android:padding ="5dp"
+    >
 
     <TextView
-        android:id="@+id/artist_name"
+        android:id="@+id/song_title"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:textColor="#000000"
         android:textSize="20sp"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
         android:paddingLeft="12dp"
         android:paddingRight="12dp"/>
 
