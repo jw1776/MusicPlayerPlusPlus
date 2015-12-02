@@ -29,6 +29,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.view.View;
+
+import fm.last.musicbrainz.data.dao.ArtistDao;
 import group1.musicplayer.MusicService.MusicBinder;
 import android.widget.MediaController.MediaPlayerControl;
 import android.widget.Toast;
@@ -37,6 +39,13 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import fm.last.musicbrainz.data.model.Artist;
 
 public class MainActivity extends Activity implements MediaPlayerControl {
 
@@ -112,6 +121,23 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         actionBar.addTab(artistTab);
         actionBar.addTab(albumTab);
         actionBar.addTab(playlistTab);
+
+        @Component
+        public class ArtistHandler {//https://github.com/lastfm/musicbrainz-data
+
+            private final ArtistDao artistDao;
+
+            @Autowired
+            public ArtistHandler(ArtistDao artistDao) {
+                this.artistDao = artistDao;
+            }
+
+            @Transactional
+            public void process(int id) {
+                Artist artist = artistDao.getById(id);
+                // ...
+            }
+        }
 
         setController(); //initializes the MediaController
     }
