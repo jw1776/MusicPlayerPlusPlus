@@ -30,7 +30,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.view.View;
 
-import fm.last.musicbrainz.data.dao.ArtistDao;
+//import fm.last.musicbrainz.data.dao.ArtistDao;
 import group1.musicplayer.MusicService.MusicBinder;
 import android.widget.MediaController.MediaPlayerControl;
 import android.widget.Toast;
@@ -40,12 +40,12 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 
-
+/*
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import fm.last.musicbrainz.data.model.Artist;
+import fm.last.musicbrainz.data.model.Artist;*/
 
 public class MainActivity extends Activity implements MediaPlayerControl {
 
@@ -122,7 +122,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         actionBar.addTab(albumTab);
         actionBar.addTab(playlistTab);
 
-        @Component
+     /*   @Component
         public class ArtistHandler {//https://github.com/lastfm/musicbrainz-data
 
             private final ArtistDao artistDao;
@@ -137,7 +137,9 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 Artist artist = artistDao.getById(id);
                 // ...
             }
-        }
+
+            https://github.com/lastfm/musicbrainz-data
+        }*/
 
         setController(); //initializes the MediaController
     }
@@ -157,7 +159,6 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 return a.getTitle().compareToIgnoreCase(b.getTitle());
             }
         });
-
     }
 
     private void sortArtistsByTitle(){
@@ -167,7 +168,6 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 return a.getTitle().compareToIgnoreCase(b.getTitle());
             }
         });
-
     }
 
     private void populateArtistArray(){
@@ -256,10 +256,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 if(userAction){
                     controller.show(0);
                 }
-
             }
         });
-
     }
 
     @Override
@@ -393,7 +391,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private void printList(ArrayList<Song> list){//for debugging
 
         for(int i = 0; i < list.size(); i++)
-            System.out.println(list.get(i).toString());
+            System.out.println(list.get(i).toString() + " Album: " + list.get(i).getAlbum());
     }
 
     //create a list of Song objects for actual song files vs audio files (voice recordings and stuff)

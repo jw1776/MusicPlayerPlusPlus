@@ -22,5 +22,5 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:21.0.3'
-    compile 'fm.last:musicbrainz-data:3.1.0'
+    //compile 'fm.last:musicbrainz-data:3.1.0'
 }
