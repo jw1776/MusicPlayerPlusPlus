@@ -13,7 +13,6 @@
         android:layout_height="wrap_content"
         android:textColor="#000000"
         android:textSize="20sp"
-        android:textStyle="bold"
         android:paddingLeft="12dp"
         android:paddingRight="12dp"/>
 
@@ -21,8 +20,8 @@
         android:id="@+id/song_artist"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textColor="#000000"
-        android:textSize="18sp"
+        android:textColor="#717171"
+        android:textSize="14sp"
         android:paddingLeft="12dp"
         android:paddingRight="12dp"/>
 
