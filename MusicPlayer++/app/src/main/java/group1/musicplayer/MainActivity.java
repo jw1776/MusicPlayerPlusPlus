@@ -22,6 +22,7 @@ import android.content.ContentResolver;
 import android.database.Cursor;
 import android.webkit.WebView;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.os.IBinder;
 import android.content.ComponentName;
@@ -33,6 +34,7 @@ import android.view.View;
 //import fm.last.musicbrainz.data.dao.ArtistDao;
 import group1.musicplayer.MusicService.MusicBinder;
 import android.widget.MediaController.MediaPlayerControl;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import android.app.ActionBar;
@@ -58,6 +60,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private boolean searching;
     private String searchTerm;
     private ListView songView;
+    private LinearLayout controller_layout;
+    private static TextView nowPlayingText;
     private MusicService musicServiceObject;
     private Intent playIntent;
     private boolean musicBound = false; //Keeps track of whether or not MainActivity is bound to the MusicService
@@ -74,6 +78,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     Fragment artistTabFragment = new ArtistTabFragment();
     Fragment albumTabFragment = new AlbumTabFragment();
     Fragment playlistTabFragment = new PlaylistTabFragment();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,6 +146,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             https://github.com/lastfm/musicbrainz-data
         }*/
 
+        controller_layout = (LinearLayout)findViewById(R.id.controller_layout);
+        nowPlayingText = (TextView)findViewById(R.id.nowplaying);
         setController(); //initializes the MediaController
     }
 
@@ -165,7 +172,12 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
         Collections.sort(artistArray, new Comparator<Artist>() {
             public int compare(Artist a, Artist b) {
-                return a.getTitle().compareToIgnoreCase(b.getTitle());
+                if (a.getTitle() == null || b.getTitle() == null) { //if either of the artist titles are null
+                    return 0; //return 0, which indicates that the artist are equal
+                }
+                else {
+                    return a.getTitle().compareToIgnoreCase(b.getTitle()); //otherwise compare as normal
+                }
             }
         });
     }
@@ -216,6 +228,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             // When music player has been prepared, show controller
             if(userAction){
                 controller.show(0);
+                controller_layout.setVisibility(View.VISIBLE); //show the media controller after a song has been chosen
             }
         }
     };
@@ -253,8 +266,9 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         findViewById(R.id.activity_main).post(new Runnable() { //defer showing the controller until all lifecycle methods are called
             public void run() {
 
-                if(userAction){
+                if (userAction) {
                     controller.show(0);
+                    controller_layout.setVisibility(View.VISIBLE); //show the media controller after a song has been chosen
                 }
             }
         });
@@ -312,8 +326,9 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     //add the new songs to the default list
     private void addAdditionalSongs(ArrayList<Song> additionalSongs){
 
-        for(int i = 0; i < additionalSongs.size(); i++)
+        for(int i = 0; i < additionalSongs.size(); i++) {
             songList.add(additionalSongs.get(i));
+        }
     }
 
     private void removeDuplicates(){//remove duplicate songs based on artist and title
@@ -457,6 +472,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     public void songPicked_artistTab(View view){
         userAction = true;
+
         long song_id = (long) view.getTag();
         for(int i= 0; i < songList.size(); i++){
             if(song_id == songList.get(i).getID()){
@@ -468,6 +484,10 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     public void backButton_artistTab(View view){
         ArtistTabFragment.backButtonPressed();
+    }
+
+    public static void setNowPlayingText(Song songNowPlaying){
+        nowPlayingText.setText(songNowPlaying.getTitle() + " - " + songNowPlaying.getArtist());
     }
 
     // Methods below this point handle the MediaController
@@ -489,7 +509,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         });
 
         controller.setMediaPlayer(this);
-        controller.setAnchorView(findViewById(R.id.activity_main));
+        controller.setAnchorView(findViewById(R.id.controller_layout));
         controller.setEnabled(true);
     }
 

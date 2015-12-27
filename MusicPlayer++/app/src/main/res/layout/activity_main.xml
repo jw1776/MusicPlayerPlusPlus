@@ -1,7 +1,7 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
 
-    android:id="@+id/activity_main"
+    android:id="@+id/main_full"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:paddingLeft="0dp"
@@ -11,4 +11,47 @@
     tools:context="group1.musicplayer.MainActivity"
     >
 
-</FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/controller_layout"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:background="#c8c8c8"
+        android:layout_width="fill_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_height="wrap_content"
+        >
+        <TextView
+            android:id="@+id/nowplaying"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            android:gravity="center_horizontal|top"
+            android:text="" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="90dp"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+
+        android:id="@+id/activity_main"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:paddingLeft="0dp"
+        android:paddingRight="0dp"
+        android:layout_above="@+id/controller_layout"
+        android:orientation="vertical"
+        android:background="#ffffff"
+        tools:context="group1.musicplayer.MainActivity"
+        >
+    </LinearLayout>
+
+</RelativeLayout>
