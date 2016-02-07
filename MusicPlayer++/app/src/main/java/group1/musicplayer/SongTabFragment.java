@@ -13,6 +13,8 @@ import android.view.ViewGroup;
 import android.app.Fragment;
 import android.widget.ListView;
 
+import java.util.ArrayList;
+
 public class SongTabFragment extends Fragment {
 
     private ListView songView;
@@ -34,6 +36,10 @@ public class SongTabFragment extends Fragment {
         songView.setAdapter(theAdapter); //pass the ListView object the appropriate adapter
 
         return rootView;
+    }
+
+    public void updateAdapterArray(ArrayList<Song> songList) {
+        ((SongAdapter) songView.getAdapter()).setSongs(songList);
     }
 
 }

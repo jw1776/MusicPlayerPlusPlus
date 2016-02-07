@@ -16,10 +16,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Random;
 
 import android.net.Uri;
 import android.content.ContentResolver;
 import android.database.Cursor;
+import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -72,6 +74,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private AlertDialog.Builder dialogBuilder;
     private static int lastKnownDuration = 0;
     private static int lastKnownPosition = 0;
+    private final Random random = new Random();
+    private boolean shuffleOn = false;
 
     ActionBar.Tab songTab, artistTab, albumTab, playlistTab;
     Fragment songTabFragment = new SongTabFragment();
@@ -299,6 +303,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         switch(item.getItemId()) {
             case R.id.action_shuffle:
                 //shuffle
+                toggleShuffle();
+                shuffleSong();
                 break;
             case R.id.action_end:
                 stopService(playIntent);
@@ -316,6 +322,30 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         return super.onOptionsItemSelected(item);
     }
 
+    private void toggleShuffle(){
+        //toggle on or off the shuffle button
+        if(shuffleOn) shuffleOn = false;
+        else shuffleOn = true;
+    }
+
+    //randomly shuffles the next song to play
+    private void shuffleSong(){
+
+        if(shuffleOn){//randomly shuffle the next song
+            musicServiceObject.setSong(random.nextInt(songList.size()));
+        }
+        else{//set the next song to play in the list
+            //pos is at the end, so set the next song to the first song
+            if(musicServiceObject.getPosn() == songList.size() - 1){
+                musicServiceObject.setSong(0);
+            }
+            else{
+                musicServiceObject.setSong(musicServiceObject.getPosn() + 1);
+            }
+        }
+    }
+
+    //display the activity to add additional files, like recordings
     private void beginAudioActivity(){
 
         Intent i = new Intent(this, Audio.class);
@@ -326,9 +356,11 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     //add the new songs to the default list
     private void addAdditionalSongs(ArrayList<Song> additionalSongs){
 
+       // System.out.println("\n*\n*\n**********************BEFORE THE SIZE OF THE SONG LIST IS: " + songList.size());
         for(int i = 0; i < additionalSongs.size(); i++) {
             songList.add(additionalSongs.get(i));
         }
+       // System.out.println("\n*\n*\n**********************AFTER THE SIZE OF THE SONG LIST IS: " + songList.size());
     }
 
     private void removeDuplicates(){//remove duplicate songs based on artist and title
@@ -346,8 +378,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     public void getSongList() {
 
-        ContentResolver musicResolver = getContentResolver();
-        Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        ContentResolver musicResolver = getContentResolver();//resolve the contents of the phone
+        Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;//grab the location of the audio
 
         String[] musicContents = {
                 MediaStore.Audio.Media._ID,
@@ -371,16 +403,14 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         //MediaStore.Audio.Media.IS_PODCAST != 0
 
         HashMap<String, Song> map = new HashMap<String, Song>();
-        addListToMap(audioList, map);
+        addListToMap(audioList, map);//add everything to the map
+        //remove the songs, ringtones and notifications from the map; leaving the map with recordings
         removeNonsenseFromMap(songList, map);
         removeNonsenseFromMap(ringtones, map);
         removeNonsenseFromMap(notifications, map);
 
         //left off here. add shit to the additional if it also contains the key word unknown for title
-        audioList = new ArrayList<Song>(map.values());
-       // System.out.println("audio list after swag " + audioList.size());
-    //    printList(audioList);
-
+        audioList = new ArrayList<Song>(map.values());//populate the audioList with the map contents
     }
 
     private void addListToMap(ArrayList<Song> list, HashMap<String, Song> map){
@@ -394,13 +424,11 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     private void removeNonsenseFromMap(ArrayList<Song> list, HashMap<String, Song> map){
 
-       // System.out.println("BEORE REMOVE: " + map.size() + " *****************************");
         for(int i = 0; i < list.size(); i++){
             if(map.containsKey(list.get(i).toString())) {
                 map.remove(list.get(i).toString());
             }
         }
-      //  System.out.println("after REMOVE: " + map.size() + " *****************************");
     }
 
     private void printList(ArrayList<Song> list){//for debugging
@@ -409,26 +437,28 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             System.out.println(list.get(i).toString() + " Album: " + list.get(i).getAlbum());
     }
 
-    //create a list of Song objects for actual song files vs audio files (voice recordings and stuff)
+    //create and populate a list of Song objects for the passed in lists, such as
+    //songList, ringtones, notifications, and everything
     private void createList(ContentResolver musicResolver, Uri musicUri, String[] musicContents,
                             String selection, ArrayList<Song> list){
 
         Cursor musicCursor = musicResolver.query(
-                musicUri,
-                musicContents,
-                selection,
+                musicUri,//the location of the media
+                musicContents,//the attributes of the song, such as artist, title, album, etc
+                selection,//the type of audio file, such as songs, ringtones, and notifications
                 null,
                 null);
 
-        if (musicCursor != null && musicCursor.moveToFirst()) {
+        if (musicCursor != null && musicCursor.moveToFirst()) {//at least one audio file exits
 
+            //the columns for each song data
             int titleColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.TITLE);
             int idColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media._ID);
             int artistColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ARTIST);
             int albumColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ALBUM);
             int albumIdColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ALBUM_ID);
 
-            do { //add the Song objects to the appropriate list: songList or audioList
+            do { //add the Song objects to the list by moving the cursor to each data column
                 long thisId = musicCursor.getLong(idColumn);
                 String thisTitle = musicCursor.getString(titleColumn);
                 String thisArtist = musicCursor.getString(artistColumn);
@@ -514,7 +544,13 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
 
     protected void playNext(){ //called above by the Controller's onClick methods
-        musicServiceObject.playNext();
+
+        if(shuffleOn){
+            shuffleSong();
+            musicServiceObject.playSong();
+        }
+        else
+            musicServiceObject.playNext();
         //if(playbackPaused){
         //    setController();
         //    playbackPaused = false;
@@ -574,7 +610,10 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             if(additionalSongs != null) {
                 addAdditionalSongs(additionalSongs);//add the additional songs to the main list
                 sortSongsByTitle();
-              //  System.out.println("\n.\n.\n.UPDATING THE SCREEEEEEEEEEEEEEEEN");
+              //  SongTabFragment songFragment = (SongTabFragment) getFragmentManager().findFragmentById(R.id.main_full);
+              //  songFragment.updateAdapterArray(songList);
+
+                //left off here
                 songTabFragment = new SongTabFragment();//update the list on the screen
                 setAllTabListeners();
             }

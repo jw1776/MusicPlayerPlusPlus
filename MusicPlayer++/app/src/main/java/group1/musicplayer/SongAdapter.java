@@ -21,6 +21,11 @@ public class SongAdapter extends BaseAdapter {
         songArray = grabbedSongArray;
         songInf = LayoutInflater.from(c);
     }
+    //Adapter code
+    public void setSongs(ArrayList<Song> songList) {
+        songArray = songList;
+        notifyDataSetChanged();
+    }
 
     @Override
     public int getCount() {
