@@ -720,6 +720,11 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         return 0;
     }
 
+    public void addPlaylistClick(View v) {
+        Intent i = new Intent(getApplicationContext(),CreatePlaylistActivity.class);
+        i.putParcelableArrayListExtra("song_list",songList);
+        startActivityForResult(i, 1);
+    }
 }
 
 

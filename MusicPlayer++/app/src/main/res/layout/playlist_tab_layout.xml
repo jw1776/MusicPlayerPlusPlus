@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/playlist_tab_frag"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:weightSum="1">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <Button
+        android:layout_width="180dp"
         android:layout_height="wrap_content"
-        android:text="Playlists" />
+        android:text="Add Playlist"
+        android:id="@+id/add_playlist_button"
+        android:layout_gravity="center_horizontal"
+        android:onClick="addPlaylistClick" />
 
+    <ListView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/playlist_ListView" />
 </LinearLayout>
