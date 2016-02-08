@@ -1,23 +1,24 @@
 package group1.musicplayer;
 
+import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import java.util.ArrayList;
-import android.content.Context;
-import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 /**
- * Created by LukeJr on 9/26/2015.
+ * Created by Jack on 2/7/2016.
  */
-public class SongAdapter extends BaseAdapter {
+public class SongAdapter_CreatePlaylist extends BaseAdapter {
 
     private ArrayList<Song> songArray;
     private LayoutInflater songInf;
 
-    public SongAdapter(Context c, ArrayList<Song> grabbedSongArray){
+    public SongAdapter_CreatePlaylist(Context c, ArrayList<Song> grabbedSongArray){
         songArray = grabbedSongArray;
         songInf = LayoutInflater.from(c);
     }
@@ -46,10 +47,10 @@ public class SongAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        LinearLayout listLayout = (LinearLayout)songInf.inflate(R.layout.song, parent, false);
-        //layout for each individual song in the list. Uses song.xml
-        TextView songView = (TextView)listLayout.findViewById(R.id.song_title);
-        TextView artistView = (TextView)listLayout.findViewById(R.id.song_artist);
+        LinearLayout listLayout = (LinearLayout)songInf.inflate(R.layout.playlist_song, parent, false);
+        //layout for each individual song in the list. Uses playlist_song.xml
+        TextView songView = (TextView)listLayout.findViewById(R.id.playlist_song_title);
+        TextView artistView = (TextView)listLayout.findViewById(R.id.playlist_song_artist);
 
         Song currentSong = songArray.get(position);
 

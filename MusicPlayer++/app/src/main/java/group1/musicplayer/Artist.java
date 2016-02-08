@@ -2,9 +2,6 @@ package group1.musicplayer;
 
 import java.util.ArrayList;
 
-/**
- * Created by Jack on 11/22/2015.
- */
 public class Artist {
     private String title;
     private ArrayList<Album> artistAlbums;

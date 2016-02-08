@@ -34,6 +34,10 @@
             android:name=".Audio"
             android:label="@string/title_activity_audio" >
         </activity>
+        <activity
+            android:name=".CreatePlaylistActivity"
+            android:label="@string/title_activity_create_playlist" >
+        </activity>
     </application>
 
 </manifest>

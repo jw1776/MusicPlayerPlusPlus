@@ -3,9 +3,6 @@ package group1.musicplayer;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * Created by LukeJr on 9/26/2015.
- */
 public class Song implements Parcelable {
     private long id;
     private String title;

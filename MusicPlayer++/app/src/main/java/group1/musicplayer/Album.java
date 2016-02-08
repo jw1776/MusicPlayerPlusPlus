@@ -3,9 +3,6 @@ package group1.musicplayer;
 import android.graphics.Bitmap;
 import java.util.ArrayList;
 
-/**
- * Created by Jack on 11/22/2015.
- */
 public class Album {
     private String title;
     private long id;
