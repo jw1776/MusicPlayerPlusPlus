@@ -15,6 +15,7 @@ import java.util.ArrayList;
 
 public class CreatePlaylistActivity extends Activity {
     private ArrayList<Song> songList;
+    private ArrayList<Song_Checkbox> checkboxList;
     private ListView songView;
     private AlertDialog.Builder dialogBuilder;
     private Button doneButton;
@@ -25,10 +26,20 @@ public class CreatePlaylistActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_playlist);
         songList = getIntent().getParcelableArrayListExtra("song_list");
+        convertSongList();
         songView = (ListView) findViewById(R.id.createPlaylist_ListView);
         doneButton = (Button) findViewById(R.id.playlistDoneButton);
-        SongAdapter_CreatePlaylist theAdapter = new SongAdapter_CreatePlaylist(this, songList);
+        SongAdapter_Checkbox theAdapter = new SongAdapter_Checkbox(this, checkboxList);
         songView.setAdapter(theAdapter);
+    }
+
+    public void convertSongList() {
+        checkboxList = new ArrayList<Song_Checkbox>();
+
+        for(int i = 0; i < songList.size(); i++) {
+            Song_Checkbox convert_me = new Song_Checkbox(songList.get(i).getID(), songList.get(i).getTitle(), songList.get(i).getArtist(), songList.get(i).getAlbum(), songList.get(i).getAlbumId());
+            checkboxList.add(convert_me);
+        }
     }
 
     public void playlistSongChecked(View v) {
@@ -43,6 +54,18 @@ public class CreatePlaylistActivity extends Activity {
         dialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                ArrayList<Song> temp = new ArrayList<Song>();
+                for (int i = 0; i < checkboxList.size(); i++) {
+                    if (checkboxList.get(i).isSelected()) {
+                        Song convert_me = new Song(checkboxList.get(i).getID(), checkboxList.get(i).getTitle(), checkboxList.get(i).getArtist(), checkboxList.get(i).getAlbum(), checkboxList.get(i).getAlbumId());
+                        temp.add(convert_me);
+                    }
+                }
+                String playlistTitle = "";
+                playlistTitle += textInput.getText().toString();
+                Playlist p = new Playlist(playlistTitle, temp);
+                DBHandler db = new DBHandler(CreatePlaylistActivity.this, null, null, 1);
+                db.addPlaylist(p);
                 finish();
             }
         });

@@ -79,6 +79,25 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     }
 
+    public void playSongByID(int id){
+        player.reset();
+        Song playSong = songArray.get(songPosition);
+        MainActivity.setNowPlayingText(playSong);
+        songTitle = playSong.getTitle();
+        long currentSong = playSong.getID();
+        Uri trackUri = ContentUris.withAppendedId(android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                currentSong);
+
+        try{
+            player.setDataSource(getApplicationContext(), trackUri);
+        }
+        catch(Exception e){
+            Log.e("MUSIC SERVICE", "Error setting data source", e);
+        }
+        player.prepareAsync();
+
+    }
+
     @Override
     public void onPrepared(MediaPlayer mp){
         mp.start();

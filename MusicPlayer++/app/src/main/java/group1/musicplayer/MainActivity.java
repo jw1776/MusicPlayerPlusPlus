@@ -725,6 +725,15 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         i.putParcelableArrayListExtra("song_list",songList);
         startActivityForResult(i, 1);
     }
+
+    public void playlistPicked(View v) {
+        int playlistPosition = (int) v.getTag();
+        PlaylistTabFragment.showPlaylistSongs(playlistPosition);
+    }
+
+    public void backButton_playlistTab (View v) {
+        PlaylistTabFragment.backButtonPressed();
+    }
 }
 
 

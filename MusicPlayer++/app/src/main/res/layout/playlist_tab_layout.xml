@@ -7,10 +7,33 @@
     android:layout_height="match_parent"
     android:weightSum="1">
 
+    <LinearLayout
+        android:id="@+id/playlist_header_layout"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:background="#c8c8c8"
+        android:layout_width="fill_parent"
+        android:layout_height="48dp">
+        <Button
+            android:id="@+id/playlist_back_button"
+            android:text="Back"
+            android:onClick="backButton_playlistTab"
+            android:layout_width="64dp"
+            android:layout_height="fill_parent" />
+        <TextView
+            android:id="@+id/playlist_header"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:text=""
+            android:textSize="20sp"
+            android:textColor="@android:color/black"
+            android:gravity="center" />
+    </LinearLayout>
+
     <Button
         android:layout_width="180dp"
         android:layout_height="wrap_content"
-        android:text="Add Playlist"
+        android:text="Create Playlist"
         android:id="@+id/add_playlist_button"
         android:layout_gravity="center_horizontal"
         android:onClick="addPlaylistClick" />

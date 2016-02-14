@@ -3,7 +3,9 @@ package group1.musicplayer;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Song implements Parcelable {
+import java.io.Serializable;
+
+public class Song implements Parcelable, Serializable {
     private long id;
     private String title;
     private String artist;
