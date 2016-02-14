@@ -17,11 +17,11 @@
         android:showAsAction="always"
         android:title="Search" />
 
-    <item android:id="@+id/folder_button"
-        android:icon="@drawable/plus"
+    <item android:id="@+id/settings_button"
+        android:icon="@drawable/gear"
         android:orderInCategory="3"
         android:showAsAction="always"
-        android:title="Select Folder"/>
+        android:title="Setting"/>
 
     <item
         android:id="@+id/action_end"
@@ -29,6 +29,5 @@
         android:orderInCategory="4"
         android:showAsAction="always"
         android:title="End" />
-
 
 </menu>

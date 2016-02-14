@@ -21,6 +21,7 @@ import java.util.Random;
 import android.net.Uri;
 import android.content.ContentResolver;
 import android.database.Cursor;
+import android.view.SubMenu;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.EditText;
@@ -36,6 +37,7 @@ import android.view.View;
 //import fm.last.musicbrainz.data.dao.ArtistDao;
 import group1.musicplayer.MusicService.MusicBinder;
 import android.widget.MediaController.MediaPlayerControl;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -76,6 +78,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private static int lastKnownPosition = 0;
     private final Random random = new Random();
     private boolean shuffleOn = false;
+    private ArrayList<Integer> shuffleList = new ArrayList<Integer>();
 
     ActionBar.Tab songTab, artistTab, albumTab, playlistTab;
     Fragment songTabFragment = new SongTabFragment();
@@ -83,7 +86,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     Fragment albumTabFragment = new AlbumTabFragment();
     Fragment playlistTabFragment = new PlaylistTabFragment();
 
-
+    //http://www.androidhive.info/2014/07/android-speech-to-text-tutorial/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -314,12 +317,38 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             case R.id.action_search:
                 this.search();
                 break;
-            case R.id.folder_button://the user wants to browse for additional audio files
-                beginAudioActivity();
+            case R.id.settings_button:
+                displaySettingsOption();
                 break;
 
         }//end switch
         return super.onOptionsItemSelected(item);
+    }
+
+    /*display the settings to the user
+    * they may either: add additional files, create a timer, edit voice control, etc*/
+    private void displaySettingsOption() {
+
+        View settingsView = findViewById(R.id.settings_button);
+        PopupMenu settingsMenu = new PopupMenu(MainActivity.this, settingsView);
+        settingsMenu.getMenuInflater().inflate(R.menu.settings_menu, settingsMenu.getMenu());
+        settingsMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+
+                    case R.id.item_1:
+                        beginAudioActivity();
+                        break;
+
+                    case R.id.item_2:
+                        System.out.println("22222222222222222222222222222222\n.\n.");
+                        break;
+                }
+                return true;
+            }
+        });
+        settingsMenu.show();
     }
 
     private void toggleShuffle(){
@@ -332,7 +361,9 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private void shuffleSong(){
 
         if(shuffleOn){//randomly shuffle the next song
-            musicServiceObject.setSong(random.nextInt(songList.size()));
+            int num = random.nextInt(songList.size());
+            shuffleList.add(num);//keep a list of the randomly generated songs
+            musicServiceObject.setSong(num);
         }
         else{//set the next song to play in the list
             //pos is at the end, so set the next song to the first song
