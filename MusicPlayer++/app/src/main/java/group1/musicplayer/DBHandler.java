@@ -12,6 +12,7 @@ import android.content.ContentValues;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -93,7 +94,10 @@ public class DBHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_PLAYLISTS + " WHERE " + PLAYLIST_TITLE + "=\"" + title + "\";");
     }
-
+    public boolean databaseExists(Context context, String dbName) {
+        File dbFile = context.getDatabasePath(dbName);
+        return dbFile.exists();
+    }
     public ArrayList<Playlist> pullPlaylists (){
         SQLiteDatabase db = getWritableDatabase();
         String query = "SELECT * FROM " + TABLE_PLAYLISTS + " WHERE 1";

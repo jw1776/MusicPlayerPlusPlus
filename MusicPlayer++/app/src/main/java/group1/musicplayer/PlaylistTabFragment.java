@@ -41,8 +41,11 @@ public class PlaylistTabFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        playlistsArray = new ArrayList<Playlist>();
         DBHandler db = new DBHandler(context, null, null, 1);
-        playlistsArray = db.pullPlaylists();
+        if (db.databaseExists(context, "mpp_data.db")) {    //check if the database exists
+            playlistsArray = db.pullPlaylists();
+        }
 
         View rootView = inflater.inflate(R.layout.playlist_tab_layout, container, false);
         playlistView = (ListView) rootView.findViewById(R.id.playlist_ListView); //get a reference to the ListView created in playlist_tab_layout.xml
