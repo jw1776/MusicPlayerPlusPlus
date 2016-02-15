@@ -2,14 +2,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/item_1"
+        android:id="@+id/add_icon"
         android:icon="@drawable/plus"
         android:showAsAction="always"
-        android:title="Add item1" />
+        android:title="Add Audio" />
 
     <item
-        android:id="@+id/item_2"
-        android:icon="@drawable/gear"
+        android:id="@+id/timer_icon"
+        android:icon="@drawable/timer"
         android:showAsAction="always"
-        android:title="add item2" />
+        android:title="Timer" />
+
+    <item
+        android:id="@+id/voice_icon"
+        android:icon="@drawable/voice"
+        android:showAsAction="always"
+        android:title="Voice Control" />
+
+
+
 </menu>

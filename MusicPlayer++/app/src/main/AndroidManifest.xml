@@ -38,6 +38,10 @@
             android:name=".CreatePlaylistActivity"
             android:label="@string/title_activity_create_playlist" >
         </activity>
+        <activity
+            android:name=".CustomTimer"
+            android:label="@string/title_activity_custom_timer" >
+        </activity>
     </application>
 
 </manifest>

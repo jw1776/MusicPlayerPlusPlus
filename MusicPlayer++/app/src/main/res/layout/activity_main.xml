@@ -11,7 +11,6 @@
     tools:context="group1.musicplayer.MainActivity"
     >
 
-
     <LinearLayout
         android:id="@+id/controller_layout"
         android:orientation="vertical"

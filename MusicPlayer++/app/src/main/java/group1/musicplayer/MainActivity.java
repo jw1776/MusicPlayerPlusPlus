@@ -7,11 +7,9 @@ import android.content.IntentFilter;
 import android.provider.MediaStore;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -21,9 +19,6 @@ import java.util.Random;
 import android.net.Uri;
 import android.content.ContentResolver;
 import android.database.Cursor;
-import android.view.SubMenu;
-import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -44,7 +39,6 @@ import android.widget.Toast;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
-import android.os.Bundle;
 
 /*
 import org.springframework.beans.factory.annotation.Autowired;
@@ -337,15 +331,21 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
 
-                    case R.id.item_1:
+                    case R.id.add_icon:
                         beginAudioActivity();
                         break;
 
-                    case R.id.item_2:
-                        System.out.println("22222222222222222222222222222222\n.\n.");
+                    case R.id.timer_icon:
+                        Intent timerActivity = new Intent(MainActivity.this, CustomTimer.class);
+                        startActivity(timerActivity);
+                        break;
+
+                    case R.id.voice_icon:
+                        System.out.println("voice place\n.\n.");
                         break;
                 }
                 return true;
+                //http://www.androidhive.info/2011/09/how-to-create-android-menus/
             }
         });
         settingsMenu.show();
@@ -766,5 +766,3 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         PlaylistTabFragment.backButtonPressed();
     }
 }
-
-
