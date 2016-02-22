@@ -73,6 +73,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private final Random random = new Random();
     private boolean shuffleOn = false;
     private ArrayList<Integer> shuffleList = new ArrayList<Integer>();
+    private String hourValue = "00";
+    private String minuteValue = "00";
 
     ActionBar.Tab songTab, artistTab, albumTab, playlistTab;
     Fragment songTabFragment = new SongTabFragment();
@@ -337,7 +339,9 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
                     case R.id.timer_icon:
                         Intent timerActivity = new Intent(MainActivity.this, CustomTimer.class);
-                        startActivity(timerActivity);
+                        timerActivity.putExtra("minuteValue", minuteValue);
+                        timerActivity.putExtra("hourValue", hourValue);
+                        startActivityForResult(timerActivity, 3);
                         break;
 
                     case R.id.voice_icon:
@@ -634,19 +638,31 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
         if (resultCode == RESULT_OK) {
 
-            ArrayList<String> audioListString = data.getStringArrayListExtra("additionalSongs");
+            if(requestCode == 3){//keep track of the timer values
+                //the values for the timer
+                String hourValue = data.getStringExtra("hourValue");
+                String minuteValue = data.getStringExtra("minuteValue");
 
-            //find the Song objects that were added
-            ArrayList<Song> additionalSongs = findAdditionalSongs(audioListString);
-            if(additionalSongs != null) {
-                addAdditionalSongs(additionalSongs);//add the additional songs to the main list
-                sortSongsByTitle();
-              //  SongTabFragment songFragment = (SongTabFragment) getFragmentManager().findFragmentById(R.id.main_full);
-              //  songFragment.updateAdapterArray(songList);
+                //find the values from the timer if the user had set it earlier
+                if (hourValue != null) { this.hourValue = hourValue; }
+                if (minuteValue != null) { this.minuteValue = minuteValue; }
+            }
 
-                //left off here
-                songTabFragment = new SongTabFragment();//update the list on the screen
-                setAllTabListeners();
+            else {
+                ArrayList<String> audioListString = data.getStringArrayListExtra("additionalSongs");
+
+                //find the Song objects that were added
+                ArrayList<Song> additionalSongs = findAdditionalSongs(audioListString);
+                if (additionalSongs != null) {
+                    addAdditionalSongs(additionalSongs);//add the additional songs to the main list
+                    sortSongsByTitle();
+                    //  SongTabFragment songFragment = (SongTabFragment) getFragmentManager().findFragmentById(R.id.main_full);
+                    //  songFragment.updateAdapterArray(songList);
+
+                    //left off here
+                    songTabFragment = new SongTabFragment();//update the list on the screen
+                    setAllTabListeners();
+                }
             }
         }
 
