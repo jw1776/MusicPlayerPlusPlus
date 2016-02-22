@@ -79,7 +79,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     }
 
-    public void playSongByID(int id){
+    public void playSongByID(long id){
         player.reset();
         Song playSong = songArray.get(songPosition);
         MainActivity.setNowPlayingText(playSong);

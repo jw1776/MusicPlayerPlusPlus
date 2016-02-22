@@ -91,12 +91,14 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         songList = new ArrayList<Song>();
         audioList = new ArrayList<Song>();
         artistArray = new ArrayList<Artist>();
+        albumArray = new ArrayList<Album>();
 
         getSongList(); //fill the array with all songs
         removeDuplicates();
         sortSongsByTitle();
 
         populateArtistArray();
+        populateAlbumArray();
 
         //For testing purposes, do not remove
         /*
@@ -185,6 +187,20 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         });
     }
 
+    private void sortAlbumsByTitle(){
+
+        Collections.sort(albumArray, new Comparator<Album>() {
+            public int compare(Album a, Album b) {
+                if (a.getTitle() == null || b.getTitle() == null) { //if either of the artist titles are null
+                    return 0; //return 0, which indicates that the artist are equal
+                }
+                else {
+                    return a.getTitle().compareToIgnoreCase(b.getTitle()); //otherwise compare as normal
+                }
+            }
+        });
+    }
+
     private void populateArtistArray(){
         //populate artistArray from the songList
         for(int i = 0; i < songList.size(); i++){
@@ -205,6 +221,30 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             }
         }// outer for
         sortArtistsByTitle();
+    }
+
+    private void populateAlbumArray(){
+        //populate albumArray from the songList
+        for(int i = 0; i < songList.size(); i++){
+            String thisAlbum = songList.get(i).getAlbum();
+            long thisAlbumID = songList.get(i).getAlbumId();
+            String thisAlbumArtist = songList.get(i).getArtist();
+            boolean albumFound = false;
+
+            for(int j = 0; j < albumArray.size(); j++){
+                if(albumArray.get(j).getId() == thisAlbumID){     //if the album already exists in our array
+                    albumFound = true;
+                    albumArray.get(j).addSong(songList.get(i));        //add this song to the album's array of songs
+                    break;
+                }
+            }// inner for
+            if(!albumFound){   //if the album was not found in the array
+                Album newAlbum = new Album(thisAlbum, thisAlbumID, thisAlbumArtist);
+                newAlbum.addSong(songList.get(i));
+                albumArray.add(newAlbum);
+            }
+        }// outer for
+        sortAlbumsByTitle();
     }
 
     private ServiceConnection musicConnection = new ServiceConnection(){ //connect to service, create ServiceConnection object
@@ -514,6 +554,10 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         return artistArray;
     }
 
+    public static ArrayList<Album> getAlbumArray(){
+        return albumArray;
+    }
+
     public void songPicked(View view){ //executes when an item in the ListView is clicked. Defined in xml
         userAction = true;
         musicServiceObject.setSong(Integer.parseInt(view.getTag().toString()));
@@ -616,9 +660,9 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 searchTerm += textInput.getText().toString();
-                Intent i = new Intent(getApplicationContext(),Search.class);
-                i.putExtra("search_term",searchTerm);
-                i.putParcelableArrayListExtra("song_list",songList);
+                Intent i = new Intent(getApplicationContext(), Search.class);
+                i.putExtra("search_term", searchTerm);
+                i.putParcelableArrayListExtra("song_list", songList);
                 startActivityForResult(i, 1);
             }
         });
@@ -780,5 +824,26 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     public void backButton_playlistTab (View v) {
         PlaylistTabFragment.backButtonPressed();
+    }
+
+    public void backButton_albumTab (View v){
+        AlbumTabFragment.backButtonPressed();
+    }
+
+    public void albumPicked_albumTab (View v){
+        int albumPosition = (int) v.getTag();
+        AlbumTabFragment.showAlbumSongs(albumPosition);
+    }
+
+    public void songPicked_albumTab (View v){
+        userAction = true;
+
+        long song_id = (long) v.getTag();
+        for(int i= 0; i < songList.size(); i++){
+            if(song_id == songList.get(i).getID()){
+                musicServiceObject.setSong(i);
+            }
+        }
+        musicServiceObject.playSong();
     }
 }

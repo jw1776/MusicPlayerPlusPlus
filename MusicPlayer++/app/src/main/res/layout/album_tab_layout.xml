@@ -5,9 +5,34 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Albums" />
+    <LinearLayout
+        android:id="@+id/header_layout_albumTab"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:background="#c8c8c8"
+        android:layout_width="fill_parent"
+        android:layout_height="48dp">
+        <Button
+            android:id="@+id/back_button_albumTab"
+            android:text="Back"
+            android:onClick="backButton_albumTab"
+            android:layout_width="64dp"
+            android:layout_height="fill_parent" />
+        <TextView
+            android:id="@+id/header_albumTab"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:text=""
+            android:textSize="20sp"
+            android:textColor="@android:color/black"
+            android:gravity="center" />
+    </LinearLayout>
+
+
+    <ListView
+        android:id="@+id/album_list"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+    </ListView>
 
 </LinearLayout>
