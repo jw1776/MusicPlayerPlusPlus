@@ -75,7 +75,7 @@ public class CustomTimerService extends Service {
 
                 public void onTick(long millisUntilFinished) {
                      //   System.out.println(hourTime + " : " + minuteTime);
-                  //  System.out.println(millisUntilFinished + " left****************");
+                    System.out.println(millisUntilFinished + " left****************");
 
                     //update the amount of minutes when it reaches 0 but there are still hours left
 //                    if(minTimer == 0 && hourTimer != 0){
@@ -126,6 +126,7 @@ public class CustomTimerService extends Service {
     public void onDestroy() {
         Toast.makeText(this, "Service Destroyed", Toast.LENGTH_LONG).show();
         super.onDestroy();
+
     }
 }
 

@@ -24,6 +24,8 @@ public class CustomTimer extends Activity {
     private long timeInMilliseconds = 0L;
     private long timeSwapBuff = 0L;
     private long updatedTime = 0L;
+    private Intent service;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -31,6 +33,7 @@ public class CustomTimer extends Activity {
         setContentView(R.layout.activity_custom_timer);
 
         intent = getIntent();
+        service =  new Intent(getBaseContext(), CustomTimerService.class);
         hourValue = (EditText) findViewById(R.id.hour_value);
         minuteValue = (EditText) findViewById(R.id.minute_value);
         timerButton = (Button) findViewById(R.id.start_timer_button);
@@ -81,7 +84,6 @@ public class CustomTimer extends Activity {
                 if (Integer.parseInt(hourTime) != 0 || Integer.parseInt(minuteTime) != 0) {
                     System.out.println("the first edit values are " + hourTime + " : " + minuteTime);
 
-                    Intent service = new Intent(getBaseContext(), CustomTimerService.class);
                     service.putExtra("hour_time", hourTime);
                     service.putExtra("minute_time", minuteTime);
                     service.putExtra("timer_intent", intent);
@@ -100,9 +102,9 @@ public class CustomTimer extends Activity {
                     setResult(RESULT_OK, intent);
                 }
                 else{
-                    System.out.println("time is default\t" + hourTime + "  : " + minuteTime + "************");
+                    Toast.makeText(getApplicationContext(), "RESETING TIMER TO ZERO", Toast.LENGTH_SHORT).show();
+                    stopService(service);
                 }
-
 
                 finish();//go back to the previous page
             }
