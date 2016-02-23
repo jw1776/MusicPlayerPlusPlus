@@ -42,6 +42,9 @@
             android:name=".CustomTimer"
             android:label="@string/title_activity_custom_timer" >
         </activity>
+
+        <service android:name=".CustomTimerService" />
+
     </application>
 
 </manifest>

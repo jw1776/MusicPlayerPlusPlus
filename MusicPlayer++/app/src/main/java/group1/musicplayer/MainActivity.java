@@ -389,7 +389,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                         break;
                 }
                 return true;
-                //http://www.androidhive.info/2011/09/how-to-create-android-menus/
+                //nicer settings example: http://www.androidhive.info/2011/09/how-to-create-android-menus/
             }
         });
         settingsMenu.show();
