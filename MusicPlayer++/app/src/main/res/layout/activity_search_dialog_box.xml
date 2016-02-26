@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="group1.musicplayer.SearchDialogBox">
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/search_term"
+        android:layout_marginTop="197dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Search"
+        android:id="@+id/Search_Button"
+        android:layout_alignTop="@+id/search_term"
+        android:onClick="onClick"
+        android:enabled="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="BACK"
+        android:id="@+id/Back_Search"
+        android:layout_alignParentEnd="true"
+        android:layout_alignBottom="@+id/radioGroup"
+        android:onClick="onClick" />
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignBottom="@+id/Search_Button"
+        android:layout_alignEnd="@+id/Back_Search"
+        android:id="@+id/radioGroup">
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Any"
+            android:id="@+id/Any"
+            android:checked="true"
+            android:layout_below="@+id/Song"
+            android:layout_alignParentStart="true"
+            android:onClick="onRadioButtonClicked" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Artist"
+            android:id="@+id/Artist"
+            android:checked="false"
+            android:layout_alignTop="@+id/Song"
+            android:layout_alignStart="@+id/Search_Button"
+            android:onClick="onRadioButtonClicked" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Album"
+            android:id="@+id/Album"
+            android:checked="false"
+            android:layout_above="@+id/Any"
+            android:layout_toEndOf="@+id/Search_Button"
+            android:onClick="onRadioButtonClicked" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Song"
+            android:id="@+id/Song"
+            android:checked="false"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:onClick="onRadioButtonClicked" />
+    </RadioGroup>
+</RelativeLayout>

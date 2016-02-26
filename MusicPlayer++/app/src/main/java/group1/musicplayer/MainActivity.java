@@ -648,34 +648,11 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
 
     private void search(){
-        dialogBuilder = new AlertDialog.Builder(this);
-        searchTerm = "";
-        searching = false;
-        final EditText textInput = new EditText(this);
-        dialogBuilder.setTitle("Find a Song");
-        dialogBuilder.setMessage("Artist, Song, etc.");
+        //start the custom dialog box which is actually a new activity called SearchDialogBox
+        Intent i = new Intent(getApplicationContext(), SearchDialogBox.class);
+        i.putParcelableArrayListExtra("song_list", songList);
+        startActivityForResult(i,1);
 
-        dialogBuilder.setView(textInput);
-        dialogBuilder.setPositiveButton("Search", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                searchTerm += textInput.getText().toString();
-                Intent i = new Intent(getApplicationContext(), Search.class);
-                i.putExtra("search_term", searchTerm);
-                i.putParcelableArrayListExtra("song_list", songList);
-                startActivityForResult(i, 1);
-            }
-        });
-        dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(getApplicationContext(), "Cancelled", Toast.LENGTH_SHORT).show();
-                searchTerm = "";
-            }
-        });
-
-        AlertDialog searchBox = dialogBuilder.create();
-        searchBox.show();
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

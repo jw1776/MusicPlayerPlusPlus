@@ -28,16 +28,18 @@ public class Search extends Activity {
     private MusicController controller;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        choice = -1;
+
         searchIndex = new ArrayList<Integer>();
         searchList = new ArrayList<Song>();
         songList = getIntent().getParcelableArrayListExtra("song_list");
         searchTerm = getIntent().getStringExtra("search_term");
-        if(choice ==-1){
+        choice = getIntent().getIntExtra("choice",0);
+        if(choice ==0){
             for(int i = 0; i<songList.size();i++){
                 Song current = songList.get(i);
                 if((current.getTitle() != null &&current.getTitle().toLowerCase().contains(searchTerm.toLowerCase()))||
-                        (current.getArtist()!=null &&current.getArtist().toLowerCase().contains(searchTerm.toLowerCase()))){
+                        (current.getArtist()!=null &&current.getArtist().toLowerCase().contains(searchTerm.toLowerCase()))||
+                        (current.getAlbum()!= null&& current.getAlbum().toLowerCase().contains(searchTerm.toLowerCase()))){
                     Log.d("stuff", current.getTitle());
                     searchList.add(current);
                     searchIndex.add(i);
@@ -47,13 +49,34 @@ public class Search extends Activity {
         else if(choice == 1){
             for(int i = 0; i<songList.size();i++){
                 Song current = songList.get(i);
-                if(current != null &&current.getArtist().toLowerCase().contains(searchTerm.toLowerCase())){
+                if(current.getArtist() != null &&current.getArtist().toLowerCase().contains(searchTerm.toLowerCase())){
                     Log.d("stuff", current.getArtist());
                     searchList.add(current);
                     searchIndex.add(i);
                 }
             }
         }
+        else if(choice == 2){
+            for(int i = 0; i<songList.size();i++){
+                Song current = songList.get(i);
+                if(current.getAlbum() != null &&current.getAlbum().toLowerCase().contains(searchTerm.toLowerCase())){
+                    Log.d("stuff", current.getArtist());
+                    searchList.add(current);
+                    searchIndex.add(i);
+                }
+            }
+        }
+        else if(choice == 3){
+            for(int i = 0; i<songList.size();i++){
+                Song current = songList.get(i);
+                if(current.getTitle() != null &&current.getTitle().toLowerCase().contains(searchTerm.toLowerCase())){
+                    Log.d("stuff", current.getArtist());
+                    searchList.add(current);
+                    searchIndex.add(i);
+                }
+            }
+        }
+
 
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowHomeEnabled(false); //hide icon

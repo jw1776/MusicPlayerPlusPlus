@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="group1.musicplayer" >
+    package="group1.musicplayer">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -11,12 +11,12 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,23 +28,23 @@
 
         <activity
             android:name=".Search"
-            android:label="@string/title_activity_search" >
-        </activity>
+            android:label="@string/title_activity_search" />
         <activity
             android:name=".Audio"
-            android:label="@string/title_activity_audio" >
-        </activity>
+            android:label="@string/title_activity_audio" />
         <activity
             android:name=".CreatePlaylistActivity"
-            android:label="@string/title_activity_create_playlist" >
-        </activity>
+            android:label="@string/title_activity_create_playlist" />
         <activity
             android:name=".CustomTimer"
-            android:label="@string/title_activity_custom_timer" >
-        </activity>
+            android:label="@string/title_activity_custom_timer" />
 
         <service android:name=".CustomTimerService" />
 
+        <activity
+            android:name=".SearchDialogBox"
+            android:label="@string/title_activity_search_dialog_box"
+            android:theme="@android:style/Theme.Holo.Dialog" ></activity>
     </application>
 
 </manifest>
