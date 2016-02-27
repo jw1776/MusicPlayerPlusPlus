@@ -7,6 +7,7 @@ package group1.musicplayer;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +41,16 @@ public class SongTabFragment extends Fragment {
 
     public void updateAdapterArray(ArrayList<Song> songList) {
         ((SongAdapter) songView.getAdapter()).setSongs(songList);
+    }
+
+    @Override
+    public void onResume(){
+        Log.e("DEBUG", "onResume of LoginFragment");
+
+        SongAdapter theAdapter = new SongAdapter(context, MainActivity.getSongArray());
+        songView.setAdapter(theAdapter); //pass the ListView object the appropriate adapter
+
+        super.onResume();
     }
 
 }

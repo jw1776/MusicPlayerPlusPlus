@@ -7,6 +7,7 @@ package group1.musicplayer;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +46,7 @@ public class PlaylistTabFragment extends Fragment {
         DBHandler db = new DBHandler(context, null, null, 1);
         if (db.databaseExists(context, "mpp_data.db")) {    //check if the database exists
             playlistsArray = db.pullPlaylists();
+
         }
 
         View rootView = inflater.inflate(R.layout.playlist_tab_layout, container, false);
@@ -87,6 +89,22 @@ public class PlaylistTabFragment extends Fragment {
         }
 
         return rootView;
+    }
+
+    @Override
+    public void onResume(){
+        //Log.e("DEBUG", "onResume of PlaylistTabFragment");
+
+        if(mode == 0){
+            DBHandler db = new DBHandler(context, null, null, 1);
+            if (db.databaseExists(context, "mpp_data.db")) {    //check if the database exists
+                playlistsArray = db.pullPlaylists();
+            }
+            PlaylistAdapter theAdapter = new PlaylistAdapter(context, playlistsArray);
+            playlistView.setAdapter(theAdapter); //pass the ListView object the appropriate adapter
+        }
+
+        super.onResume();
     }
 
     public static void backButtonPressed(){
