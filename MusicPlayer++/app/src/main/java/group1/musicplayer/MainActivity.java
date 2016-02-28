@@ -379,9 +379,10 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
                     case R.id.timer_icon:
                         Intent timerActivity = new Intent(MainActivity.this, CustomTimer.class);
-                        timerActivity.putExtra("minuteValue", minuteValue);
-                        timerActivity.putExtra("hourValue", hourValue);
-                        startActivityForResult(timerActivity, 3);
+                       // timerActivity.putExtra("minuteValue", minuteValue);
+                       // timerActivity.putExtra("hourValue", hourValue);
+                       // startActivityForResult(timerActivity, 3);
+                        startActivity(timerActivity);
                         break;
 
                     case R.id.voice_icon:
@@ -659,7 +660,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
         if (resultCode == RESULT_OK) {
 
-            if(requestCode == 3){//keep track of the timer values
+            /*if(requestCode == 3){//keep track of the timer values
                 //the values for the timer
                 String hourValue = data.getStringExtra("hourValue");
                 String minuteValue = data.getStringExtra("minuteValue");
@@ -667,9 +668,9 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 //find the values from the timer if the user had set it earlier
                 if (hourValue != null) { this.hourValue = hourValue; }
                 if (minuteValue != null) { this.minuteValue = minuteValue; }
-            }
+            }*/
 
-            else {
+          //  else {
                 ArrayList<String> audioListString = data.getStringArrayListExtra("additionalSongs");
 
                 //find the Song objects that were added
@@ -684,7 +685,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                     songTabFragment = new SongTabFragment();//update the list on the screen
                     setAllTabListeners();
                 }
-            }
+            //}
         }
 
         if (requestCode == 1 && resultCode == 1 && data != null) {

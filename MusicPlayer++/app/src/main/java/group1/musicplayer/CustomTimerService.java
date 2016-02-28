@@ -1,16 +1,12 @@
 package group1.musicplayer;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
-import android.os.CountDownTimer;
 import android.os.Handler;
-import android.os.Handler.Callback;
 
 import android.os.IBinder;
 import android.os.Message;
 import android.os.SystemClock;
-import android.widget.EditText;
 import android.widget.Toast;
 
 /**
@@ -18,14 +14,7 @@ import android.widget.Toast;
  */
 public class CustomTimerService extends Service {
 
-    private final Handler handler = new Handler();
-    private Intent timerIntent;
-    private Context context;
-//    private long startTime = 0L;
-//    private long timeInMilliseconds = 0L;
-//    private long timeSwapBuff = 0L;
-//    private long updatedTime = 0L;
-
+ //   private final Handler handler = new Handler();
     private int hourTime = 0, minuteTime = 0;
 
     @Override
@@ -33,131 +22,200 @@ public class CustomTimerService extends Service {
         return null;
     }
 
+    //grab the values from CustomTimer and display it and start the count down
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        // Let it continue running until it is stopped.
+    public int onStartCommand(Intent timerIntent, int flags, int startId) {
 
-        context = this;
-        timerIntent = intent;
+        if (timerIntent != null) {
 
-        if(timerIntent != null){
-
-            if(timerIntent.getStringExtra("hour_time") != null) {
+            if (timerIntent.getStringExtra("hour_time") != null) {
                 hourTime = Integer.parseInt(timerIntent.getStringExtra("hour_time"));
             }
-            if(timerIntent.getStringExtra("minute_time") != null){
+            if (timerIntent.getStringExtra("minute_time") != null) {
                 minuteTime = Integer.parseInt(timerIntent.getStringExtra("minute_time"));
             }
 
-         //   startTime = SystemClock.uptimeMillis();
-            Toast.makeText(this, "Starting timer for " + hourTime + " hour(s) and " +
-                    + minuteTime + " minute(s).", Toast.LENGTH_SHORT).show();
-            handler.postDelayed(updateTimerThread, 0);
+            //handler.postDelayed(updateTimerThread, 0);//start the thread
+
+            //update the time on the screen and constantly pass the values back to CustomTimer
+            new MoreAccurateTimer(((hourTime * 60 + minuteTime) * 1000), 1000) {//total time, interval
+
+                //MINUTES FOR NOW ACT LIKE SECONDS AND HOUR ACTS LIKE MINUTES, JUST FOR TESTING****
+
+                public void onTick(long millisUntilFinished) {
+
+                    System.out.println(millisUntilFinished + " left****************");
+
+                    long min = (millisUntilFinished / 1000) % 60;//this is actually sec, but used for testing for now...
+                    long hour = (millisUntilFinished / 1000) / 60;
+
+                    //constantly pass the minute and hour values back to CustomTimer
+                    Intent broadcastIntent = new Intent();
+                    broadcastIntent.setAction("LOCATION_REACHED");
+                    broadcastIntent.putExtra("minuteValue", Long.toString(min));
+                    broadcastIntent.putExtra("hourValue", Long.toString(hour));
+                    getApplicationContext().sendBroadcast(broadcastIntent);
+                }
+
+                public void onFinish() {
+                    System.exit(0);//this is not that great, in the end call onFinish on all of the activities
+                }
+            }.start();
         }
         return START_STICKY;
     }
 
-    private Intent getOuterClassIntent(){
-        return timerIntent;
-    }
-
-    private Runnable updateTimerThread = new Runnable() {
-
-        //update the time on the screen and constantly pass the values back to main
-        public void run() {
-
-            new CountDownTimer(((hourTime * 60 + minuteTime) * 1000), 1000) {//total time, interval
-
-                //MINUTES FOR NOW ACT LIKE SECONDS AND HOUR ACTS LIKE MINUTES, JUST FOR TESTING****
-
-                private long minTimer = minuteTime * 1000;
-                private long hourTimer = hourTime * 1000;
-
-                public void onTick(long millisUntilFinished) {
-                     //   System.out.println(hourTime + " : " + minuteTime);
-                    System.out.println(millisUntilFinished + " left****************");
-
-                    //update the amount of minutes when it reaches 0 but there are still hours left
-//                    if(minTimer == 0 && hourTimer != 0){
-//                        minTimer = 5900;
-//                        hourTimer --;
-//                    }
-//                    else{
-//                        minTimer--;
-//                    }
-                    if(millisUntilFinished <= 3000 && millisUntilFinished >= 1000){
-//                        new Runnable(){
-//                            @Override
-//                            public void run() {//doesnt show up, prob cuz problem with main thread or something
-//                                Toast.makeText(context, "Timer up. Existing MusicPlayer++...", Toast.LENGTH_LONG).show();
-//                            }
-//                        };
-                    }
-        //            System.out.println(hourTime + " : " + minuteTime);
-
-                    //pass the values back to main
-                    getOuterClassIntent().putExtra("hourValue", Long.toString(millisUntilFinished));
-                    getOuterClassIntent().putExtra("minuteValue", Integer.toString(minuteTime));
-                }
-
-                public void onFinish() {
-                    //not showing toast....
-                   // Toast.makeText(context, "Timer up. Existing MusicPlayer++...", Toast.LENGTH_LONG).show();
-                    handler.removeCallbacks(updateTimerThread);
-                    System.exit(0);//this is not that great, in the end call onFinish on all of the activities
-                }
-            }.start();
-            //update the time on screen
-//           hourTime = Integer.toString(Integer.parseInt(hourTime) - hour);
-//           minuteTime = Integer.toString(Integer.parseInt(minuteTime) - min);
-//
-//            System.out.println("updating time in runnable*************");
-//            System.out.println(hourTime + " : " + minuteTime);
-//
-//            //pass the values back to main
-//            getOuterClassIntent().putExtra("hourValue", hourTime);
-//            getOuterClassIntent().putExtra("minuteValue", minuteTime);
-
-            handler.postDelayed(this, 0);
-        }
-    };
-
     @Override
     public void onDestroy() {
         Toast.makeText(this, "Service Destroyed", Toast.LENGTH_LONG).show();
+        //handler.removeCallbacks(updateTimerThread);
         super.onDestroy();
-
     }
+
+//    private Runnable updateTimerThread = new Runnable() {
+//
+//        //update the time on the screen and constantly pass the values back to CustomTimer
+//        public void run() {
+//
+//            new MoreAccurateTimer (((hourTime * 60 + minuteTime) * 1000), 1000) {//total time, interval
+//
+//                //MINUTES FOR NOW ACT LIKE SECONDS AND HOUR ACTS LIKE MINUTES, JUST FOR TESTING****
+//
+//                public void onTick(long millisUntilFinished) {
+//
+//                    System.out.println(millisUntilFinished + " left****************");
+//
+//                     //   System.out.println(hourTime + " : " + minuteTime);
+//                    long min = (millisUntilFinished / 1000) % 60;//this is actually sec, but used for testing for now...
+//                    long hour = (millisUntilFinished / 1000) / 60;
+//                   // System.out.println(hour + " : " + min);
+//
+////                    if(millisUntilFinished <= 3000 && millisUntilFinished >= 1000){
+////                        new Runnable(){
+////                            @Override
+////                            public void run() {//doesnt show up, prob cuz problem with main thread or something
+////                                Toast.makeText(context, "Timer up. Existing MusicPlayer++...", Toast.LENGTH_LONG).show();
+////                            }
+////                        };
+////                    }
+//                    //constantly pass the minute and hour values back to CustomTimer
+//                    Intent broadcastIntent = new Intent();
+//                    broadcastIntent.setAction("LOCATION_REACHED");
+//                    broadcastIntent.putExtra("minuteValue", Long.toString(min));
+//                    broadcastIntent.putExtra("hourValue", Long.toString(hour));
+//                    getApplicationContext().sendBroadcast(broadcastIntent);
+//                }
+//
+//                public void onFinish() {
+//                    //not showing toast....
+//                   // Toast.makeText(context, "Timer up. Existing MusicPlayer++...", Toast.LENGTH_LONG).show();
+//                    System.exit(0);//this is not that great, in the end call onFinish on all of the activities
+//                }
+//            }.start();
+//
+//            handler.postDelayed(this, 0);
+//        }
+//    };
+//
+
 }
 
-/*
+//source for following code:
+//http://stackoverflow.com/questions/12762272/android-countdowntimer-additional-milliseconds-delay-between-ticks
+// http://grepcode.com/file_/repository.grepcode.com/java/ext/com.google.android/android/4.1.1_r1/android/os/CountDownTimer.java/?v=source
+abstract class MoreAccurateTimer  {
 
-    private Runnable updateTimerThread = new Runnable() {
+    /**
+     * Millis since epoch when alarm should stop.
+     */
+    private final long mMillisInFuture;
 
-        //update the time on the screen and constantly pass the values back to main
-        public void run() {
+    /**
+     * The interval in millis that the user receives callbacks
+     */
+    private final long mCountdownInterval;
 
-            timeInMilliseconds = SystemClock.uptimeMillis() - startTime;
+    private long mStopTimeInFuture;
 
-            updatedTime = timeSwapBuff + timeInMilliseconds;
+    private long mNextTime;
 
-            int secs = (int) (updatedTime / 1000);
-            int mins = secs / 60;
-            int hour = mins / 60;
-            secs = secs % 60;
+    /**
+     * @param millisInFuture The number of millis in the future from the call
+     *   to {@link #start()} until the countdown is done and {@link #onFinish()}
+     *   is called.
+     * @param countDownInterval The interval along the way to receive
+     *   {@link #onTick(long)} callbacks.
+     */
+    public MoreAccurateTimer(long millisInFuture, long countDownInterval) {
+        mMillisInFuture = millisInFuture;
+        mCountdownInterval = countDownInterval;
+    }
 
-            //update the time on screen
-            hourTime = Integer.toString(Integer.parseInt(hourTime) - hour);
-            minuteTime = Integer.toString(Integer.parseInt(minuteTime) - secs);
+    /**
+     * Cancel the countdown.
+     */
+    public final void cancel() {
+        mHandler.removeMessages(MSG);
+    }
 
-            System.out.println("updating time in runnable*************");
-            System.out.println(hourTime + " : " + minuteTime);
-
-            //pass the values back to main
-            getOuterClassIntent().putExtra("hourValue", hourTime);
-            getOuterClassIntent().putExtra("minuteValue", minuteTime);
-
-            handler.postDelayed(this, 0);
+    /**
+     * Start the countdown.
+     */
+    public synchronized final MoreAccurateTimer start() {
+        if (mMillisInFuture <= 0) {
+            onFinish();
+            return this;
         }
-    };*
- */
+
+        mNextTime = SystemClock.uptimeMillis();
+        mStopTimeInFuture = mNextTime + mMillisInFuture;
+
+        mNextTime += mCountdownInterval;
+        mHandler.sendMessageAtTime(mHandler.obtainMessage(MSG), mNextTime);
+        return this;
+    }
+
+
+    /**
+     * Callback fired on regular interval.
+     * @param millisUntilFinished The amount of time until finished.
+     */
+    public abstract void onTick(long millisUntilFinished);
+
+    /**
+     * Callback fired when the time is up.
+     */
+    public abstract void onFinish();
+
+    private static final int MSG = 1;
+
+    // handles counting down
+    private Handler mHandler = new Handler() {
+
+        @Override
+        public void handleMessage(Message msg) {
+            synchronized (MoreAccurateTimer.this) {
+                final long millisLeft = mStopTimeInFuture - SystemClock.uptimeMillis();
+
+                if (millisLeft <= 0) {
+                    onFinish();
+                } else {
+                    onTick(millisLeft);
+
+                    // Calculate next tick by adding the countdown interval from the original start time
+                    // If user's onTick() took too long, skip the intervals that were already missed
+                    long currentTime = SystemClock.uptimeMillis();
+                    do {
+                        mNextTime += mCountdownInterval;
+                    } while (currentTime > mNextTime);
+
+                    // Make sure this interval doesn't exceed the stop time
+                    if(mNextTime < mStopTimeInFuture)
+                        sendMessageAtTime(obtainMessage(MSG), mNextTime);
+                    else
+                        sendMessageAtTime(obtainMessage(MSG), mStopTimeInFuture);
+                }
+            }
+        }
+    };
+}
