@@ -72,9 +72,10 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private static int lastKnownPosition = 0;
     private final Random random = new Random();
     private boolean shuffleOn = false;
-    private ArrayList<Integer> shuffleList = new ArrayList<Integer>();
+    private ArrayList<Integer> shuffleList;
     private String hourValue = "00";
     private String minuteValue = "00";
+    private int shufflePos = 0;
 
     ActionBar.Tab songTab, artistTab, albumTab, playlistTab;
     Fragment songTabFragment = new SongTabFragment();
@@ -398,6 +399,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     private void toggleShuffle(){
         //toggle on or off the shuffle button
+        shufflePos = 0;
+        shuffleList = new ArrayList<Integer>();
         if(shuffleOn) shuffleOn = false;
         else shuffleOn = true;
     }
@@ -408,7 +411,6 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         if(shuffleOn){//randomly shuffle the next song
             int num = random.nextInt(songList.size());
             shuffleList.add(num);//keep a list of the randomly generated songs
-            musicServiceObject.setSong(num);
         }
         else{//set the next song to play in the list
             //pos is at the end, so set the next song to the first song
@@ -626,7 +628,9 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     protected void playNext(){ //called above by the Controller's onClick methods
 
         if(shuffleOn){
+            shufflePos++;
             shuffleSong();
+            musicServiceObject.setSong(shuffleList.get(shufflePos));
             musicServiceObject.playSong();
         }
         else
@@ -640,6 +644,18 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
 
     protected void playPrev() {
+        if(shuffleOn){
+            shufflePos--;
+            //Reset Song to the end of the Shuffle Song ArrayList
+            if(shufflePos < 0){
+                shufflePos = shuffleList.size() - 1;
+            }
+
+            musicServiceObject.setSong(shuffleList.get(shufflePos));
+            musicServiceObject.playSong();
+
+        }
+        else
         musicServiceObject.playPrev();
         //if(playbackPaused){
         //    setController();
