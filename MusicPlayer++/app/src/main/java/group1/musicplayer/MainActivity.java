@@ -668,7 +668,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         //start the custom dialog box which is actually a new activity called SearchDialogBox
         Intent i = new Intent(getApplicationContext(), SearchDialogBox.class);
         i.putParcelableArrayListExtra("song_list", songList);
-        startActivityForResult(i,1);
+        startActivityForResult(i, 1);
 
     }
     @Override
@@ -840,4 +840,17 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         }
         musicServiceObject.playSong();
     }
+
+    public void songPicked_playlistTab (View v){
+        userAction = true;
+
+        long song_id = (long) v.getTag();
+        for(int i= 0; i < songList.size(); i++){
+            if(song_id == songList.get(i).getID()){
+                musicServiceObject.setSong(i);
+            }
+        }
+        musicServiceObject.playSong();
+    }
+
 }

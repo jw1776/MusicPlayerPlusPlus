@@ -140,7 +140,7 @@ public class PlaylistTabFragment extends Fragment {
         currentSongList = playlistsArray.get(index).getPlaylistSongs();
         header.setText(currentPlaylist);
 
-        SongAdapter songAdapter = new SongAdapter(context, currentSongList);
+        SongAdapter_PlaylistTab songAdapter = new SongAdapter_PlaylistTab(context, currentSongList);
         playlistView.setAdapter(songAdapter);
     }
 }
