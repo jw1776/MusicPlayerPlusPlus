@@ -710,6 +710,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                         .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
 
                 Toast.makeText(MainActivity.this, "You said: " + voiceItems.get(0), Toast.LENGTH_SHORT);
+                playRecognizedSong(voiceItems.get(0));
 
                 //for testing
                 for(int i = 0; i < voiceItems.size(); i++){
@@ -882,6 +883,23 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             }
         }
         musicServiceObject.playSong();
+    }
+
+    //grabs the voice to text value the user said (the song) and plays the song
+    private void playRecognizedSong(String song){
+
+        for(int i = 0; i < songList.size(); i++){
+            if(songList.get(i).getTitle().equalsIgnoreCase(song)){
+                System.out.println("**********************Playing song: " + song);
+                musicServiceObject.setSong(i);
+                musicServiceObject.playSong();
+                return;
+            }
+        }
+        //the song they want to play does not exist OR it did not get translated correctly
+        Toast.makeText(getApplicationContext(), "Could not find song: " + song, Toast.LENGTH_SHORT).show();
+        System.out.println("**********************Could not find song: " + song);
+
     }
 
 }
