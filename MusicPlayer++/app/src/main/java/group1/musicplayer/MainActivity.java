@@ -711,7 +711,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
                 //check the first in the list and see what they said
 
-                if(voiceItems.get(0).equalsIgnoreCase("0xt song")){
+                if(voiceItems.get(0).equalsIgnoreCase("Play next song")){
                     playNext();
                 }
                 else if(voiceItems.get(0).equalsIgnoreCase("Play previous song")){
