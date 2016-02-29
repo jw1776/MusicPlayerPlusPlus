@@ -705,13 +705,21 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         if (resultCode == RESULT_OK) {
 
             if (requestCode == REQ_CODE_SPEECH_INPUT) {
-
+                //the user used voice to text and some values were created
                 ArrayList<String> voiceItems = data
                         .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
 
-                Toast.makeText(MainActivity.this, "You said: " + voiceItems.get(0), Toast.LENGTH_SHORT);
-                playRecognizedSong(voiceItems.get(0));
+                //check the first in the list and see what they said
 
+                if(voiceItems.get(0).equalsIgnoreCase("0xt song")){
+                    playNext();
+                }
+                else if(voiceItems.get(0).equalsIgnoreCase("Play previous song")){
+                    playPrev();
+                }
+                else {
+                    playRecognizedSong(voiceItems.get(0));
+                }
                 //for testing
                 for(int i = 0; i < voiceItems.size(); i++){
                     System.out.println("Voice item " + i + ": " + voiceItems.get(i));
