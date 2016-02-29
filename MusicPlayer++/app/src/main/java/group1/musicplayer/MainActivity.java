@@ -1,11 +1,13 @@
 package group1.musicplayer;
 
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.content.IntentFilter;
 import android.provider.MediaStore;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Random;
 
 import android.net.Uri;
@@ -76,6 +79,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private String hourValue = "00";
     private String minuteValue = "00";
     private int shufflePos = 0;
+
+    private final int REQ_CODE_SPEECH_INPUT = 9000;
 
     ActionBar.Tab songTab, artistTab, albumTab, playlistTab;
     Fragment songTabFragment = new SongTabFragment();
@@ -357,6 +362,9 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             case R.id.settings_button:
                 displaySettingsOption();
                 break;
+            case R.id.voice_button:
+                promptSpeechInput();
+                break;
 
         }//end switch
         return super.onOptionsItemSelected(item);
@@ -387,7 +395,6 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                         break;
 
                     case R.id.voice_icon:
-                        System.out.println("voice place\n.\n.");
                         break;
                 }
                 return true;
@@ -395,6 +402,26 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             }
         });
         settingsMenu.show();
+    }
+
+    /**
+     * Showing google speech input dialog
+     * */
+    private void promptSpeechInput() {
+
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
+                "Say something!");
+        try {
+            startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
+        } catch (ActivityNotFoundException a) {
+            Toast.makeText(getApplicationContext(),
+                    "Your device does not support speech to text!",
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void toggleShuffle(){
@@ -676,17 +703,20 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
         if (resultCode == RESULT_OK) {
 
-            /*if(requestCode == 3){//keep track of the timer values
-                //the values for the timer
-                String hourValue = data.getStringExtra("hourValue");
-                String minuteValue = data.getStringExtra("minuteValue");
+            if (requestCode == REQ_CODE_SPEECH_INPUT) {
 
-                //find the values from the timer if the user had set it earlier
-                if (hourValue != null) { this.hourValue = hourValue; }
-                if (minuteValue != null) { this.minuteValue = minuteValue; }
-            }*/
+                ArrayList<String> voiceItems = data
+                        .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
 
-          //  else {
+                Toast.makeText(this, "You said: " + voiceItems.get(0), Toast.LENGTH_SHORT);
+
+                //for testing
+                for(int i = 0; i < voiceItems.size(); i++){
+                    System.out.println("Voice item " + i + ": " + voiceItems.get(i));
+                }
+            }
+
+            else {
                 ArrayList<String> audioListString = data.getStringArrayListExtra("additionalSongs");
 
                 //find the Song objects that were added
@@ -701,7 +731,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                     songTabFragment = new SongTabFragment();//update the list on the screen
                     setAllTabListeners();
                 }
-            //}
+            }
         }
 
         if (requestCode == 1 && resultCode == 1 && data != null) {

@@ -4,29 +4,36 @@
     tools:context="group1.musicplayer.MainActivity">
 
     <item
+        android:id="@+id/voice_button"
+        android:icon="@drawable/voice"
+        android:orderInCategory="1"
+        android:showAsAction="always"
+        android:title="Voice" />
+
+    <item
         android:id="@+id/action_shuffle"
         android:icon="@drawable/rand"
-        android:orderInCategory="1"
+        android:orderInCategory="2"
         android:showAsAction="always"
         android:title="Shuffle" />
 
     <item
         android:id="@+id/action_search"
         android:icon="@drawable/search"
-        android:orderInCategory="2"
+        android:orderInCategory="3"
         android:showAsAction="always"
         android:title="Search" />
 
     <item android:id="@+id/settings_button"
         android:icon="@drawable/gear"
-        android:orderInCategory="3"
+        android:orderInCategory="4"
         android:showAsAction="always"
         android:title="Setting"/>
 
     <item
         android:id="@+id/action_end"
         android:icon="@drawable/end"
-        android:orderInCategory="4"
+        android:orderInCategory="5"
         android:showAsAction="always"
         android:title="End" />
 
