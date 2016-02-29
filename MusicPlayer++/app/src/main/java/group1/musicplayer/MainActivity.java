@@ -428,6 +428,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         //toggle on or off the shuffle button
         shufflePos = 0;
         shuffleList = new ArrayList<Integer>();
+        shuffleList.add(musicServiceObject.getSongPosition());
         if(shuffleOn) shuffleOn = false;
         else shuffleOn = true;
     }
@@ -708,7 +709,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 ArrayList<String> voiceItems = data
                         .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
 
-                Toast.makeText(this, "You said: " + voiceItems.get(0), Toast.LENGTH_SHORT);
+                Toast.makeText(MainActivity.this, "You said: " + voiceItems.get(0), Toast.LENGTH_SHORT);
 
                 //for testing
                 for(int i = 0; i < voiceItems.size(); i++){
