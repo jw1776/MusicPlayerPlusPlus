@@ -414,14 +414,30 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
-                "Say something!");
+                "Say a command like:\n- a song name \n- play next song \n- play previous song ");
         try {
             startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
         } catch (ActivityNotFoundException a) {
             Toast.makeText(getApplicationContext(),
                     "Your device does not support speech to text!",
-                    Toast.LENGTH_SHORT).show();
+                    Toast.LENGTH_LONG).show();
         }
+    }
+
+    //grabs the voice to text value the user said (the song) and plays the song
+    private void playRecognizedSong(String song){
+
+        //search the song list for the song that the user said
+        for(int i = 0; i < songList.size(); i++){
+            //ignore any special characters in the original title of the song
+            if(songList.get(i).getTitle().replaceAll("\\p{Punct}", "").equalsIgnoreCase(song.replaceAll("\\p{Punct}", ""))){
+                musicServiceObject.setSong(i);
+                musicServiceObject.playSong();
+                return;
+            }
+        }
+        //the song they want to play does not exist OR it did not get translated correctly
+        Toast.makeText(getApplicationContext(), "Could not find song: " + song, Toast.LENGTH_SHORT).show();
     }
 
     private void toggleShuffle(){
@@ -892,22 +908,4 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         }
         musicServiceObject.playSong();
     }
-
-    //grabs the voice to text value the user said (the song) and plays the song
-    private void playRecognizedSong(String song){
-
-        for(int i = 0; i < songList.size(); i++){
-            if(songList.get(i).getTitle().equalsIgnoreCase(song)){
-                System.out.println("**********************Playing song: " + song);
-                musicServiceObject.setSong(i);
-                musicServiceObject.playSong();
-                return;
-            }
-        }
-        //the song they want to play does not exist OR it did not get translated correctly
-        Toast.makeText(getApplicationContext(), "Could not find song: " + song, Toast.LENGTH_SHORT).show();
-        System.out.println("**********************Could not find song: " + song);
-
-    }
-
 }
