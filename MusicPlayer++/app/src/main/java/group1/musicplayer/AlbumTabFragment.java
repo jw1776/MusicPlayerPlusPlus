@@ -23,6 +23,7 @@ public class AlbumTabFragment extends Fragment {
     private static Context context;
     private static ArrayList<Album> albumArray;
     private static ArrayList<Song> currentSongList;
+    private static ArrayList<Song> contextArray;
     private static String currentAlbum;
     private static ListView albumView;
     private static Button backButton;
@@ -40,6 +41,7 @@ public class AlbumTabFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         albumArray = MainActivity.getAlbumArray();
+        contextArray = new ArrayList<Song>();
         View rootView = inflater.inflate(R.layout.album_tab_layout, container, false);
 
         albumView = (ListView) rootView.findViewById(R.id.album_list); //get a reference to the ListView created in album_tab_layout.xml
@@ -106,5 +108,13 @@ public class AlbumTabFragment extends Fragment {
 
         SongAdapter_AlbumTab songAdapter = new SongAdapter_AlbumTab(context, currentSongList);
         albumView.setAdapter(songAdapter);
+    }
+
+    public static void updateContextArray(){ //called whenever a song is clicked in this fragment
+        contextArray = currentSongList;
+    }
+
+    public static ArrayList<Song> getContextArray(){
+        return contextArray;
     }
 }

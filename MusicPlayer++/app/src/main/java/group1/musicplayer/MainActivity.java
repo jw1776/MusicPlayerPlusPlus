@@ -9,6 +9,7 @@ import android.provider.MediaStore;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -56,6 +57,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private static ArrayList<Playlist> playlistArray;
     private static ArrayList<Artist> artistArray;
     private static ArrayList<Album> albumArray;
+    private static ArrayList<Song> currentContextArray;
     private ArrayList<Song> searchList;
     private ArrayList<Integer> searchIndex;
     private boolean searching;
@@ -445,24 +447,30 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         shufflePos = 0;
         shuffleList = new ArrayList<Integer>();
         shuffleList.add(musicServiceObject.getSongPosition());
-        if(shuffleOn) shuffleOn = false;
-        else shuffleOn = true;
+        if(shuffleOn){
+            shuffleOn = false;
+            Toast.makeText(getApplicationContext(), "Shuffle toggled off.", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            shuffleOn = true;
+            Toast.makeText(getApplicationContext(), "Shuffle toggled on.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     //randomly shuffles the next song to play
     private void shuffleSong(){
 
         if(shuffleOn){//randomly shuffle the next song
-            int num = random.nextInt(songList.size());
+            int num = random.nextInt(musicServiceObject.getSongArray().size());
             shuffleList.add(num);//keep a list of the randomly generated songs
         }
         else{//set the next song to play in the list
             //pos is at the end, so set the next song to the first song
-            if(musicServiceObject.getPosn() == songList.size() - 1){
+            if(musicServiceObject.getSongPosition() == musicServiceObject.getSongArray().size() - 1){
                 musicServiceObject.setSong(0);
             }
             else{
-                musicServiceObject.setSong(musicServiceObject.getPosn() + 1);
+                musicServiceObject.setSong(musicServiceObject.getSongPosition() + 1);
             }
         }
     }
@@ -605,8 +613,10 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         return albumArray;
     }
 
-    public void songPicked(View view){ //executes when an item in the ListView is clicked. Defined in xml
+    public void songPicked(View view){ //executes when an item in SongTabFragment's ListView is clicked. Defined in xml
         userAction = true;
+
+        musicServiceObject.fillList(songList);
         musicServiceObject.setSong(Integer.parseInt(view.getTag().toString()));
         musicServiceObject.playSong();
         //if(playbackPaused){
@@ -628,13 +638,10 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     public void songPicked_artistTab(View view){
         userAction = true;
+        ArtistTabFragment.updateContextArray();
 
-        long song_id = (long) view.getTag();
-        for(int i= 0; i < songList.size(); i++){
-            if(song_id == songList.get(i).getID()){
-                musicServiceObject.setSong(i);
-            }
-        }
+        musicServiceObject.fillList(ArtistTabFragment.getContextArray());
+        musicServiceObject.setSong(Integer.parseInt(view.getTag().toString()));
         musicServiceObject.playSong();
     }
 
@@ -885,27 +892,21 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         AlbumTabFragment.showAlbumSongs(albumPosition);
     }
 
-    public void songPicked_albumTab (View v){
+    public void songPicked_albumTab (View view){
         userAction = true;
+        AlbumTabFragment.updateContextArray();
 
-        long song_id = (long) v.getTag();
-        for(int i= 0; i < songList.size(); i++){
-            if(song_id == songList.get(i).getID()){
-                musicServiceObject.setSong(i);
-            }
-        }
+        musicServiceObject.fillList(AlbumTabFragment.getContextArray());
+        musicServiceObject.setSong(Integer.parseInt(view.getTag().toString()));
         musicServiceObject.playSong();
     }
 
-    public void songPicked_playlistTab (View v){
+    public void songPicked_playlistTab (View view){
         userAction = true;
-
-        long song_id = (long) v.getTag();
-        for(int i= 0; i < songList.size(); i++){
-            if(song_id == songList.get(i).getID()){
-                musicServiceObject.setSong(i);
-            }
-        }
+        PlaylistTabFragment.updateContextArray();
+        Log.e("DEBUG", "songPicked_playlistTab RUNNINGNOW");
+        musicServiceObject.fillList(PlaylistTabFragment.getContextArray());
+        musicServiceObject.setSong(Integer.parseInt(view.getTag().toString()));
         musicServiceObject.playSong();
     }
 }

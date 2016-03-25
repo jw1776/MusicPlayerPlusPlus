@@ -23,8 +23,9 @@ public class PlaylistTabFragment extends Fragment {
 
     private static Context context;
     private static ListView playlistView;
-    private static ArrayList<Playlist> playlistsArray;
+    private static ArrayList<Playlist> playlistsArray = new ArrayList<Playlist>();
     private static ArrayList<Song> currentSongList;
+    private static ArrayList<Song> contextArray;
     private static String currentPlaylist;
     private static Button backButton;
     private static Button addPlaylistButton;
@@ -42,7 +43,8 @@ public class PlaylistTabFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        playlistsArray = new ArrayList<Playlist>();
+        //playlistsArray = new ArrayList<Playlist>();
+        contextArray = new ArrayList<Song>();
         DBHandler db = new DBHandler(context, null, null, 1);
         if (db.databaseExists(context, "mpp_data.db")) {    //check if the database exists
             playlistsArray = db.pullPlaylists();
@@ -80,7 +82,7 @@ public class PlaylistTabFragment extends Fragment {
                 }
                 header.setText(currentPlaylist);
 
-                SongAdapter songAdapter = new SongAdapter(context, currentSongList);
+                SongAdapter_PlaylistTab songAdapter = new SongAdapter_PlaylistTab(context, currentSongList);
                 playlistView.setAdapter(songAdapter);
                 break;
 
@@ -142,5 +144,13 @@ public class PlaylistTabFragment extends Fragment {
 
         SongAdapter_PlaylistTab songAdapter = new SongAdapter_PlaylistTab(context, currentSongList);
         playlistView.setAdapter(songAdapter);
+    }
+
+    public static void updateContextArray(){ //called whenever a song is clicked in this fragment
+        contextArray = currentSongList;
+    }
+
+    public static ArrayList<Song> getContextArray(){
+        return contextArray;
     }
 }

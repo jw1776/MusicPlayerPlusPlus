@@ -48,7 +48,7 @@ public class SongAdapter_PlaylistTab extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         LinearLayout listLayout = (LinearLayout)songInf.inflate(R.layout.song_playlisttab, parent, false);
-        //layout for each individual song in the list. Uses song.xml
+        //layout for each individual song in the list. Uses song_playlisttab.xml
         TextView songView = (TextView)listLayout.findViewById(R.id.song_title_playlistTab);
         TextView artistView = (TextView)listLayout.findViewById(R.id.song_artist_playlistTab);
 
@@ -57,7 +57,7 @@ public class SongAdapter_PlaylistTab extends BaseAdapter {
         songView.setText(currentSong.getTitle()); //pass data to textView objects in each list item
         artistView.setText(currentSong.getArtist());
 
-        listLayout.setTag(currentSong.getID()); //use the song's ID as a tag
+        listLayout.setTag(position); //use the song's position as a tag
         return listLayout;
     }
 }

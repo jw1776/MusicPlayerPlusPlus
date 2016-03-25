@@ -24,6 +24,7 @@ public class ArtistTabFragment extends Fragment {
     private static ArrayList<Artist> artistList;
     private static ArrayList<Album> currentAlbumList;
     private static ArrayList<Song> currentSongList;
+    private static ArrayList<Song> contextArray;
     private static String currentArtist;
     private static String currentAlbum;
     private static ListView artistView;
@@ -44,6 +45,8 @@ public class ArtistTabFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.artist_tab_layout, container, false);
 
         artistList = MainActivity.getArtistArray();
+        contextArray = new ArrayList<Song>();
+
         artistView = (ListView) rootView.findViewById(R.id.artist_list); //get a reference to the ListView created in artist_tab_layout
         backButton = (Button) rootView.findViewById(R.id.back_button);
         header = (TextView) rootView.findViewById(R.id.header);
@@ -134,4 +137,13 @@ public class ArtistTabFragment extends Fragment {
         }
 
     }
+
+    public static void updateContextArray(){ //called whenever a song is clicked in this fragment
+        contextArray = currentSongList;
+    }
+
+    public static ArrayList<Song> getContextArray(){
+        return contextArray;
+    }
+
 }

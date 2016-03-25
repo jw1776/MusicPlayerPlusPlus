@@ -197,6 +197,11 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         player.start();
     }
 
+    public ArrayList<Song> getSongArray(){
+        return songArray;
+    }
+
+
     public int getSongPosition() { return songPosition;}
 
 

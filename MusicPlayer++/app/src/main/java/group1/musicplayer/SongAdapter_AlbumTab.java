@@ -50,7 +50,7 @@ public class SongAdapter_AlbumTab extends BaseAdapter {
 
         titleView.setText(currentSong.getTitle()); //pass data to textView objects in each list item
 
-        listLayout.setTag(currentSong.getID()); //use the song's ID as a tag
+        listLayout.setTag(position); //use the song's position as a tag
         return listLayout;
     }
 }
