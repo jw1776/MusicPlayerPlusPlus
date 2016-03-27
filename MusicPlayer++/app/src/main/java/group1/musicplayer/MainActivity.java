@@ -19,6 +19,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Random;
+import java.util.jar.Manifest;
 
 import android.net.Uri;
 import android.content.ContentResolver;
@@ -367,6 +368,9 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             case R.id.voice_button:
                 promptSpeechInput();
                 break;
+            case R.id.video_button:
+                startVideo();
+                break;
 
         }//end switch
         return super.onOptionsItemSelected(item);
@@ -390,9 +394,9 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
                     case R.id.timer_icon:
                         Intent timerActivity = new Intent(MainActivity.this, CustomTimer.class);
-                       // timerActivity.putExtra("minuteValue", minuteValue);
-                       // timerActivity.putExtra("hourValue", hourValue);
-                       // startActivityForResult(timerActivity, 3);
+                        // timerActivity.putExtra("minuteValue", minuteValue);
+                        // timerActivity.putExtra("hourValue", hourValue);
+                        // startActivityForResult(timerActivity, 3);
                         startActivity(timerActivity);
                         break;
 
@@ -440,6 +444,30 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         }
         //the song they want to play does not exist OR it did not get translated correctly
         Toast.makeText(getApplicationContext(), "Could not find song: " + song, Toast.LENGTH_SHORT).show();
+    }
+
+    //launches the youtube player for the playing song
+    private void startVideo(){
+
+        String song = getCurrentSong();
+        Intent i = new Intent(MainActivity.this, YoutubeSearch.class);
+
+        if(song != null){//a song is currently selected
+            //search for a video for the current song and begin playing it
+            i.putExtra("currentSong", song);
+        }
+        startActivity(i);
+    }
+
+    //returns the title and artist of the current song playing
+    //if no song is currently playing, returns null
+    private String getCurrentSong(){
+
+        if(musicServiceObject.getSongPosition() != -1){
+            System.out.println("*******current playing song val is: " + musicServiceObject.getSongPosition());
+            return songList.get(musicServiceObject.getSongPosition()).toString();
+        }
+        return null;
     }
 
     private void toggleShuffle(){

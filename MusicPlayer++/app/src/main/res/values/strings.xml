@@ -7,6 +7,10 @@
     <string name="title_activity_create_playlist">Create Playlist</string>
     <string name="title_activity_settings">Settings</string>
 
+    <!-- Strings related to YouTube player -->
+    <string name="search">Search</string>
+    <string name="failed">Failed to initialize Youtube Player</string>
+
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->
