@@ -43,10 +43,7 @@ public class YoutubeSearch extends Activity {
         String song = getIntent().getStringExtra("currentSong");
         if(song != null){
             searchInput.setText(song);
-            System.out.println("***********" + song);
         }
-        else
-            System.out.println("***********A SONG HAS NOT BEEN CHOSEN YET");
 
         searchInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -62,12 +59,14 @@ public class YoutubeSearch extends Activity {
         addClickListener();
     }
 
+    //populate the player with the videos that match the users song
     private void searchOnYoutube(final String keywords){
+
         new Thread(){
             public void run(){
                 YoutubeConnector yc = new YoutubeConnector(YoutubeSearch.this);
-                searchResults = yc.search(keywords);
-                System.out.println("*************The keywords are: " + keywords);
+                searchResults = yc.findVideos(keywords);
+
                 handler.post(new Runnable(){
                     public void run(){
                         updateVideosFound();
@@ -77,23 +76,26 @@ public class YoutubeSearch extends Activity {
         }.start();
     }
 
+    //updates the view with each video item found, including the thumbnail, title, description, etc
     private void updateVideosFound(){
-        ArrayAdapter<VideoItem> adapter = new ArrayAdapter<VideoItem>(getApplicationContext(), R.layout.activity_video_item, searchResults){
+
+        ArrayAdapter<VideoItem> videoAdapter = new ArrayAdapter<VideoItem>(getApplicationContext(), R.layout.activity_video_item, searchResults){
             @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                if(convertView == null){
-                    convertView = getLayoutInflater().inflate(R.layout.activity_video_item, parent, false);
+            public View getView(int position, View view, ViewGroup parent) {
+                if(view == null){
+                    view = getLayoutInflater().inflate(R.layout.activity_video_item, parent, false);
                 }
-                ImageView thumbnail = (ImageView)convertView.findViewById(R.id.video_thumbnail);
-                TextView title = (TextView)convertView.findViewById(R.id.video_title);
-                TextView description = (TextView)convertView.findViewById(R.id.video_description);
+                ImageView thumbnail = (ImageView)view.findViewById(R.id.video_thumbnail);
+                TextView title = (TextView)view.findViewById(R.id.video_title);
+                TextView description = (TextView)view.findViewById(R.id.video_description);
 
                 VideoItem searchResult = searchResults.get(position);
 
+                //set the thumbnail, title and description from the videoitem to the view
                 Picasso.with(getApplicationContext()).load(searchResult.getThumbnailURL()).into(thumbnail);
                 title.setText(searchResult.getTitle());
                 description.setText(searchResult.getDescription());
-                return convertView;
+                return view;
             }
         };
      /*   if(videosFound == null){
@@ -107,21 +109,20 @@ public class YoutubeSearch extends Activity {
         }else{
             System.out.println("adapter is NOT null***********");
         }
-*/
         if(searchResults == null){
             System.out.println("searchResults is null***********");
         }else{
             System.out.println("searchResults is NOT null***********");
-        }
-        videosFound.setAdapter(adapter);
+        }*/
+        videosFound.setAdapter(videoAdapter);
     }
 
     private void addClickListener(){
+
         videosFound.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
-            public void onItemClick(AdapterView<?> av, View v, int pos,
-                                    long id) {
+            public void onItemClick(AdapterView<?> av, View v, int pos, long id) {
                 Intent intent = new Intent(getApplicationContext(), YoutubePlayer.class);
                 intent.putExtra("VIDEO_ID", searchResults.get(pos).getId());
                 startActivity(intent);

@@ -5,6 +5,8 @@ import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.provider.MediaStore;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
@@ -36,6 +38,7 @@ import android.view.View;
 
 //import fm.last.musicbrainz.data.dao.ArtistDao;
 import group1.musicplayer.MusicService.MusicBinder;
+
 import android.widget.MediaController.MediaPlayerControl;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -83,7 +86,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private String minuteValue = "00";
     private int shufflePos = 0;
 
-    private final int REQ_CODE_SPEECH_INPUT = 9000;
+    private final int REQ_CODE_VIDEO_PLAYER = 2;
+    private final int REQ_CODE_SPEECH_INPUT = 3;
 
     ActionBar.Tab songTab, artistTab, albumTab, playlistTab;
     Fragment songTabFragment = new SongTabFragment();
@@ -91,7 +95,6 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     Fragment albumTabFragment = new AlbumTabFragment();
     Fragment playlistTabFragment = new PlaylistTabFragment();
 
-    //http://www.androidhive.info/2014/07/android-speech-to-text-tutorial/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -160,12 +163,12 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             https://github.com/lastfm/musicbrainz-data
         }*/
 
-        controller_layout = (LinearLayout)findViewById(R.id.controller_layout);
-        nowPlayingText = (TextView)findViewById(R.id.nowplaying);
+        controller_layout = (LinearLayout) findViewById(R.id.controller_layout);
+        nowPlayingText = (TextView) findViewById(R.id.nowplaying);
         setController(); //initializes the MediaController
     }
 
-    private void setAllTabListeners(){
+    private void setAllTabListeners() {
         //Set tab listeners
         songTab.setTabListener(new TabListener(songTabFragment));
         artistTab.setTabListener(new TabListener(artistTabFragment));
@@ -173,7 +176,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         playlistTab.setTabListener(new TabListener(playlistTabFragment));
     }
 
-    private void sortSongsByTitle(){
+    private void sortSongsByTitle() {
 
         Collections.sort(songList, new Comparator<Song>() {
             public int compare(Song a, Song b) {
@@ -182,48 +185,46 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         });
     }
 
-    private void sortArtistsByTitle(){
+    private void sortArtistsByTitle() {
 
         Collections.sort(artistArray, new Comparator<Artist>() {
             public int compare(Artist a, Artist b) {
                 if (a.getTitle() == null || b.getTitle() == null) { //if either of the artist titles are null
                     return 0; //return 0, which indicates that the artist are equal
-                }
-                else {
+                } else {
                     return a.getTitle().compareToIgnoreCase(b.getTitle()); //otherwise compare as normal
                 }
             }
         });
     }
 
-    private void sortAlbumsByTitle(){
+    private void sortAlbumsByTitle() {
 
         Collections.sort(albumArray, new Comparator<Album>() {
             public int compare(Album a, Album b) {
                 if (a.getTitle() == null || b.getTitle() == null) { //if either of the artist titles are null
                     return 0; //return 0, which indicates that the artist are equal
-                }
-                else {
+                } else {
                     return a.getTitle().compareToIgnoreCase(b.getTitle()); //otherwise compare as normal
                 }
             }
         });
     }
 
-    private void populateArtistArray(){
+    private void populateArtistArray() {
         //populate artistArray from the songList
-        for(int i = 0; i < songList.size(); i++){
+        for (int i = 0; i < songList.size(); i++) {
             String thisArtist = songList.get(i).getArtist();
             boolean artistFound = false;
 
-            for(int j = 0; j < artistArray.size(); j++){
-                if(artistArray.get(j).getTitle().equalsIgnoreCase(thisArtist)){     //if the artist already exists in our array
+            for (int j = 0; j < artistArray.size(); j++) {
+                if (artistArray.get(j).getTitle().equalsIgnoreCase(thisArtist)) {     //if the artist already exists in our array
                     artistFound = true;
                     artistArray.get(j).addSong(songList.get(i));        //add this song to the artist's array of songs
                     break;
                 }
             }// inner for
-            if(!artistFound){   //if the artist was not found in the array
+            if (!artistFound) {   //if the artist was not found in the array
                 Artist newArtist = new Artist(thisArtist);
                 newArtist.addSong(songList.get(i));
                 artistArray.add(newArtist);
@@ -232,22 +233,22 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         sortArtistsByTitle();
     }
 
-    private void populateAlbumArray(){
+    private void populateAlbumArray() {
         //populate albumArray from the songList
-        for(int i = 0; i < songList.size(); i++){
+        for (int i = 0; i < songList.size(); i++) {
             String thisAlbum = songList.get(i).getAlbum();
             long thisAlbumID = songList.get(i).getAlbumId();
             String thisAlbumArtist = songList.get(i).getArtist();
             boolean albumFound = false;
 
-            for(int j = 0; j < albumArray.size(); j++){
-                if(albumArray.get(j).getId() == thisAlbumID){     //if the album already exists in our array
+            for (int j = 0; j < albumArray.size(); j++) {
+                if (albumArray.get(j).getId() == thisAlbumID) {     //if the album already exists in our array
                     albumFound = true;
                     albumArray.get(j).addSong(songList.get(i));        //add this song to the album's array of songs
                     break;
                 }
             }// inner for
-            if(!albumFound){   //if the album was not found in the array
+            if (!albumFound) {   //if the album was not found in the array
                 Album newAlbum = new Album(thisAlbum, thisAlbumID, thisAlbumArtist);
                 newAlbum.addSong(songList.get(i));
                 albumArray.add(newAlbum);
@@ -256,11 +257,11 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         sortAlbumsByTitle();
     }
 
-    private ServiceConnection musicConnection = new ServiceConnection(){ //connect to service, create ServiceConnection object
+    private ServiceConnection musicConnection = new ServiceConnection() { //connect to service, create ServiceConnection object
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            MusicBinder binder = (MusicBinder)service;// binder variable = passed "service" variable
+            MusicBinder binder = (MusicBinder) service;// binder variable = passed "service" variable
             musicServiceObject = binder.getService(); //get service
             musicServiceObject.fillList(songList); //Pass the array of songs to the MusicService object
             musicBound = true;
@@ -268,7 +269,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         }// end onServiceConnected method
 
         @Override
-        public void onServiceDisconnected(ComponentName name){
+        public void onServiceDisconnected(ComponentName name) {
             musicBound = false;
         }
     };
@@ -278,7 +279,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         @Override
         public void onReceive(Context c, Intent i) {
             // When music player has been prepared, show controller
-            if(userAction){
+            if (userAction) {
                 controller.show(0);
                 controller_layout.setVisibility(View.VISIBLE); //show the media controller after a song has been chosen
             }
@@ -286,9 +287,9 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     };
 
     @Override
-    protected void onStart(){
+    protected void onStart() {
         super.onStart();
-        if(playIntent==null){
+        if (playIntent == null) {
             playIntent = new Intent(this, MusicService.class);
 
             bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
@@ -298,20 +299,20 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
 
     @Override
-    protected void onPause(){
+    protected void onPause() {
         super.onPause();
         paused = true;
     }
 
     @Override
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
 
         // Set up receiver for media player onPrepared broadcast
         LocalBroadcastManager.getInstance(this).registerReceiver(onPrepareReceiver,
                 new IntentFilter("MEDIA_PLAYER_PREPARED"));
 
-        if(paused){
+        if (paused) {
             setController(); //needed for controller to display upon returning to the app
             paused = false;
         }
@@ -327,15 +328,15 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
 
     @Override
-    protected void onStop(){
+    protected void onStop() {
         controller.hide();
         super.onStop();
     }
 
     @Override
-    protected void onDestroy(){
+    protected void onDestroy() {
         stopService(playIntent);
-        musicServiceObject=null;
+        musicServiceObject = null;
         super.onDestroy();
     }
 
@@ -347,8 +348,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item){ //handles end/shuffle buttons
-        switch(item.getItemId()) {
+    public boolean onOptionsItemSelected(MenuItem item) { //handles end/shuffle buttons
+        switch (item.getItemId()) {
             case R.id.action_shuffle:
                 //shuffle
                 toggleShuffle();
@@ -369,7 +370,12 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 promptSpeechInput();
                 break;
             case R.id.video_button:
-                startVideo();
+                if (isNetworkAvailable()) {
+                    startVideo();
+                } else {
+                    Toast.makeText(getApplicationContext(), "ERROR: Please connect to WIFI or enable"
+                            + " mobile data.", Toast.LENGTH_SHORT).show();
+                }
                 break;
 
         }//end switch
@@ -412,7 +418,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     /**
      * Showing google speech input dialog
-     * */
+     */
     private void promptSpeechInput() {
 
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
@@ -431,12 +437,12 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
 
     //grabs the voice to text value the user said (the song) and plays the song
-    private void playRecognizedSong(String song){
+    private void playRecognizedSong(String song) {
 
         //search the song list for the song that the user said
-        for(int i = 0; i < songList.size(); i++){
+        for (int i = 0; i < songList.size(); i++) {
             //ignore any special characters in the original title of the song
-            if(songList.get(i).getTitle().replaceAll("\\p{Punct}", "").equalsIgnoreCase(song.replaceAll("\\p{Punct}", ""))){
+            if (songList.get(i).getTitle().replaceAll("\\p{Punct}", "").equalsIgnoreCase(song.replaceAll("\\p{Punct}", ""))) {
                 musicServiceObject.setSong(i);
                 musicServiceObject.playSong();
                 return;
@@ -446,65 +452,70 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         Toast.makeText(getApplicationContext(), "Could not find song: " + song, Toast.LENGTH_SHORT).show();
     }
 
-    //launches the youtube player for the playing song
-    private void startVideo(){
+    //check if the user has access to internet or not
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null;
+    }
 
-        String song = getCurrentSong();
+    //launches the youtube player for the playing song
+    private void startVideo() {
+
         Intent i = new Intent(MainActivity.this, YoutubeSearch.class);
 
-        if(song != null){//a song is currently selected
+        if (playbackPaused || isPlaying()) {
             //search for a video for the current song and begin playing it
-            i.putExtra("currentSong", song);
+            i.putExtra("currentSong", getCurrentSong());
+            pause();
         }
-        startActivity(i);
+        startActivityForResult(i, REQ_CODE_VIDEO_PLAYER);
     }
 
     //returns the title and artist of the current song playing
     //if no song is currently playing, returns null
-    private String getCurrentSong(){
+    private String getCurrentSong() {
 
-        if(musicServiceObject.getSongPosition() != -1){
+        if (musicServiceObject.getSongPosition() != -1) {
             System.out.println("*******current playing song val is: " + musicServiceObject.getSongPosition());
-            return songList.get(musicServiceObject.getSongPosition()).toString();
+            return musicServiceObject.getSongArray().get(musicServiceObject.getSongPosition()).toString();
         }
         return null;
     }
 
-    private void toggleShuffle(){
+    private void toggleShuffle() {
         //toggle on or off the shuffle button
         shufflePos = 0;
         shuffleList = new ArrayList<Integer>();
         shuffleList.add(musicServiceObject.getSongPosition());
-        if(shuffleOn){
+        if (shuffleOn) {
             shuffleOn = false;
             Toast.makeText(getApplicationContext(), "Shuffle toggled off.", Toast.LENGTH_SHORT).show();
-        }
-        else{
+        } else {
             shuffleOn = true;
             Toast.makeText(getApplicationContext(), "Shuffle toggled on.", Toast.LENGTH_SHORT).show();
         }
     }
 
     //randomly shuffles the next song to play
-    private void shuffleSong(){
+    private void shuffleSong() {
 
-        if(shuffleOn){//randomly shuffle the next song
+        if (shuffleOn) {//randomly shuffle the next song
             int num = random.nextInt(musicServiceObject.getSongArray().size());
             shuffleList.add(num);//keep a list of the randomly generated songs
-        }
-        else{//set the next song to play in the list
+        } else {//set the next song to play in the list
             //pos is at the end, so set the next song to the first song
-            if(musicServiceObject.getSongPosition() == musicServiceObject.getSongArray().size() - 1){
+            if (musicServiceObject.getSongPosition() == musicServiceObject.getSongArray().size() - 1) {
                 musicServiceObject.setSong(0);
-            }
-            else{
+            } else {
                 musicServiceObject.setSong(musicServiceObject.getSongPosition() + 1);
             }
         }
     }
 
     //display the activity to add additional files, like recordings
-    private void beginAudioActivity(){
+    private void beginAudioActivity() {
 
         Intent i = new Intent(this, Audio.class);
         i.putExtra("filteredAudioList", audioList);
@@ -512,22 +523,22 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
 
     //add the new songs to the default list
-    private void addAdditionalSongs(ArrayList<Song> additionalSongs){
+    private void addAdditionalSongs(ArrayList<Song> additionalSongs) {
 
-       // System.out.println("\n*\n*\n**********************BEFORE THE SIZE OF THE SONG LIST IS: " + songList.size());
-        for(int i = 0; i < additionalSongs.size(); i++) {
+        // System.out.println("\n*\n*\n**********************BEFORE THE SIZE OF THE SONG LIST IS: " + songList.size());
+        for (int i = 0; i < additionalSongs.size(); i++) {
             songList.add(additionalSongs.get(i));
         }
-       // System.out.println("\n*\n*\n**********************AFTER THE SIZE OF THE SONG LIST IS: " + songList.size());
+        // System.out.println("\n*\n*\n**********************AFTER THE SIZE OF THE SONG LIST IS: " + songList.size());
     }
 
-    private void removeDuplicates(){//remove duplicate songs based on artist and title
+    private void removeDuplicates() {//remove duplicate songs based on artist and title
 
         HashMap<String, Song> map = new HashMap<String, Song>();
 
         //add all of the song items to a map, to remove the duplicates
-        for(int i = 0; i < songList.size(); i++) {
-            if(!map.containsKey(songList.get(i).toString()))//toString is the artist and title
+        for (int i = 0; i < songList.size(); i++) {
+            if (!map.containsKey(songList.get(i).toString()))//toString is the artist and title
                 map.put(songList.get(i).toString(), songList.get(i));
         }
         //override the previous values of the list with the hashmap
@@ -571,34 +582,34 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         audioList = new ArrayList<Song>(map.values());//populate the audioList with the map contents
     }
 
-    private void addListToMap(ArrayList<Song> list, HashMap<String, Song> map){
+    private void addListToMap(ArrayList<Song> list, HashMap<String, Song> map) {
 
         //add all of the song items to a map, to remove the duplicates
-        for(int i = 0; i < list.size(); i++) {
-            if(!map.containsKey(list.get(i).toString()))//toString is the artist and title
+        for (int i = 0; i < list.size(); i++) {
+            if (!map.containsKey(list.get(i).toString()))//toString is the artist and title
                 map.put(list.get(i).toString(), list.get(i));
         }
     }
 
-    private void removeNonsenseFromMap(ArrayList<Song> list, HashMap<String, Song> map){
+    private void removeNonsenseFromMap(ArrayList<Song> list, HashMap<String, Song> map) {
 
-        for(int i = 0; i < list.size(); i++){
-            if(map.containsKey(list.get(i).toString())) {
+        for (int i = 0; i < list.size(); i++) {
+            if (map.containsKey(list.get(i).toString())) {
                 map.remove(list.get(i).toString());
             }
         }
     }
 
-    private void printList(ArrayList<Song> list){//for debugging
+    private void printList(ArrayList<Song> list) {//for debugging
 
-        for(int i = 0; i < list.size(); i++)
+        for (int i = 0; i < list.size(); i++)
             System.out.println(list.get(i).toString() + " Album: " + list.get(i).getAlbum());
     }
 
     //create and populate a list of Song objects for the passed in lists, such as
     //songList, ringtones, notifications, and everything
     private void createList(ContentResolver musicResolver, Uri musicUri, String[] musicContents,
-                            String selection, ArrayList<Song> list){
+                            String selection, ArrayList<Song> list) {
 
         Cursor musicCursor = musicResolver.query(
                 musicUri,//the location of the media
@@ -629,7 +640,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         }
     }
 
-    public static ArrayList<Song> getSongArray(){ //for use in SongTabFragment
+    public static ArrayList<Song> getSongArray() { //for use in SongTabFragment
         return songList;
     }
 
@@ -637,11 +648,11 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         return artistArray;
     }
 
-    public static ArrayList<Album> getAlbumArray(){
+    public static ArrayList<Album> getAlbumArray() {
         return albumArray;
     }
 
-    public void songPicked(View view){ //executes when an item in SongTabFragment's ListView is clicked. Defined in xml
+    public void songPicked(View view) { //executes when an item in SongTabFragment's ListView is clicked. Defined in xml
         userAction = true;
 
         musicServiceObject.fillList(songList);
@@ -654,17 +665,17 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         //controller.show(0);
     }
 
-    public void artistPicked(View view){
+    public void artistPicked(View view) {
         int artistPosition = (int) view.getTag();
         ArtistTabFragment.showAlbums(artistArray.get(artistPosition).getAlbums());
     }
 
-    public void albumPicked_artistTab(View view){
+    public void albumPicked_artistTab(View view) {
         int albumPosition = (int) view.getTag();
         ArtistTabFragment.showSongs(albumPosition);
     }
 
-    public void songPicked_artistTab(View view){
+    public void songPicked_artistTab(View view) {
         userAction = true;
         ArtistTabFragment.updateContextArray();
 
@@ -673,16 +684,16 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         musicServiceObject.playSong();
     }
 
-    public void backButton_artistTab(View view){
+    public void backButton_artistTab(View view) {
         ArtistTabFragment.backButtonPressed();
     }
 
-    public static void setNowPlayingText(Song songNowPlaying){
+    public static void setNowPlayingText(Song songNowPlaying) {
         nowPlayingText.setText(songNowPlaying.getTitle() + " - " + songNowPlaying.getArtist());
     }
 
     // Methods below this point handle the MediaController
-    private void setController(){
+    private void setController() {
         if (controller == null) controller = new MusicController(this);
 
         //controller = new MusicController(this);
@@ -704,15 +715,14 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         controller.setEnabled(true);
     }
 
-    protected void playNext(){ //called above by the Controller's onClick methods
+    protected void playNext() { //called above by the Controller's onClick methods
 
-        if(shuffleOn){
+        if (shuffleOn) {
             shufflePos++;
             shuffleSong();
             musicServiceObject.setSong(shuffleList.get(shufflePos));
             musicServiceObject.playSong();
-        }
-        else
+        } else
             musicServiceObject.playNext();
         //if(playbackPaused){
         //    setController();
@@ -723,19 +733,18 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
 
     protected void playPrev() {
-        if(shuffleOn){
+        if (shuffleOn) {
             shufflePos--;
             //Reset Song to the end of the Shuffle Song ArrayList
-            if(shufflePos < 0){
+            if (shufflePos < 0) {
                 shufflePos = shuffleList.size() - 1;
             }
 
             musicServiceObject.setSong(shuffleList.get(shufflePos));
             musicServiceObject.playSong();
 
-        }
-        else
-        musicServiceObject.playPrev();
+        } else
+            musicServiceObject.playPrev();
         //if(playbackPaused){
         //    setController();
         //    playbackPaused = false;
@@ -743,13 +752,14 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         //controller.show(0);
     }
 
-    private void search(){
+    private void search() {
         //start the custom dialog box which is actually a new activity called SearchDialogBox
         Intent i = new Intent(getApplicationContext(), SearchDialogBox.class);
         i.putParcelableArrayListExtra("song_list", songList);
         startActivityForResult(i, 1);
 
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -762,22 +772,22 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
                 //check the first in the list and see what they said
 
-                if(voiceItems.get(0).equalsIgnoreCase("Play next song")){
+                if (voiceItems.get(0).equalsIgnoreCase("Play next song")) {
                     playNext();
-                }
-                else if(voiceItems.get(0).equalsIgnoreCase("Play previous song")){
+                } else if (voiceItems.get(0).equalsIgnoreCase("Play previous song")) {
                     playPrev();
-                }
-                else {
+                } else {
                     playRecognizedSong(voiceItems.get(0));
                 }
                 //for testing
-                for(int i = 0; i < voiceItems.size(); i++){
+                for (int i = 0; i < voiceItems.size(); i++) {
                     System.out.println("Voice item " + i + ": " + voiceItems.get(i));
                 }
-            }
-
-            else {
+            } else if (requestCode == REQ_CODE_VIDEO_PLAYER && playbackPaused) {
+                System.out.println("***BACK");
+                musicServiceObject.playSong();//resume the player when returned from video player
+                //left off here...song does not resume prob cuz of nested activities or does not finish properly
+            } else {
                 ArrayList<String> audioListString = data.getStringArrayListExtra("additionalSongs");
 
                 //find the Song objects that were added
@@ -796,7 +806,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         }
 
         if (requestCode == 1 && resultCode == 1 && data != null) {
-            musicServiceObject.setSong(data.getIntExtra("searchChoice",-1));
+            musicServiceObject.setSong(data.getIntExtra("searchChoice", -1));
             musicServiceObject.playSong();
             //if(playbackPaused){
             //    setController();
@@ -806,14 +816,14 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         }
     }
 
-    private ArrayList<Song> findAdditionalSongs(ArrayList<String> additionalListString){
+    private ArrayList<Song> findAdditionalSongs(ArrayList<String> additionalListString) {
 
         ArrayList<Song> additionalSongs = new ArrayList<Song>();
 
-        for(int i = 0; i < additionalListString.size(); i++){
-            for(int j = 0; j < audioList.size(); j++){
-                if(audioList.get(j).toString().equals(additionalListString.get(i))){
-                   // System.out.println("additional found: " + audioList.get(i).toString());
+        for (int i = 0; i < additionalListString.size(); i++) {
+            for (int j = 0; j < audioList.size(); j++) {
+                if (audioList.get(j).toString().equals(additionalListString.get(i))) {
+                    // System.out.println("additional found: " + audioList.get(i).toString());
                     additionalSongs.add(audioList.remove(j));
                     break;
                 }
@@ -844,7 +854,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     @Override
     public int getDuration() {
-        if(musicServiceObject!=null && musicBound && musicServiceObject.isPng()){ //make sure MusicService is instantiated and bound to this activity
+        if (musicServiceObject != null && musicBound && musicServiceObject.isPng()) { //make sure MusicService is instantiated and bound to this activity
             lastKnownDuration = musicServiceObject.getDur();
             return lastKnownDuration;
 
@@ -853,7 +863,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     @Override
     public int getCurrentPosition() {
-        if(musicServiceObject!=null && musicBound && musicServiceObject.isPng()){
+        if (musicServiceObject != null && musicBound && musicServiceObject.isPng()) {
             lastKnownPosition = musicServiceObject.getPosn();
             return lastKnownPosition;
         } else return lastKnownPosition;
@@ -866,7 +876,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     @Override
     public boolean isPlaying() {
-        if(musicServiceObject!=null && musicBound){
+        if (musicServiceObject != null && musicBound) {
             return musicServiceObject.isPng();
         } else return false;
     }
@@ -897,8 +907,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
 
     public void addPlaylistClick(View v) {
-        Intent i = new Intent(getApplicationContext(),CreatePlaylistActivity.class);
-        i.putParcelableArrayListExtra("song_list",songList);
+        Intent i = new Intent(getApplicationContext(), CreatePlaylistActivity.class);
+        i.putParcelableArrayListExtra("song_list", songList);
         startActivityForResult(i, 1);
     }
 
@@ -907,20 +917,20 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         PlaylistTabFragment.showPlaylistSongs(playlistPosition);
     }
 
-    public void backButton_playlistTab (View v) {
+    public void backButton_playlistTab(View v) {
         PlaylistTabFragment.backButtonPressed();
     }
 
-    public void backButton_albumTab (View v){
+    public void backButton_albumTab(View v) {
         AlbumTabFragment.backButtonPressed();
     }
 
-    public void albumPicked_albumTab (View v){
+    public void albumPicked_albumTab(View v) {
         int albumPosition = (int) v.getTag();
         AlbumTabFragment.showAlbumSongs(albumPosition);
     }
 
-    public void songPicked_albumTab (View view){
+    public void songPicked_albumTab(View view) {
         userAction = true;
         AlbumTabFragment.updateContextArray();
 
@@ -929,7 +939,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         musicServiceObject.playSong();
     }
 
-    public void songPicked_playlistTab (View view){
+    public void songPicked_playlistTab(View view) {
         userAction = true;
         PlaylistTabFragment.updateContextArray();
         Log.e("DEBUG", "songPicked_playlistTab RUNNINGNOW");
