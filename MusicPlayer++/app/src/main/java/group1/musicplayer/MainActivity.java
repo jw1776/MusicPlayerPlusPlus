@@ -377,6 +377,9 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                             + " mobile data.", Toast.LENGTH_SHORT).show();
                 }
                 break;
+            case R.id.lyrics:
+                searchLyrics();
+                break;
 
         }//end switch
         return super.onOptionsItemSelected(item);
@@ -460,6 +463,11 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         return activeNetworkInfo != null;
     }
 
+    //Searches Google for lyrics
+    private void searchLyrics(){
+        Intent I = new Intent(MainActivity.this, LyricsSearch.class);
+    }
+
     //launches the youtube player for the playing song
     private void startVideo() {
 
@@ -501,17 +509,17 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     //randomly shuffles the next song to play
     private void shuffleSong() {
 
-        if (shuffleOn) {//randomly shuffle the next song
+//        if (shuffleOn) {//randomly shuffle the next song
             int num = random.nextInt(musicServiceObject.getSongArray().size());
             shuffleList.add(num);//keep a list of the randomly generated songs
-        } else {//set the next song to play in the list
-            //pos is at the end, so set the next song to the first song
-            if (musicServiceObject.getSongPosition() == musicServiceObject.getSongArray().size() - 1) {
-                musicServiceObject.setSong(0);
-            } else {
-                musicServiceObject.setSong(musicServiceObject.getSongPosition() + 1);
-            }
-        }
+//        } else {//set the next song to play in the list
+//            //pos is at the end, so set the next song to the first song
+//            if (musicServiceObject.getSongPosition() == musicServiceObject.getSongArray().size() - 1) {
+//                musicServiceObject.setSong(0);
+//            } else {
+//                musicServiceObject.setSong(musicServiceObject.getSongPosition() + 1);
+//            }
+//        }
     }
 
     //display the activity to add additional files, like recordings
