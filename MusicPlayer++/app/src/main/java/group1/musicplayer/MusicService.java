@@ -29,6 +29,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private final IBinder musicBind = new MusicBinder();
 
     private String songTitle = "";
+    private String songArtist = "";
     private static final int NOTIFY_ID = 1;
 
     public void onCreate(){
@@ -65,6 +66,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         Song playSong = songArray.get(songPosition);
         MainActivity.setNowPlayingText(playSong);
         songTitle = playSong.getTitle();
+        songArtist = playSong.getArtist();
         long currentSong = playSong.getID();
         Uri trackUri = ContentUris.withAppendedId(android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 currentSong);
@@ -84,6 +86,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         Song playSong = songArray.get(songPosition);
         MainActivity.setNowPlayingText(playSong);
         songTitle = playSong.getTitle();
+        songArtist = playSong.getArtist();
         long currentSong = playSong.getID();
         Uri trackUri = ContentUris.withAppendedId(android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 currentSong);
@@ -203,6 +206,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
 
     public int getSongPosition() { return songPosition;}
+
+    public String getSongTitle() { return songTitle; }
+
+    public String getSongArtist() { return songArtist; }
 
 
 }

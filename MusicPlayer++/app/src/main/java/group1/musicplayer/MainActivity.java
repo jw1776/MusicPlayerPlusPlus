@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
@@ -15,6 +16,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -47,6 +52,13 @@ import android.widget.Toast;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 /*
 import org.springframework.beans.factory.annotation.Autowired;
@@ -378,7 +390,12 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 }
                 break;
             case R.id.lyrics:
-                searchLyrics();
+                if (isNetworkAvailable()) {
+                    searchLyrics();
+                } else {
+                    Toast.makeText(getApplicationContext(), "ERROR: Please connect to WIFI or enable"
+                            + " mobile data.", Toast.LENGTH_SHORT).show();
+                }
                 break;
 
         }//end switch
@@ -463,9 +480,84 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         return activeNetworkInfo != null;
     }
 
-    //Searches Google for lyrics
+    //Searches lyrics via WebView
     private void searchLyrics(){
-        Intent I = new Intent(MainActivity.this, LyricsSearch.class);
+        String songTitle = musicServiceObject.getSongTitle();
+        if(songTitle.contains(" ")){
+            songTitle = songTitle.replace(' ', '+');
+        }
+        String songArtist = musicServiceObject.getSongArtist();
+        if(songArtist.contains(" ")){
+            songArtist = songArtist.replace(' ', '+');
+        }
+
+        String song = "http://api.lyricsnmusic.com/songs?api_key=53f9fa63b88b03a07cd32892ae23ee&artist=" + songArtist +
+                "&track=" + songTitle;
+        // call AsynTask to perform network operation on separate thread
+        new HttpAsyncTask().execute(song);
+    //    Intent I = new Intent(MainActivity.this, LyricsSearch.class);
+    }
+
+    public String GET(String url){
+        InputStream inputStream = null;
+        String result = "";
+        try {
+
+            // create HttpClient
+            HttpClient httpclient = new DefaultHttpClient();
+
+            // make GET request to the given URL
+            HttpResponse httpResponse = httpclient.execute(new HttpGet(url));
+
+            // receive response as inputStream
+            inputStream = httpResponse.getEntity().getContent();
+
+            // convert inputstream to string
+            if(inputStream != null)
+                result = convertInputStreamToString(inputStream);
+            else
+                result = "Did not work!";
+
+        } catch (Exception e) {
+            Log.d("InputStream", e.getLocalizedMessage());
+        }
+
+        return result;
+    }
+
+    private String convertInputStreamToString(InputStream inputStream) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
+        String line = "";
+        String result = "";
+        while((line = bufferedReader.readLine()) != null)
+            result += line;
+
+        inputStream.close();
+        return result;
+
+    }
+
+    private class HttpAsyncTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+
+            return GET(urls[0]);
+        }
+
+        // onPostExecute displays the results of the AsyncTask.
+        @Override
+        protected void onPostExecute(String result) {
+            Toast.makeText(getBaseContext(), "Received!", Toast.LENGTH_LONG).show();
+
+            try{
+                JSONArray jsonArray = new JSONArray(result);
+                String str = "";
+                str += jsonArray.getJSONObject(0).getString("url");
+            }catch (JSONException e){
+                Log.e("MYAPP", "unexpected JSON exception", e);
+            }
+
+        }
     }
 
     //launches the youtube player for the playing song
@@ -955,4 +1047,5 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         musicServiceObject.setSong(Integer.parseInt(view.getTag().toString()));
         musicServiceObject.playSong();
     }
+
 }
