@@ -31,6 +31,8 @@ import java.util.jar.Manifest;
 import android.net.Uri;
 import android.content.ContentResolver;
 import android.database.Cursor;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -97,6 +99,9 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private String hourValue = "00";
     private String minuteValue = "00";
     private int shufflePos = 0;
+    private String URL = "";
+
+    private WebView webView;
 
     private final int REQ_CODE_VIDEO_PLAYER = 2;
     private final int REQ_CODE_SPEECH_INPUT = 3;
@@ -495,8 +500,19 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 "&track=" + songTitle;
         // call AsynTask to perform network operation on separate thread
         new HttpAsyncTask().execute(song);
-    //    Intent I = new Intent(MainActivity.this, LyricsSearch.class);
+
+
     }
+
+//    @Override
+//    public void onBackPressed() {
+//        if(webView != null){
+//            Intent goBack = new Intent(this, MainActivity.class);
+//            startActivity(goBack);
+//        } else {
+//            finish();
+//        }
+//    }
 
     public String GET(String url){
         InputStream inputStream = null;
@@ -547,17 +563,47 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-            Toast.makeText(getBaseContext(), "Received!", Toast.LENGTH_LONG).show();
-
-            try{
+            //Toast.makeText(getBaseContext(), "Received!", Toast.LENGTH_LONG).show();
+            try {
                 JSONArray jsonArray = new JSONArray(result);
                 String str = "";
                 str += jsonArray.getJSONObject(0).getString("url");
-            }catch (JSONException e){
+                URL = str;
+                System.out.println(URL);
+                if (URL != "") {
+                    loadWebView();
+                }
+            } catch (JSONException e) {
                 Log.e("MYAPP", "unexpected JSON exception", e);
+                Toast.makeText(getBaseContext(), "Lyrics do not exist on LyricsnMusic", Toast.LENGTH_LONG).show();
+                googleSearch();
             }
 
         }
+    }
+
+    private void googleSearch(){
+        String songTitle = musicServiceObject.getSongTitle();
+        String songArtist = musicServiceObject.getSongArtist();
+    }
+
+    // http://stackoverflow.com/questions/7305089/how-to-load-external-webpage-inside-webview Reference
+    private void loadWebView(){
+        webView  = new WebView(this);
+
+        webView.getSettings().setJavaScriptEnabled(true); // enable javascript
+        webView.getSettings().setBuiltInZoomControls(true); //Set Zoom in/Zoom out
+
+        final Activity activity = this;
+
+        webView.setWebViewClient(new WebViewClient() {
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                Toast.makeText(activity, description, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        webView.loadUrl(URL);
+        setContentView(webView);
     }
 
     //launches the youtube player for the playing song
@@ -602,8 +648,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private void shuffleSong() {
 
 //        if (shuffleOn) {//randomly shuffle the next song
-            int num = random.nextInt(musicServiceObject.getSongArray().size());
-            shuffleList.add(num);//keep a list of the randomly generated songs
+        int num = random.nextInt(musicServiceObject.getSongArray().size());
+        shuffleList.add(num);//keep a list of the randomly generated songs
 //        } else {//set the next song to play in the list
 //            //pos is at the end, so set the next song to the first song
 //            if (musicServiceObject.getSongPosition() == musicServiceObject.getSongArray().size() - 1) {
