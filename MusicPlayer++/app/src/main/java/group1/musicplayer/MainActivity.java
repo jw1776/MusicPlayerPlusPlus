@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Random;
+import java.util.Timer;
 import java.util.jar.Manifest;
 
 import android.net.Uri;
@@ -72,15 +73,8 @@ import fm.last.musicbrainz.data.model.Artist;*/
 public class MainActivity extends Activity implements MediaPlayerControl {
 
     private static ArrayList<Song> songList, audioList;
-    private static ArrayList<Playlist> playlistArray;
     private static ArrayList<Artist> artistArray;
     private static ArrayList<Album> albumArray;
-    private static ArrayList<Song> currentContextArray;
-    private ArrayList<Song> searchList;
-    private ArrayList<Integer> searchIndex;
-    private boolean searching;
-    private String searchTerm;
-    private ListView songView;
     private LinearLayout controller_layout;
     private static TextView nowPlayingText;
     private MusicService musicServiceObject;
@@ -90,18 +84,14 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private boolean paused = false; //true if activity is in onPause state
     private boolean playbackPaused = false;
     private static boolean userAction = false;
-    private AlertDialog.Builder dialogBuilder;
     private static int lastKnownDuration = 0;
     private static int lastKnownPosition = 0;
     private final Random random = new Random();
     private boolean shuffleOn = false;
     private ArrayList<Integer> shuffleList;
-    private String hourValue = "00";
-    private String minuteValue = "00";
+
     private int shufflePos = 0;
     private String URL = "";
-
-    private WebView webView;
 
     private final int REQ_CODE_VIDEO_PLAYER = 2;
     private final int REQ_CODE_SPEECH_INPUT = 3;
@@ -396,7 +386,13 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 break;
             case R.id.lyrics:
                 if (isNetworkAvailable()) {
-                    searchLyrics();
+                    if(!isPlaying()){
+                        Toast.makeText(getApplicationContext(), "ERROR: Please select a song first to "
+                                + " display lyrics.", Toast.LENGTH_SHORT).show();
+                    }
+                    else{
+                        searchLyrics();
+                    }
                 } else {
                     Toast.makeText(getApplicationContext(), "ERROR: Please connect to WIFI or enable"
                             + " mobile data.", Toast.LENGTH_SHORT).show();
@@ -405,6 +401,96 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
         }//end switch
         return super.onOptionsItemSelected(item);
+    }
+
+    private void searchLyrics(){
+         String songTitle = musicServiceObject.getSongTitle();
+        if(songTitle.contains(" ")){
+            songTitle = songTitle.replace(' ', '+');
+        }
+         String songArtist = musicServiceObject.getSongArtist();
+        if(songArtist.contains(" ")){
+            songArtist = songArtist.replace(' ', '+');
+        }
+
+        String song = "http://api.lyricsnmusic.com/songs?api_key=53f9fa63b88b03a07cd32892ae23ee&artist=" + songArtist +
+                "&track=" + songTitle;
+        // call AsynTask to perform network operation on separate thread
+        new HttpAsyncTask().execute(song);
+    }
+
+    public String GET(String url){
+        InputStream inputStream = null;
+        String result = "";
+        try {
+
+            // create HttpClient
+            HttpClient httpclient = new DefaultHttpClient();
+
+            // make GET request to the given URL
+            HttpResponse httpResponse = httpclient.execute(new HttpGet(url));
+
+            // receive response as inputStream
+            inputStream = httpResponse.getEntity().getContent();
+
+            // convert inputstream to string
+            if(inputStream != null)
+                result = convertInputStreamToString(inputStream);
+            else
+                result = "Did not work!";
+
+        } catch (Exception e) {
+            Log.d("InputStream", e.getLocalizedMessage());
+        }
+
+        return result;
+    }
+
+    private String convertInputStreamToString(InputStream inputStream) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
+        String line = "";
+        String result = "";
+        while((line = bufferedReader.readLine()) != null)
+            result += line;
+
+        inputStream.close();
+        return result;
+
+    }
+
+    private class HttpAsyncTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+
+            return GET(urls[0]);
+        }
+
+        // onPostExecute displays the results of the AsyncTask.
+        @Override
+        protected void onPostExecute(String result) {
+            //Toast.makeText(getBaseContext(), "Received!", Toast.LENGTH_LONG).show();
+            try {
+                JSONArray jsonArray = new JSONArray(result);
+                String str = "";
+                str += jsonArray.getJSONObject(0).getString("url");
+                URL = str;
+                System.out.println(URL);
+                if (URL != "") {
+                    Intent i = new Intent(getApplicationContext(), SearchLyrics.class);
+                    i.putExtra("url", URL);
+                    startActivity(i);
+                }
+            } catch (JSONException e) {
+                Log.e("MYAPP", "unexpected JSON exception", e);
+                Toast.makeText(getBaseContext(), "Lyrics do not exist on LyricsnMusic", Toast.LENGTH_LONG).show();
+                googleSearch();
+            }
+        }
+    }
+
+    private void googleSearch(){
+        //   String songTitle = musicServiceObject.getSongTitle();
+        // String songArtist = musicServiceObject.getSongArtist();
     }
 
     /*display the settings to the user
@@ -485,25 +571,6 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         return activeNetworkInfo != null;
     }
 
-    //Searches lyrics via WebView
-    private void searchLyrics(){
-        String songTitle = musicServiceObject.getSongTitle();
-        if(songTitle.contains(" ")){
-            songTitle = songTitle.replace(' ', '+');
-        }
-        String songArtist = musicServiceObject.getSongArtist();
-        if(songArtist.contains(" ")){
-            songArtist = songArtist.replace(' ', '+');
-        }
-
-        String song = "http://api.lyricsnmusic.com/songs?api_key=53f9fa63b88b03a07cd32892ae23ee&artist=" + songArtist +
-                "&track=" + songTitle;
-        // call AsynTask to perform network operation on separate thread
-        new HttpAsyncTask().execute(song);
-
-
-    }
-
 //    @Override
 //    public void onBackPressed() {
 //        if(webView != null){
@@ -513,98 +580,6 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 //            finish();
 //        }
 //    }
-
-    public String GET(String url){
-        InputStream inputStream = null;
-        String result = "";
-        try {
-
-            // create HttpClient
-            HttpClient httpclient = new DefaultHttpClient();
-
-            // make GET request to the given URL
-            HttpResponse httpResponse = httpclient.execute(new HttpGet(url));
-
-            // receive response as inputStream
-            inputStream = httpResponse.getEntity().getContent();
-
-            // convert inputstream to string
-            if(inputStream != null)
-                result = convertInputStreamToString(inputStream);
-            else
-                result = "Did not work!";
-
-        } catch (Exception e) {
-            Log.d("InputStream", e.getLocalizedMessage());
-        }
-
-        return result;
-    }
-
-    private String convertInputStreamToString(InputStream inputStream) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
-        String line = "";
-        String result = "";
-        while((line = bufferedReader.readLine()) != null)
-            result += line;
-
-        inputStream.close();
-        return result;
-
-    }
-
-    private class HttpAsyncTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... urls) {
-
-            return GET(urls[0]);
-        }
-
-        // onPostExecute displays the results of the AsyncTask.
-        @Override
-        protected void onPostExecute(String result) {
-            //Toast.makeText(getBaseContext(), "Received!", Toast.LENGTH_LONG).show();
-            try {
-                JSONArray jsonArray = new JSONArray(result);
-                String str = "";
-                str += jsonArray.getJSONObject(0).getString("url");
-                URL = str;
-                System.out.println(URL);
-                if (URL != "") {
-                    loadWebView();
-                }
-            } catch (JSONException e) {
-                Log.e("MYAPP", "unexpected JSON exception", e);
-                Toast.makeText(getBaseContext(), "Lyrics do not exist on LyricsnMusic", Toast.LENGTH_LONG).show();
-                googleSearch();
-            }
-
-        }
-    }
-
-    private void googleSearch(){
-        String songTitle = musicServiceObject.getSongTitle();
-        String songArtist = musicServiceObject.getSongArtist();
-    }
-
-    // http://stackoverflow.com/questions/7305089/how-to-load-external-webpage-inside-webview Reference
-    private void loadWebView(){
-        webView  = new WebView(this);
-
-        webView.getSettings().setJavaScriptEnabled(true); // enable javascript
-        webView.getSettings().setBuiltInZoomControls(true); //Set Zoom in/Zoom out
-
-        final Activity activity = this;
-
-        webView.setWebViewClient(new WebViewClient() {
-            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-                Toast.makeText(activity, description, Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        webView.loadUrl(URL);
-        setContentView(webView);
-    }
 
     //launches the youtube player for the playing song
     private void startVideo() {

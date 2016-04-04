@@ -47,9 +47,11 @@
             android:label="@string/title_activity_search_dialog_box"
             android:theme="@android:style/Theme.Holo.Dialog" />
         <activity android:name=".YoutubeSearch" />
-        <activity android:name=".YoutubePlayer"
-            android:screenOrientation="landscape"/>
-        <activity android:name=".VideoItem"></activity>
+        <activity
+            android:name=".YoutubePlayer"
+            android:screenOrientation="landscape" />
+        <activity android:name=".VideoItem" />
+        <activity android:name=".SearchLyrics"></activity>
     </application>
 
 </manifest>
