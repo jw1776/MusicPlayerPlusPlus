@@ -386,11 +386,11 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 break;
             case R.id.lyrics:
                 if (isNetworkAvailable()) {
-                    if(!isPlaying()){
+                    if(!userAction){
                         Toast.makeText(getApplicationContext(), "ERROR: Please select a song first to "
                                 + " display lyrics.", Toast.LENGTH_SHORT).show();
                     }
-                    else{
+                    else {
                         searchLyrics();
                     }
                 } else {
@@ -468,29 +468,53 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
+            String viewable = "false", instrumental = "false";
             //Toast.makeText(getBaseContext(), "Received!", Toast.LENGTH_LONG).show();
             try {
                 JSONArray jsonArray = new JSONArray(result);
                 String str = "";
-                str += jsonArray.getJSONObject(0).getString("url");
+                str = jsonArray.getJSONObject(0).getString("url");
+                viewable = jsonArray.getJSONObject(0).getString("viewable");
+                instrumental = jsonArray.getJSONObject(0).getString("instrumental");
+
+                System.out.println("*****************" + viewable);
+
                 URL = str;
                 System.out.println(URL);
-                if (URL != "") {
+                if(instrumental == "true"){
+                    Toast.makeText(getBaseContext(), "Song is an instrumental", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                if (URL != "" && viewable == "true") {
                     Intent i = new Intent(getApplicationContext(), SearchLyrics.class);
                     i.putExtra("url", URL);
                     startActivity(i);
                 }
+                else{
+                    geniusSearch();
+                }
             } catch (JSONException e) {
                 Log.e("MYAPP", "unexpected JSON exception", e);
-                Toast.makeText(getBaseContext(), "Lyrics do not exist on LyricsnMusic", Toast.LENGTH_LONG).show();
-                googleSearch();
+           //     Toast.makeText(getBaseContext(), "Lyrics do not exist on LyricsnMusic, opening up Genius.com", Toast.LENGTH_LONG).show();
+                geniusSearch();
             }
         }
     }
 
-    private void googleSearch(){
-        //   String songTitle = musicServiceObject.getSongTitle();
-        // String songArtist = musicServiceObject.getSongArtist();
+    private void geniusSearch(){
+        String songTitle = musicServiceObject.getSongTitle();
+        if(songTitle.contains(" ")){
+            songTitle = songTitle.replace(' ', '-');
+        }
+        String songArtist = musicServiceObject.getSongArtist();
+        if(songArtist.contains(" ")){
+            songArtist = songArtist.replace(' ', '-');
+        }
+        URL = ("http://genius.com/" + songArtist + "-" + songTitle + "-lyrics");
+        System.out.println("********" + URL);
+        Intent i = new Intent(getApplicationContext(), SearchLyrics.class);
+        i.putExtra("url", URL);
+        startActivity(i);
     }
 
     /*display the settings to the user
@@ -900,6 +924,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 } else {
                     playRecognizedSong(voiceItems.get(0));
                 }
+                userAction = true;
                 //for testing
                 for (int i = 0; i < voiceItems.size(); i++) {
                     System.out.println("Voice item " + i + ": " + voiceItems.get(i));
