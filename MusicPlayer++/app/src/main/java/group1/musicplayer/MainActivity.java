@@ -93,7 +93,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private int shufflePos = 0;
     private String URL = "";
 
-    private final int REQ_CODE_VIDEO_PLAYER = 2;
+    private final int REQ_CODE_VIDEO_PLAYER = 20;
     private final int REQ_CODE_SPEECH_INPUT = 3;
 
     ActionBar.Tab songTab, artistTab, albumTab, playlistTab;
@@ -623,7 +623,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private String getCurrentSong() {
 
         if (musicServiceObject.getSongPosition() != -1) {
-            System.out.println("*******current playing song val is: " + musicServiceObject.getSongPosition());
+           // System.out.println("*******current playing song val is: " + musicServiceObject.getSongPosition());
             return musicServiceObject.getSongArray().get(musicServiceObject.getSongPosition()).toString();
         }
         return null;
@@ -908,8 +908,13 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
+        if(requestCode == REQ_CODE_VIDEO_PLAYER && playbackPaused){
+            musicServiceObject.go();//resume the player when returned from video player
+        }
+
         if (resultCode == RESULT_OK) {
 
+            System.out.println("**returned from another activity");
             if (requestCode == REQ_CODE_SPEECH_INPUT) {
                 //the user used voice to text and some values were created
                 ArrayList<String> voiceItems = data
@@ -926,13 +931,9 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 }
                 userAction = true;
                 //for testing
-                for (int i = 0; i < voiceItems.size(); i++) {
-                    System.out.println("Voice item " + i + ": " + voiceItems.get(i));
-                }
-            } else if (requestCode == REQ_CODE_VIDEO_PLAYER && playbackPaused) {
-                System.out.println("***BACK");
-                musicServiceObject.playSong();//resume the player when returned from video player
-                //left off here...song does not resume prob cuz of nested activities or does not finish properly
+               // for (int i = 0; i < voiceItems.size(); i++) {
+               //     System.out.println("Voice item " + i + ": " + voiceItems.get(i));
+               // }
             } else {
                 ArrayList<String> audioListString = data.getStringArrayListExtra("additionalSongs");
 

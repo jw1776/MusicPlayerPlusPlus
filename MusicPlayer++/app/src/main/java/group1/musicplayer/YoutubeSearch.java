@@ -43,6 +43,7 @@ public class YoutubeSearch extends Activity {
         String song = getIntent().getStringExtra("currentSong");
         if(song != null){
             searchInput.setText(song);
+           // searchOnYoutube(song);
         }
 
         searchInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -56,7 +57,7 @@ public class YoutubeSearch extends Activity {
             }
         });
 
-        addClickListener();
+        setVideosFoundListener();
     }
 
     //populate the player with the videos that match the users song
@@ -98,26 +99,10 @@ public class YoutubeSearch extends Activity {
                 return view;
             }
         };
-     /*   if(videosFound == null){
-            System.out.println("videoFound is null***********");
-        }else{
-            System.out.println("videoFound is NOT null***********");
-        }
-
-        if(adapter == null){
-            System.out.println("adapter is null***********");
-        }else{
-            System.out.println("adapter is NOT null***********");
-        }
-        if(searchResults == null){
-            System.out.println("searchResults is null***********");
-        }else{
-            System.out.println("searchResults is NOT null***********");
-        }*/
         videosFound.setAdapter(videoAdapter);
     }
 
-    private void addClickListener(){
+    private void setVideosFoundListener(){
 
         videosFound.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 

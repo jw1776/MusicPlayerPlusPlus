@@ -37,6 +37,7 @@ public class YoutubePlayer extends YouTubeBaseActivity implements YouTubePlayer.
                                         boolean restored) {
         if(!restored){
             player.cueVideo(getIntent().getStringExtra("VIDEO_ID"));
+            player.setFullscreen(true);
         }
     }
 }

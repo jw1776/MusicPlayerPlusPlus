@@ -76,6 +76,7 @@ public class YoutubeConnector {
                 item.setDescription(result.getSnippet().getDescription());
                 item.setThumbnailURL(result.getSnippet().getThumbnails().getDefault().getUrl());
                 item.setId(result.getId().getVideoId());
+
                 items.add(item);
             }
 //            if(items == null){
