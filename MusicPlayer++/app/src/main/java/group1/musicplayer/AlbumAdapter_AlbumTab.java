@@ -1,10 +1,12 @@
 package group1.musicplayer;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -46,6 +48,10 @@ public class AlbumAdapter_AlbumTab extends BaseAdapter {
         //layout for each individual album in the list uses album_tab_album.xml
         TextView titleView = (TextView)listLayout.findViewById(R.id.album_title_albumTab);
         TextView artistView = (TextView)listLayout.findViewById(R.id.album_artist_albumTab);
+        ImageView albumArtView = (ImageView)listLayout.findViewById(R.id.albumArt_albumTab);
+
+        Bitmap albumArt = Bitmap.createScaledBitmap(albumArray.get(position).getCoverArt(), 200, 200, true);
+        albumArtView.setImageBitmap(albumArt);
 
         String albumTitle = albumArray.get(position).getTitle();
         String albumArtist = albumArray.get(position).getArtist();

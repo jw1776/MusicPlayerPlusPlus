@@ -3,8 +3,11 @@ package group1.musicplayer;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
+import android.content.ContentUris;
 import android.content.DialogInterface;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -17,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -116,8 +120,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         removeDuplicates();
         sortSongsByTitle();
 
-        populateArtistArray();
         populateAlbumArray();
+        populateArtistArray();
 
         //For testing purposes, do not remove
         /*
@@ -256,7 +260,27 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 }
             }// inner for
             if (!albumFound) {   //if the album was not found in the array
-                Album newAlbum = new Album(thisAlbum, thisAlbumID, thisAlbumArtist);
+                Uri sArtworkUri = Uri
+                        .parse("content://media/external/audio/albumart");
+                Uri albumArtUri = ContentUris.withAppendedId(sArtworkUri, thisAlbumID);
+
+                System.out.println("ALBUM ART URI: " + albumArtUri.toString());
+                Bitmap bitmap = null;
+                try {
+                    bitmap = MediaStore.Images.Media.getBitmap(
+                            this.getContentResolver(), albumArtUri);
+                    //bitmap = Bitmap.createScaledBitmap(bitmap, 30, 30, true);
+
+                } catch (FileNotFoundException exception) {
+                    exception.printStackTrace();
+                    bitmap = BitmapFactory.decodeResource(this.getResources(),
+                            R.drawable.default_album);
+                } catch (IOException e) {
+
+                    e.printStackTrace();
+                }
+
+                Album newAlbum = new Album(thisAlbum, thisAlbumID, thisAlbumArtist, bitmap);
                 newAlbum.addSong(songList.get(i));
                 albumArray.add(newAlbum);
             }

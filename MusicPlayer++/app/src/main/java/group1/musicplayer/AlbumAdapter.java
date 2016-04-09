@@ -1,11 +1,13 @@
 package group1.musicplayer;
 
+import android.graphics.Bitmap;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import java.util.ArrayList;
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -40,9 +42,12 @@ public class AlbumAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         LinearLayout listLayout = (LinearLayout)albumInf.inflate(R.layout.album, parent, false);
         //layout for each individual album in the list uses album.xml
+        ImageView albumArtView = (ImageView)listLayout.findViewById(R.id.albumArt);
         TextView titleView = (TextView)listLayout.findViewById(R.id.album_title);
 
         String albumTitle = albumArray.get(position).getTitle();
+        Bitmap albumArt = Bitmap.createScaledBitmap(albumArray.get(position).getCoverArt(), 200, 200, true);
+        albumArtView.setImageBitmap(albumArt);
         titleView.setText(albumTitle);
 
         listLayout.setTag(position); //use the album position as a tag
