@@ -2,9 +2,11 @@ package group1.musicplayer;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -26,6 +28,7 @@ public class Audio extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_audio);
         selectedItems = new ArrayList<String>();
+        System.out.println("starting audio***");
         displayFilteredAudioChoices();
     }
 
@@ -84,6 +87,19 @@ public class Audio extends Activity {
                 }
             }
         });//end of dialog
+
+        //have the activity end if the user presses the back button
+        dialog.setOnKeyListener(new Dialog.OnKeyListener() {
+
+            @Override
+            public boolean onKey(DialogInterface arg0, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    finish();
+                    dialog.dismiss();
+                }
+                return true;
+            }
+        });
         dialog.show();
     }
 }

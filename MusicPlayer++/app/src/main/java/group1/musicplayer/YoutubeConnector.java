@@ -55,21 +55,17 @@ public class YoutubeConnector {
     public List<VideoItem> findVideos(String keywords){
 
         query.setQ(keywords);
+
         try{
-           // System.out.println("0***********");
+
             SearchListResponse response = query.execute();
-          //  System.out.println("1***********");
-
             List<SearchResult> results = response.getItems();
-            //System.out.println("2***********");
-
             List<VideoItem> items = new ArrayList<VideoItem>();
-           // System.out.println("3***********");
 
+            //convert the results found to video items
             for(SearchResult result:results){
 
                 VideoItem item = new VideoItem();
-                //  System.out.println("4***********");
 
                 //set the title, thumbnail, id (url) for the video items which are shown on the results page
                 item.setTitle(result.getSnippet().getTitle());
@@ -79,11 +75,7 @@ public class YoutubeConnector {
 
                 items.add(item);
             }
-//            if(items == null){
-//                System.out.println("items is null***********");
-//            }else{
-//                System.out.println(items.size() + " items is NOT null***********");
-//            }
+
             return items;
         }
         catch (GoogleJsonResponseException e) {
