@@ -415,7 +415,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                                 + " display lyrics.", Toast.LENGTH_SHORT).show();
                     }
                     else {
-                        searchLyrics();
+                     //   searchLyrics();
+                        geniusSearch();
                     }
                 } else {
                     Toast.makeText(getApplicationContext(), "ERROR: Please connect to WIFI or enable"
