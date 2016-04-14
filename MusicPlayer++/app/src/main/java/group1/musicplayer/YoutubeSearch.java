@@ -1,13 +1,16 @@
 package group1.musicplayer;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -41,9 +44,14 @@ public class YoutubeSearch extends Activity {
         handler = new Handler();
 
         String song = getIntent().getStringExtra("currentSong");
+        //search the for the videos of the song without the user clicking the okay button
         if(song != null){
+
             searchInput.setText(song);
-           // searchOnYoutube(song);
+            //hide the keyboard
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
+            searchOnYoutube(song);
         }
 
         searchInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
