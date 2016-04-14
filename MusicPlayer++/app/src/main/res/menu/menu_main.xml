@@ -5,14 +5,14 @@
 
     <item
         android:id="@+id/lyrics"
-        android:icon="@drawable/lyrics"
+        android:icon="@drawable/lyrics_icon"
         android:orderInCategory="0"
         android:showAsAction="always"
         android:title="Lyrics" />
 
     <item
         android:id="@+id/video_button"
-        android:icon="@drawable/video_icon"
+        android:icon="@drawable/youtube"
         android:orderInCategory="1"
         android:showAsAction="always"
         android:title="Video" />
@@ -28,7 +28,7 @@
         android:id="@+id/action_shuffle"
         android:icon="@drawable/rand"
         android:orderInCategory="3"
-        android:showAsAction="always"
+        android:showAsAction="never"
         android:title="Shuffle" />
 
     <item
