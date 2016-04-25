@@ -8,10 +8,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.app.Fragment;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -36,6 +40,8 @@ public class SongTabFragment extends Fragment {
         SongAdapter theAdapter = new SongAdapter(context, MainActivity.getSongArray());
         songView.setAdapter(theAdapter); //pass the ListView object the appropriate adapter
 
+        registerForContextMenu(songView);
+
         return rootView;
     }
 
@@ -51,6 +57,29 @@ public class SongTabFragment extends Fragment {
         songView.setAdapter(theAdapter); //pass the ListView object the appropriate adapter
 
         super.onResume();
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+                                    ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getActivity().getMenuInflater();
+        inflater.inflate(R.menu.context_menu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()) {
+            case R.id.editSong:
+                //editSong(info.id); //
+                return true;
+            case R.id.deleteSong:
+                //deleteSong(info.id);
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
     }
 
 }
