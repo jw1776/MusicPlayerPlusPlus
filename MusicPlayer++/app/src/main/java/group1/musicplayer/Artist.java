@@ -82,5 +82,15 @@ public class Artist {
             artistAlbums.add(newAlbum);
         }
 
+
+
+    }
+
+    public int getAlbumCount(){
+        return artistAlbums.size();
+    }
+
+    public int getSongCount(){
+        return artistSongs.size();
     }
 }
