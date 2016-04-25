@@ -13,7 +13,9 @@ import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import java.io.BufferedReader;
@@ -34,6 +36,7 @@ import android.content.ContentResolver;
 import android.database.Cursor;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -150,6 +153,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         actionBar.addTab(artistTab);
         actionBar.addTab(albumTab);
         actionBar.addTab(playlistTab);
+
+        //registerForContextMenu();
 
      /*   @Component
         public class ArtistHandler {//https://github.com/lastfm/musicbrainz-data
@@ -401,6 +406,29 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
         }//end switch
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+                                    ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.context_menu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()) {
+            case R.id.editSong:
+                //editSong(info.id); //
+                return true;
+            case R.id.deleteSong:
+                //deleteSong(info.id);
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
     }
 
     private void searchLyrics(){
