@@ -5,57 +5,17 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.Toast;
-
-import java.io.Serializable;
 
 /**
  * Created by shawn on 4/24/2016.
  */
 
-public class NotificationService extends Service implements Parcelable, Serializable {
+public class NotificationService extends Service {
 
     Notification status;
-
-    protected NotificationService(Parcel in) {
-        status = in.readParcelable(Notification.class.getClassLoader());
-    }
-
-    public static final Creator<NotificationService> CREATOR = new Creator<NotificationService>() {
-        @Override
-        public NotificationService createFromParcel(Parcel in) {
-            return new NotificationService(in);
-        }
-
-        @Override
-        public NotificationService[] newArray(int size) {
-            return new NotificationService[size];
-        }
-    };
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeParcelable(status, flags);
-    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -90,6 +50,7 @@ public class NotificationService extends Service implements Parcelable, Serializ
                 stopSelf();
             }
         }
+
 
         return START_STICKY;
     }
@@ -168,5 +129,15 @@ public class NotificationService extends Service implements Parcelable, Serializ
         status.icon = R.drawable.ic_launcher;
         status.contentIntent = pendingIntent;
         startForeground(Constants.NOTIFICATION_ID.FOREGROUND_SERVICE, status);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 }

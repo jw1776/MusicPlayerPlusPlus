@@ -96,7 +96,6 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private final Random random = new Random();
     private boolean shuffleOn = false;
     private ArrayList<Integer> shuffleList;
-    private Intent notificationService;
 
     private int shufflePos = 0;
     private String URL = "";
@@ -331,19 +330,17 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
             bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
             startService(playIntent);
-            //pass the music player object so the controls can be used outside
+
             startNotificationService();
             //start MusicService. This will initiate the code in onServiceConnected()
         }
     }
 
-    //this will allow the user to interact with the music controls outside of the app
     private void startNotificationService(){
 
-        notificationService = new Intent(MainActivity.this, NotificationService.class);
-        notificationService.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);
-        notificationService.
-        startService(notificationService);
+        Intent serviceIntent = new Intent(MainActivity.this, NotificationService.class);
+        serviceIntent.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);
+        startService(serviceIntent);
     }
 
     @Override
@@ -384,7 +381,6 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     @Override
     protected void onDestroy() {
         stopService(playIntent);
-        stopService(notificationService);
         musicServiceObject = null;
         super.onDestroy();
     }
@@ -406,7 +402,6 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 break;
             case R.id.action_end:
                 stopService(playIntent);
-                stopService(notificationService);
                 musicServiceObject = null;
                 System.exit(0);
                 break;
