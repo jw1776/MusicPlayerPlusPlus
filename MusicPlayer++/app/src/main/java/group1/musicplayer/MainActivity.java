@@ -330,8 +330,17 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
             bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
             startService(playIntent);
+
+            startNotificationService();
             //start MusicService. This will initiate the code in onServiceConnected()
         }
+    }
+
+    private void startNotificationService(){
+
+        Intent serviceIntent = new Intent(MainActivity.this, NotificationService.class);
+        serviceIntent.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);
+        startService(serviceIntent);
     }
 
     @Override
@@ -420,7 +429,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                                 + " display lyrics.", Toast.LENGTH_SHORT).show();
                     }
                     else {
-                     //   searchLyrics();
+                        //   searchLyrics();
                         geniusSearch();
                     }
                 } else {
@@ -457,11 +466,11 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     }
 
     private void searchLyrics(){
-         String songTitle = musicServiceObject.getSongTitle();
+        String songTitle = musicServiceObject.getSongTitle();
         if(songTitle.contains(" ")){
             songTitle = songTitle.replace(' ', '+');
         }
-         String songArtist = musicServiceObject.getSongArtist();
+        String songArtist = musicServiceObject.getSongArtist();
         if(songArtist.contains(" ")){
             songArtist = songArtist.replace(' ', '+');
         }
@@ -548,7 +557,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 }
             } catch (JSONException e) {
                 Log.e("MYAPP", "unexpected JSON exception", e);
-           //     Toast.makeText(getBaseContext(), "Lyrics do not exist on LyricsnMusic, opening up Genius.com", Toast.LENGTH_LONG).show();
+                //     Toast.makeText(getBaseContext(), "Lyrics do not exist on LyricsnMusic, opening up Genius.com", Toast.LENGTH_LONG).show();
                 geniusSearch();
             }
         }
@@ -595,6 +604,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                         break;
 
                     case R.id.voice_icon:
+                        voiceSettings();
                         break;
                 }
                 return true;
@@ -640,6 +650,12 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         Toast.makeText(getApplicationContext(), "Could not find song: " + song, Toast.LENGTH_SHORT).show();
     }
 
+    /*Allow the user to change the voice commands and enable the voice
+    * recognition to be listening to you constantly, disabling the need
+    * to press the voice button to do a voice command.*/
+    private void voiceSettings(){
+
+    }
     //check if the user has access to internet or not
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
@@ -676,7 +692,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private String getCurrentSong() {
 
         if (musicServiceObject.getSongPosition() != -1) {
-           // System.out.println("*******current playing song val is: " + musicServiceObject.getSongPosition());
+            // System.out.println("*******current playing song val is: " + musicServiceObject.getSongPosition());
             return musicServiceObject.getSongArray().get(musicServiceObject.getSongPosition()).toString();
         }
         return null;
@@ -984,9 +1000,9 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 }
                 userAction = true;
                 //for testing
-               // for (int i = 0; i < voiceItems.size(); i++) {
-               //     System.out.println("Voice item " + i + ": " + voiceItems.get(i));
-               // }
+                // for (int i = 0; i < voiceItems.size(); i++) {
+                //     System.out.println("Voice item " + i + ": " + voiceItems.get(i));
+                // }
             } else {
                 ArrayList<String> audioListString = data.getStringArrayListExtra("additionalSongs");
 
