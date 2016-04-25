@@ -96,6 +96,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private final Random random = new Random();
     private boolean shuffleOn = false;
     private ArrayList<Integer> shuffleList;
+    private Intent notificationService;
 
     private int shufflePos = 0;
     private String URL = "";
@@ -338,9 +339,10 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     private void startNotificationService(){
 
-        Intent serviceIntent = new Intent(MainActivity.this, NotificationService.class);
-        serviceIntent.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);
-        startService(serviceIntent);
+        notificationService = new Intent(MainActivity.this, NotificationService.class);
+        notificationService.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);
+        //add this object to notificationService to use the playback shit
+        startService(notificationService);
     }
 
     @Override
@@ -381,6 +383,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     @Override
     protected void onDestroy() {
         stopService(playIntent);
+        stopService(notificationService);
         musicServiceObject = null;
         super.onDestroy();
     }
@@ -402,6 +405,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 break;
             case R.id.action_end:
                 stopService(playIntent);
+                stopService(notificationService);
                 musicServiceObject = null;
                 System.exit(0);
                 break;
