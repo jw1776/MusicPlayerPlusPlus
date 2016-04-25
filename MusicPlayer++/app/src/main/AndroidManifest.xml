@@ -26,6 +26,8 @@
         </activity>
 
         <service android:name=".MusicService" />
+        <service android:name="group1.musicplayer.NotificationService" />
+
 
         <activity
             android:name=".Search"
