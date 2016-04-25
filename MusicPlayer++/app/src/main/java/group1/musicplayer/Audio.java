@@ -2,9 +2,12 @@ package group1.musicplayer;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.ContextThemeWrapper;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -32,7 +35,6 @@ public class Audio extends Activity {
     //display a multiple choice list of audio files that are not already in the default list
     private void displayFilteredAudioChoices(){
 
-        //   audioListView = (ListView) findViewById(R.id.audio_list);
         ArrayList<String> list = getIntent().getStringArrayListExtra("filteredAudioList");
 
         //populate the multiple choices with the list
@@ -41,7 +43,8 @@ public class Audio extends Activity {
                 android.R.layout.select_dialog_multichoice,
                 list);
 
-        final AlertDialog dialog = new AlertDialog.Builder(this)
+        final AlertDialog dialog = new AlertDialog.Builder(new ContextThemeWrapper(
+                this,android.R.style.Theme_Holo_Dialog))
                 .setTitle("Select Items to Add to the Player")
                 .setAdapter(arrayAdapter, null)
 
@@ -67,7 +70,6 @@ public class Audio extends Activity {
                     }
                 })
                 .create();
-
         dialog.getListView().setItemsCanFocus(false);
         dialog.getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         dialog.getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -84,6 +86,20 @@ public class Audio extends Activity {
                 }
             }
         });//end of dialog
+
+        //have the activity end if the user presses the back button
+        dialog.setOnKeyListener(new Dialog.OnKeyListener() {
+
+            @Override
+            public boolean onKey(DialogInterface arg0, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    finish();
+                    dialog.dismiss();
+                }
+                return true;
+            }
+        });
+
         dialog.show();
     }
 }

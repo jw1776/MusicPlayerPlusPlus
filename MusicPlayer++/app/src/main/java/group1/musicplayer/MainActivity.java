@@ -3,8 +3,11 @@ package group1.musicplayer;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
+import android.content.ContentUris;
 import android.content.DialogInterface;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -19,6 +22,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -96,7 +100,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private int shufflePos = 0;
     private String URL = "";
 
-    private final int REQ_CODE_VIDEO_PLAYER = 2;
+    private final int REQ_CODE_VIDEO_PLAYER = 20;
     private final int REQ_CODE_SPEECH_INPUT = 3;
 
     ActionBar.Tab songTab, artistTab, albumTab, playlistTab;
@@ -119,8 +123,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         removeDuplicates();
         sortSongsByTitle();
 
-        populateArtistArray();
         populateAlbumArray();
+        populateArtistArray();
 
         //For testing purposes, do not remove
         /*
@@ -261,7 +265,27 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 }
             }// inner for
             if (!albumFound) {   //if the album was not found in the array
-                Album newAlbum = new Album(thisAlbum, thisAlbumID, thisAlbumArtist);
+                Uri sArtworkUri = Uri
+                        .parse("content://media/external/audio/albumart");
+                Uri albumArtUri = ContentUris.withAppendedId(sArtworkUri, thisAlbumID);
+
+                System.out.println("ALBUM ART URI: " + albumArtUri.toString());
+                Bitmap bitmap = null;
+                try {
+                    bitmap = MediaStore.Images.Media.getBitmap(
+                            this.getContentResolver(), albumArtUri);
+                    //bitmap = Bitmap.createScaledBitmap(bitmap, 30, 30, true);
+
+                } catch (FileNotFoundException exception) {
+                    exception.printStackTrace();
+                    bitmap = BitmapFactory.decodeResource(this.getResources(),
+                            R.drawable.default_album);
+                } catch (IOException e) {
+
+                    e.printStackTrace();
+                }
+
+                Album newAlbum = new Album(thisAlbum, thisAlbumID, thisAlbumArtist, bitmap);
                 newAlbum.addSong(songList.get(i));
                 albumArray.add(newAlbum);
             }
@@ -391,12 +415,13 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 break;
             case R.id.lyrics:
                 if (isNetworkAvailable()) {
-                    if(!isPlaying()){
+                    if(!userAction){
                         Toast.makeText(getApplicationContext(), "ERROR: Please select a song first to "
                                 + " display lyrics.", Toast.LENGTH_SHORT).show();
                     }
-                    else{
-                        searchLyrics();
+                    else {
+                     //   searchLyrics();
+                        geniusSearch();
                     }
                 } else {
                     Toast.makeText(getApplicationContext(), "ERROR: Please connect to WIFI or enable"
@@ -496,29 +521,53 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
+            String viewable = "false", instrumental = "false";
             //Toast.makeText(getBaseContext(), "Received!", Toast.LENGTH_LONG).show();
             try {
                 JSONArray jsonArray = new JSONArray(result);
                 String str = "";
-                str += jsonArray.getJSONObject(0).getString("url");
+                str = jsonArray.getJSONObject(0).getString("url");
+                viewable = jsonArray.getJSONObject(0).getString("viewable");
+                instrumental = jsonArray.getJSONObject(0).getString("instrumental");
+
+                System.out.println("*****************" + viewable);
+
                 URL = str;
                 System.out.println(URL);
-                if (URL != "") {
+                if(instrumental == "true"){
+                    Toast.makeText(getBaseContext(), "Song is an instrumental", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                if (URL != "" && viewable == "true") {
                     Intent i = new Intent(getApplicationContext(), SearchLyrics.class);
                     i.putExtra("url", URL);
                     startActivity(i);
                 }
+                else{
+                    geniusSearch();
+                }
             } catch (JSONException e) {
                 Log.e("MYAPP", "unexpected JSON exception", e);
-                Toast.makeText(getBaseContext(), "Lyrics do not exist on LyricsnMusic", Toast.LENGTH_LONG).show();
-                googleSearch();
+           //     Toast.makeText(getBaseContext(), "Lyrics do not exist on LyricsnMusic, opening up Genius.com", Toast.LENGTH_LONG).show();
+                geniusSearch();
             }
         }
     }
 
-    private void googleSearch(){
-        //   String songTitle = musicServiceObject.getSongTitle();
-        // String songArtist = musicServiceObject.getSongArtist();
+    private void geniusSearch(){
+        String songTitle = musicServiceObject.getSongTitle();
+        if(songTitle.contains(" ")){
+            songTitle = songTitle.replace(' ', '-');
+        }
+        String songArtist = musicServiceObject.getSongArtist();
+        if(songArtist.contains(" ")){
+            songArtist = songArtist.replace(' ', '-');
+        }
+        URL = ("http://genius.com/" + songArtist + "-" + songTitle + "-lyrics");
+        System.out.println("********" + URL);
+        Intent i = new Intent(getApplicationContext(), SearchLyrics.class);
+        i.putExtra("url", URL);
+        startActivity(i);
     }
 
     /*display the settings to the user
@@ -627,7 +676,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private String getCurrentSong() {
 
         if (musicServiceObject.getSongPosition() != -1) {
-            System.out.println("*******current playing song val is: " + musicServiceObject.getSongPosition());
+           // System.out.println("*******current playing song val is: " + musicServiceObject.getSongPosition());
             return musicServiceObject.getSongArray().get(musicServiceObject.getSongPosition()).toString();
         }
         return null;
@@ -912,8 +961,13 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
+        if(requestCode == REQ_CODE_VIDEO_PLAYER && playbackPaused){
+            musicServiceObject.go();//resume the player when returned from video player
+        }
+
         if (resultCode == RESULT_OK) {
 
+            System.out.println("**returned from another activity");
             if (requestCode == REQ_CODE_SPEECH_INPUT) {
                 //the user used voice to text and some values were created
                 ArrayList<String> voiceItems = data
@@ -928,14 +982,11 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 } else {
                     playRecognizedSong(voiceItems.get(0));
                 }
+                userAction = true;
                 //for testing
-                for (int i = 0; i < voiceItems.size(); i++) {
-                    System.out.println("Voice item " + i + ": " + voiceItems.get(i));
-                }
-            } else if (requestCode == REQ_CODE_VIDEO_PLAYER && playbackPaused) {
-                System.out.println("***BACK");
-                musicServiceObject.playSong();//resume the player when returned from video player
-                //left off here...song does not resume prob cuz of nested activities or does not finish properly
+               // for (int i = 0; i < voiceItems.size(); i++) {
+               //     System.out.println("Voice item " + i + ": " + voiceItems.get(i));
+               // }
             } else {
                 ArrayList<String> audioListString = data.getStringArrayListExtra("additionalSongs");
 

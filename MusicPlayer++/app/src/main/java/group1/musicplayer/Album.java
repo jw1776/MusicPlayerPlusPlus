@@ -10,11 +10,12 @@ public class Album {
     private Bitmap coverArt;
     private ArrayList<Song> albumSongs;
 
-    public Album (String albumTitle, long albumId, String albumArtist) {
+    public Album (String albumTitle, long albumId, String albumArtist, Bitmap albumCoverArt) {
         title = albumTitle;
         id = albumId;
         artist = albumArtist;
         albumSongs = new ArrayList<Song>();
+        coverArt = albumCoverArt;
     }
 
     public String getTitle() {

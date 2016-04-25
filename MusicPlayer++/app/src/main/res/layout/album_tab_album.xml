@@ -1,10 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:onClick="albumPicked_albumTab"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:padding ="5dp"
+    >
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/albumArt_albumTab" />
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding ="0dp"
     >
 
     <TextView
@@ -24,5 +37,7 @@
         android:textSize="14sp"
         android:paddingLeft="12dp"
         android:paddingRight="12dp"/>
+
+</LinearLayout>
 
 </LinearLayout>

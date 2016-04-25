@@ -3,16 +3,23 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:onClick="albumPicked_artistTab"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:padding ="5dp" >
+
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/albumArt" />
 
     <TextView
         android:id="@+id/album_title"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="#000000"
         android:textSize="20sp"
         android:paddingLeft="12dp"
-        android:paddingRight="12dp"/>
+        android:paddingRight="12dp"
+        android:layout_gravity="center_vertical" />
 
 </LinearLayout>

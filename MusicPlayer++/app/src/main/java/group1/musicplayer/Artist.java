@@ -1,5 +1,13 @@
 package group1.musicplayer;
 
+import android.content.ContentUris;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.provider.MediaStore;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Artist {
@@ -58,10 +66,31 @@ public class Artist {
         }
 
         if(!albumFound){    //if the album does not already exist
-            Album newAlbum = new Album(newSong.getAlbum(), newSong.getAlbumId(), newSong.getArtist());
+
+            ArrayList<Album> albumArray = MainActivity.getAlbumArray();
+
+                    Bitmap albumArt = null;
+
+            for (int i = 0; i < albumArray.size(); i++) {
+                if(albumArray.get(i).getId() == newSong.getAlbumId()) {
+                    albumArt = albumArray.get(i).getCoverArt();
+                }
+            }
+
+            Album newAlbum = new Album(newSong.getAlbum(), newSong.getAlbumId(), newSong.getArtist(), albumArt);
             newAlbum.addSong(newSong);
             artistAlbums.add(newAlbum);
         }
 
+
+
+    }
+
+    public int getAlbumCount(){
+        return artistAlbums.size();
+    }
+
+    public int getSongCount(){
+        return artistSongs.size();
     }
 }
