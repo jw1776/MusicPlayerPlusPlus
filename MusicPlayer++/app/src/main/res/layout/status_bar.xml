@@ -10,6 +10,7 @@
         android:layout_height="@dimen/status_bar_album_art"
         android:gravity="center" />
 
+    <!--
     <ImageView
         android:id="@+id/status_bar_icon"
         android:layout_width="@dimen/status_bar_album_art"
@@ -18,6 +19,7 @@
         android:scaleType="center"
         android:src="@drawable/ic_launcher"
         android:visibility="gone" />
+    -->
 
     <LinearLayout
         android:layout_width="0dp"
@@ -46,7 +48,8 @@
         android:id="@+id/status_bar_play"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="@string/cd_play" />
+        android:contentDescription="@string/cd_play"
+        android:src="@drawable/play"/>
 
     <ImageButton
         android:id="@+id/status_bar_next"

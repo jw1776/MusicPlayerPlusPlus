@@ -97,7 +97,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private boolean shuffleOn = false;
     private ArrayList<Integer> shuffleList;
     private Intent notificationService;
-
+    private IntentFilter intentFilter;
     private int shufflePos = 0;
     private String URL = "";
 
@@ -183,6 +183,11 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         controller_layout = (LinearLayout) findViewById(R.id.controller_layout);
         nowPlayingText = (TextView) findViewById(R.id.nowplaying);
         setController(); //initializes the MediaController
+
+        //receive info being passed from notificationService
+        intentFilter = new IntentFilter();
+        intentFilter.addAction("NOTIFICATIONS_READY");
+        registerReceiver(notificationServiceReceiver, intentFilter);
     }
 
     private void setAllTabListeners() {
@@ -337,13 +342,48 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         }
     }
 
+    //this will allow the user to interact with the music outside of the app
     private void startNotificationService(){
 
         notificationService = new Intent(MainActivity.this, NotificationService.class);
         notificationService.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);
-        //add this object to notificationService to use the playback shit
         startService(notificationService);
     }
+
+    //grab info being passed from NotificationService to Main
+    private BroadcastReceiver notificationServiceReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent){
+
+            if(intent.getAction().equals("NOTIFICATIONS_READY")){
+
+                boolean prevPressed = intent.getBooleanExtra("prevPressed", false);//default val is false
+                boolean playPressed = intent.getBooleanExtra("playPressed", false);
+                boolean nextPressed = intent.getBooleanExtra("nextPressed", false);
+                boolean exitPressed = intent.getBooleanExtra("exitPressed", false);
+
+                //check what button was pressed in the notification bar
+                if(prevPressed){
+                    playPrev();
+                }
+                else if(playPressed){
+                    if(isPlaying()){
+                        pause();
+                    }
+                    else{
+                        musicServiceObject.go();
+                    }
+                }
+                else if(nextPressed){
+                    playNext();
+                }
+                else if(exitPressed){
+                    exitApp();
+                }
+            }
+        }
+    };
 
     @Override
     protected void onPause() {
@@ -404,10 +444,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 shuffleSong();
                 break;
             case R.id.action_end:
-                stopService(playIntent);
-                stopService(notificationService);
-                musicServiceObject = null;
-                System.exit(0);
+                exitApp();
                 break;
             case R.id.action_search:
                 this.search();
@@ -444,6 +481,13 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
         }//end switch
         return super.onOptionsItemSelected(item);
+    }
+
+    private void exitApp(){
+        stopService(playIntent);
+        stopService(notificationService);
+        musicServiceObject = null;
+        System.exit(0);
     }
 
     @Override
