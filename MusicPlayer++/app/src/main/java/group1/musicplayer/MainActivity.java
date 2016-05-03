@@ -188,6 +188,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         intentFilter = new IntentFilter();
         intentFilter.addAction("NOTIFICATIONS_READY");
         registerReceiver(notificationServiceReceiver, intentFilter);
+       // registerReceiver(songChangedReceiver, new IntentFilter("SONG_CHANGED"));
     }
 
     private void setAllTabListeners() {
@@ -345,6 +346,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     //this will allow the user to interact with the music outside of the app
     private void startNotificationService(){
 
+        //LEFT OFF HERE
         notificationService = new Intent(MainActivity.this, NotificationService.class);
         notificationService.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);
         startService(notificationService);
@@ -356,7 +358,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         @Override
         public void onReceive(Context context, Intent intent){
 
-            if(intent.getAction().equals("NOTIFICATIONS_READY")){
+            if(intent.getAction().equals("NOTIFICATIONS_READY")) {
 
                 boolean prevPressed = intent.getBooleanExtra("prevPressed", false);//default val is false
                 boolean playPressed = intent.getBooleanExtra("playPressed", false);
@@ -364,26 +366,33 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 boolean exitPressed = intent.getBooleanExtra("exitPressed", false);
 
                 //check what button was pressed in the notification bar
-                if(prevPressed){
+                if (prevPressed) {
                     playPrev();
-                }
-                else if(playPressed){
-                    if(isPlaying()){
+                } else if (playPressed) {
+                    if (isPlaying()) {
                         pause();
-                    }
-                    else{
+                    } else {
                         musicServiceObject.go();
                     }
-                }
-                else if(nextPressed){
+                } else if (nextPressed) {
                     playNext();
-                }
-                else if(exitPressed){
+                } else if (exitPressed) {
                     exitApp();
                 }
             }
         }
     };
+
+//    private BroadcastReceiver songChangedReceiver = new BroadcastReceiver() {
+//
+//        @Override
+//        public void onReceive(Context context, Intent intent){
+//
+//            if(intent.getAction().equals("SONG_CHANGED")){
+//                System.out.println("SONG CHANDED im in main*****");
+//            }
+//        }
+//    };
 
     @Override
     protected void onPause() {
