@@ -13,6 +13,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.IBinder;
 import android.provider.MediaStore;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -28,9 +29,8 @@ public class NotificationService extends Service {
 
     private String songTitle, songAlbum, songArtist;
     private Long albumId = 0L;
-    private Intent intent;
-    private RemoteViews bigViews;
-    Notification status;
+    private RemoteViews remoteView;
+    Notification notification;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -47,9 +47,8 @@ public class NotificationService extends Service {
              //receive info from the musicService when a song is changed
             registerReceiver(songChangedReceiver, new IntentFilter("SONG_CHANGED"));
 
-            this.intent = intent;
-
             if (intent.getAction().equals(Constants.ACTION.STARTFOREGROUND_ACTION)) {
+                System.out.println("background pressed***?");
                 showNotification();
               //  Toast.makeText(this, "Service Started", Toast.LENGTH_SHORT).show();
             }
@@ -67,6 +66,7 @@ public class NotificationService extends Service {
                 stopForeground(true);
                 stopSelf();
             }
+
             getApplicationContext().sendBroadcast(broadcastNotification);
         }
         return START_STICKY;
@@ -78,7 +78,7 @@ public class NotificationService extends Service {
         public void onReceive(Context context, Intent intent){
 
             if(intent.getAction().equals("SONG_CHANGED")){//grab song info that was changed in musicService
-                System.out.println("SONG CHANDED im in service*****");
+                System.out.println("SONG CHANDED im in notif service*****");
                 songTitle = intent.getStringExtra("songTitle");
                 songAlbum = intent.getStringExtra("album");
                 songArtist = intent.getStringExtra("artist");
@@ -90,24 +90,43 @@ public class NotificationService extends Service {
 
     private void showNotification() {
 
-        // Using RemoteViews to bind custom layouts into Notification
-//        RemoteViews views = new RemoteViews(getPackageName(),
-//                R.layout.status_bar);
-        bigViews = new RemoteViews(getPackageName(), R.layout.status_bar_expanded);
+        remoteView = new RemoteViews(getPackageName(), R.layout.status_bar_expanded);
+        remoteView.setViewVisibility(R.id.status_bar_album_art, View.VISIBLE);
+        remoteView.setImageViewBitmap(R.id.status_bar_album_art, getAlbumArt());
 
-        // showing default album image
-//        views.setViewVisibility(R.id.status_bar_icon, View.VISIBLE);
-//        views.setViewVisibility(R.id.status_bar_album_art, View.GONE);
-     //   bigViews.setViewVisibility(R.id.status_bar_icon, View.VISIBLE);
-        bigViews.setViewVisibility(R.id.status_bar_album_art, View.VISIBLE);
-        bigViews.setImageViewBitmap(R.id.status_bar_album_art,
-               getAlbumArt());
+//        Intent notificationIntent = new Intent(this, MainActivity.class);
+//        notificationIntent.setAction(Constants.ACTION.MAIN_ACTION);
+//        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        notificationIntent.setAction(Constants.ACTION.MAIN_ACTION);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        createNotificationButtons();
+
+        //set the font size and style for the song title, artist and album
+        remoteView.setTextViewTextSize(R.id.status_bar_track_name, TypedValue.COMPLEX_UNIT_SP, Float.parseFloat("20"));
+        remoteView.setTextViewTextSize(R.id.status_bar_artist_name, TypedValue.COMPLEX_UNIT_SP, Float.parseFloat("17"));
+        remoteView.setTextViewTextSize(R.id.status_bar_album_name, TypedValue.COMPLEX_UNIT_SP, Float.parseFloat("14"));
+
+        //set the song attributes to the screen
+        remoteView.setTextViewText(R.id.status_bar_track_name, songTitle);
+        remoteView.setTextViewText(R.id.status_bar_artist_name, songArtist);
+        remoteView.setTextViewText(R.id.status_bar_album_name, songAlbum);
+
+        //have the notification go back to main when pressed
+        Intent mainIntent = new Intent(this, MainActivity.class);
+        mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendInt = PendingIntent.getActivity(this, 0, mainIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        notification = new Notification.Builder(this).build();
+        notification.contentView = remoteView;
+        notification.bigContentView = remoteView;
+        notification.flags = Notification.FLAG_ONGOING_EVENT;
+        notification.icon = R.mipmap.ic_launcher;
+        notification.contentIntent = pendInt;
+
+        startForeground(Constants.NOTIFICATION_ID.FOREGROUND_SERVICE, notification);
+    }
+
+    private void createNotificationButtons(){
 
         Intent previousIntent = new Intent(this, NotificationService.class);
         previousIntent.setAction(Constants.ACTION.PREV_ACTION);
@@ -125,25 +144,10 @@ public class NotificationService extends Service {
         closeIntent.setAction(Constants.ACTION.STOPFOREGROUND_ACTION);
         PendingIntent pcloseIntent = PendingIntent.getService(this, 0, closeIntent, 0);
 
-        bigViews.setOnClickPendingIntent(R.id.status_bar_play, pplayIntent);
-        bigViews.setOnClickPendingIntent(R.id.status_bar_next, pnextIntent);
-        bigViews.setOnClickPendingIntent(R.id.status_bar_prev, ppreviousIntent);
-        bigViews.setOnClickPendingIntent(R.id.status_bar_collapse, pcloseIntent);
-
-        bigViews.setImageViewResource(R.id.status_bar_play, R.drawable.apollo_holo_dark_pause);
-
-     //   bigViews.setTextViewTextSize(R.id.status_bar_track_name, TypedValue.COMPLEX_UNIT_SP, Float.parseFloat("20"));
-        bigViews.setTextViewText(R.id.status_bar_track_name, songTitle);
-        bigViews.setTextViewText(R.id.status_bar_artist_name, songArtist);
-        bigViews.setTextViewText(R.id.status_bar_album_name, songAlbum);
-
-        status = new Notification.Builder(this).build();
-        status.contentView = bigViews;
-        status.bigContentView = bigViews;
-        status.flags = Notification.FLAG_ONGOING_EVENT;
-        status.icon = R.mipmap.ic_launcher;
-        status.contentIntent = pendingIntent;
-        startForeground(Constants.NOTIFICATION_ID.FOREGROUND_SERVICE, status);
+        remoteView.setOnClickPendingIntent(R.id.status_bar_play, pplayIntent);
+        remoteView.setOnClickPendingIntent(R.id.status_bar_next, pnextIntent);
+        remoteView.setOnClickPendingIntent(R.id.status_bar_prev, ppreviousIntent);
+        remoteView.setOnClickPendingIntent(R.id.status_bar_collapse, pcloseIntent);
     }
 
     private Bitmap getAlbumArt(){

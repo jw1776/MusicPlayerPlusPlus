@@ -40,7 +40,7 @@
             android:padding="10.0dip"
             android:layout_width="0.0dip"
             android:layout_height="@dimen/play_controls_notification"
-            android:src="@drawable/apollo_holo_dark_play"
+            android:src="@drawable/play"
             android:scaleType="fitCenter"
             android:layout_weight="1.0" />
         <ImageButton android:id="@+id/status_bar_next"
@@ -81,6 +81,8 @@
         android:layout_alignParentTop="true">
         <TextView
             android:ellipsize="marquee"
+            android:scrollHorizontally="true"
+            android:textColor="@color/black"
             android:layout_gravity="left"
             android:id="@+id/status_bar_track_name"
             android:focusable="true"
@@ -91,6 +93,7 @@
             />
         <TextView
             android:ellipsize="marquee"
+            android:textColor="@color/black"
             android:layout_gravity="left"
             android:id="@+id/status_bar_artist_name"
             android:fadingEdge="horizontal"
@@ -100,6 +103,7 @@
             />
         <TextView
             android:ellipsize="marquee"
+            android:textColor="@color/black"
             android:layout_gravity="left"
             android:id="@+id/status_bar_album_name"
             android:fadingEdge="horizontal"

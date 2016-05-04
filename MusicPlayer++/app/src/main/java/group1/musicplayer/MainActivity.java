@@ -1,10 +1,8 @@
 package group1.musicplayer;
 
-import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
-import android.content.DialogInterface;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -32,18 +30,12 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Random;
-import java.util.Timer;
-import java.util.jar.Manifest;
 
 import android.net.Uri;
 import android.content.ContentResolver;
 import android.database.Cursor;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.os.IBinder;
 import android.content.ComponentName;
 import android.content.Context;
