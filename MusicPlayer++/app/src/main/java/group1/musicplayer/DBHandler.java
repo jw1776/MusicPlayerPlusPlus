@@ -24,7 +24,7 @@ import java.util.ArrayList;
 
 public class DBHandler extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
     private static final String DATABASE_NAME = "mpp_data.db";
 
     public static final String TABLE_PLAYLISTS = "playlists"; //name of the table storing information for calendar events

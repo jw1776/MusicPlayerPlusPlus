@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -47,15 +48,17 @@ public class SongAdapter_PlaylistTab extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        LinearLayout listLayout = (LinearLayout)songInf.inflate(R.layout.song_playlisttab, parent, false);
+        RelativeLayout listLayout = (RelativeLayout)songInf.inflate(R.layout.song_playlisttab, parent, false);
         //layout for each individual song in the list. Uses song_playlisttab.xml
         TextView songView = (TextView)listLayout.findViewById(R.id.song_title_playlistTab);
         TextView artistView = (TextView)listLayout.findViewById(R.id.song_artist_playlistTab);
+        TextView durationView = (TextView)listLayout.findViewById(R.id.song_duration_playlistTab);
 
         Song currentSong = songArray.get(position);
-
         songView.setText(currentSong.getTitle()); //pass data to textView objects in each list item
         artistView.setText(currentSong.getArtist());
+        durationView.setText(currentSong.getDuration());
+
 
         listLayout.setTag(position); //use the song's position as a tag
         return listLayout;

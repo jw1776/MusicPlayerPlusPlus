@@ -900,7 +900,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 long thisAlbumId = musicCursor.getLong(albumIdColumn);
                 String thisDuration = musicCursor.getString(songDurationColumn);
 
-                list.add(new Song(thisId, thisTitle, thisArtist, thisAlbum, thisAlbumId, thisDuration));
+                list.add(new Song(thisId, thisTitle, thisArtist, thisAlbum, thisAlbumId, formatDuration(thisDuration)));
             }
             while (musicCursor.moveToNext()); //while there are still items left
         }
@@ -1214,6 +1214,29 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         musicServiceObject.fillList(PlaylistTabFragment.getContextArray());
         musicServiceObject.setSong(Integer.parseInt(view.getTag().toString()));
         musicServiceObject.playSong();
+    }
+
+    public String formatDuration(String songDuration) {
+
+        if (songDuration != null) {
+            int totalDuration = Integer.parseInt(songDuration); //in milliseconds
+            totalDuration = totalDuration / 1000;                 //in seconds
+
+            String newDuration = Integer.toString(totalDuration / 60);  //whole minutes
+
+            if ((totalDuration % 60) < 10) {
+                newDuration = newDuration + ":0" + Integer.toString(totalDuration % 60);
+            }
+            else {
+                newDuration = newDuration + ":" + Integer.toString(totalDuration % 60);
+            }
+            return newDuration;
+        }
+
+        else {
+            return "";
+        }
+
     }
 
 }

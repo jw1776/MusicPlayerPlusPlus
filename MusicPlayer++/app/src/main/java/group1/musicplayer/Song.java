@@ -20,14 +20,15 @@ public class Song implements Parcelable, Serializable {
         artist=songArtist;
         album=songAlbum;
         albumId=songAlbumId;
-        duration=formatDuration(songDuration);
+        duration=songDuration;
     }
     public Song(Parcel in){
-        String [] data = new String[3];
+        String [] data = new String[4];
         in.readStringArray(data);
         this.id = Long.parseLong(data [0]);
         this.title = data[1];
         this.artist = data[2];
+        this.duration = data[3];
     }
 
     public String toString(){
@@ -52,28 +53,6 @@ public class Song implements Parcelable, Serializable {
 
     public String getDuration() { return duration; }
 
-    public String formatDuration(String songDuration) {
-
-        if (songDuration != null) {
-            int totalDuration = Integer.parseInt(songDuration); //in milliseconds
-            totalDuration = totalDuration / 1000;                 //in seconds
-
-            String newDuration = Integer.toString(totalDuration / 60);  //whole minutes
-
-            if ((totalDuration % 60) < 10) {
-                newDuration = newDuration + ":0" + Integer.toString(totalDuration % 60);
-            }
-            else {
-                newDuration = newDuration + ":" + Integer.toString(totalDuration % 60);
-            }
-            return newDuration;
-        }
-
-        else {
-            return "";
-        }
-
-    }
 
     @Override
     public int describeContents() {
@@ -82,7 +61,7 @@ public class Song implements Parcelable, Serializable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeStringArray(new String[]{String.valueOf(this.id),this.title,this.artist});
+        dest.writeStringArray(new String[]{String.valueOf(this.id),this.title,this.artist,this.duration});
     }
     public static final Parcelable.Creator<Song> CREATOR = new Parcelable.Creator<Song>(){
         @Override
