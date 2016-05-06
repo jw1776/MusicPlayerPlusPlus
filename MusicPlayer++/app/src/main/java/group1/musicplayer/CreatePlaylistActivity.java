@@ -37,7 +37,7 @@ public class CreatePlaylistActivity extends Activity {
         checkboxList = new ArrayList<Song_Checkbox>();
 
         for(int i = 0; i < songList.size(); i++) {
-            Song_Checkbox convert_me = new Song_Checkbox(songList.get(i).getID(), songList.get(i).getTitle(), songList.get(i).getArtist(), songList.get(i).getAlbum(), songList.get(i).getAlbumId());
+            Song_Checkbox convert_me = new Song_Checkbox(songList.get(i).getID(), songList.get(i).getTitle(), songList.get(i).getArtist(), songList.get(i).getAlbum(), songList.get(i).getAlbumId(), songList.get(i).getDuration());
             checkboxList.add(convert_me);
         }
     }
@@ -57,7 +57,7 @@ public class CreatePlaylistActivity extends Activity {
                 ArrayList<Song> temp = new ArrayList<Song>();
                 for (int i = 0; i < checkboxList.size(); i++) {
                     if (checkboxList.get(i).isSelected()) {
-                        Song convert_me = new Song(checkboxList.get(i).getID(), checkboxList.get(i).getTitle(), checkboxList.get(i).getArtist(), checkboxList.get(i).getAlbum(), checkboxList.get(i).getAlbumId());
+                        Song convert_me = new Song(checkboxList.get(i).getID(), checkboxList.get(i).getTitle(), checkboxList.get(i).getArtist(), checkboxList.get(i).getAlbum(), checkboxList.get(i).getAlbumId(), checkboxList.get(i).getDuration());
                         temp.add(convert_me);
                     }
                 }

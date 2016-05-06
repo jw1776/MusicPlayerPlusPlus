@@ -174,6 +174,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
         controller_layout = (LinearLayout) findViewById(R.id.controller_layout);
         nowPlayingText = (TextView) findViewById(R.id.nowplaying);
+        nowPlayingText.setSelected(true); //allows xml marquee functionality
         setController(); //initializes the MediaController
 
         //receive info being passed from notificationService
@@ -889,6 +890,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             int artistColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ARTIST);
             int albumColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ALBUM);
             int albumIdColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ALBUM_ID);
+            int songDurationColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.DURATION);
 
             do { //add the Song objects to the list by moving the cursor to each data column
                 long thisId = musicCursor.getLong(idColumn);
@@ -896,8 +898,9 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 String thisArtist = musicCursor.getString(artistColumn);
                 String thisAlbum = musicCursor.getString(albumColumn);
                 long thisAlbumId = musicCursor.getLong(albumIdColumn);
+                String thisDuration = musicCursor.getString(songDurationColumn);
 
-                list.add(new Song(thisId, thisTitle, thisArtist, thisAlbum, thisAlbumId));
+                list.add(new Song(thisId, thisTitle, thisArtist, thisAlbum, thisAlbumId, thisDuration));
             }
             while (musicCursor.moveToNext()); //while there are still items left
         }

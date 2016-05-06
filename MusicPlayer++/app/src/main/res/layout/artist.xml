@@ -4,7 +4,10 @@
     android:layout_height="wrap_content"
     android:onClick="artistPicked"
     android:orientation="vertical"
-    android:padding ="5dp" >
+    android:paddingLeft ="5dp"
+    android:paddingRight ="5dp"
+    android:paddingTop ="7dp"
+    android:paddingBottom ="7dp">
 
     <TextView
         android:id="@+id/artist_name"
@@ -12,8 +15,6 @@
         android:layout_height="wrap_content"
         android:textColor="#000000"
         android:textSize="20sp"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
         android:paddingLeft="12dp"
         android:paddingRight="12dp"/>
 

@@ -15,7 +15,7 @@
         android:id="@+id/controller_layout"
         android:orientation="vertical"
         android:visibility="gone"
-        android:background="#c8c8c8"
+        android:background="#6FDBFF"
         android:layout_width="fill_parent"
         android:layout_alignParentBottom="true"
         android:layout_height="wrap_content"
@@ -29,7 +29,14 @@
             android:textSize="16sp"
             android:textColor="@android:color/black"
             android:gravity="center_horizontal|top"
-            android:text="" />
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            android:text=""
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:freezesText="true"/>
 
         <View
             android:layout_width="fill_parent"

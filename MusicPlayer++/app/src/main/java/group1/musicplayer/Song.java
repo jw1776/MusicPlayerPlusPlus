@@ -11,13 +11,16 @@ public class Song implements Parcelable, Serializable {
     private String artist;
     private String album;
     private long albumId;
+    private String duration;
 
-    public Song(long songID, String songTitle, String songArtist, String songAlbum, long songAlbumId){
+
+    public Song(long songID, String songTitle, String songArtist, String songAlbum, long songAlbumId, String songDuration){
         id=songID;
         title=songTitle;
         artist=songArtist;
         album=songAlbum;
         albumId=songAlbumId;
+        duration=formatDuration(songDuration);
     }
     public Song(Parcel in){
         String [] data = new String[3];
@@ -45,8 +48,31 @@ public class Song implements Parcelable, Serializable {
 
     public String getAlbum() { return album; }
 
-    public long getAlbumId(){
-        return albumId;
+    public long getAlbumId(){ return albumId; }
+
+    public String getDuration() { return duration; }
+
+    public String formatDuration(String songDuration) {
+
+        if (songDuration != null) {
+            int totalDuration = Integer.parseInt(songDuration); //in milliseconds
+            totalDuration = totalDuration / 1000;                 //in seconds
+
+            String newDuration = Integer.toString(totalDuration / 60);  //whole minutes
+
+            if ((totalDuration % 60) < 10) {
+                newDuration = newDuration + ":0" + Integer.toString(totalDuration % 60);
+            }
+            else {
+                newDuration = newDuration + ":" + Integer.toString(totalDuration % 60);
+            }
+            return newDuration;
+        }
+
+        else {
+            return "";
+        }
+
     }
 
     @Override

@@ -4,7 +4,10 @@
     android:layout_height="wrap_content"
     android:onClick="songPicked_playlistTab"
     android:orientation="vertical"
-    android:padding ="5dp"
+    android:paddingLeft ="5dp"
+    android:paddingRight ="5dp"
+    android:paddingTop ="7dp"
+    android:paddingBottom ="7dp"
     >
 
     <TextView

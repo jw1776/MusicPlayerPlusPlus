@@ -10,13 +10,15 @@ public class Song_Checkbox {
     private String album;
     private long albumId;
     private boolean selected;
+    private String duration;
 
-    public Song_Checkbox(long songID, String songTitle, String songArtist, String songAlbum, long songAlbumId){
+    public Song_Checkbox(long songID, String songTitle, String songArtist, String songAlbum, long songAlbumId, String songDuration){
         id=songID;
         title=songTitle;
         artist=songArtist;
         album=songAlbum;
         albumId=songAlbumId;
+        duration=songDuration;
     }
 
     public String toString(){
@@ -40,6 +42,9 @@ public class Song_Checkbox {
     public long getAlbumId(){
         return albumId;
     }
+
+    public String getDuration() { return duration; }
+
 
     public boolean isSelected() {
         return selected;

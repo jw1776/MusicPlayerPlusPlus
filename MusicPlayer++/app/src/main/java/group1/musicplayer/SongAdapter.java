@@ -8,6 +8,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.RelativeLayout;
 
 /**
  * Created by LukeJr on 9/26/2015.
@@ -46,15 +47,17 @@ public class SongAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        LinearLayout listLayout = (LinearLayout)songInf.inflate(R.layout.song, parent, false);
+        RelativeLayout listLayout = (RelativeLayout)songInf.inflate(R.layout.song, parent, false);
         //layout for each individual song in the list. Uses song.xml
         TextView songView = (TextView)listLayout.findViewById(R.id.song_title);
         TextView artistView = (TextView)listLayout.findViewById(R.id.song_artist);
+        TextView durationView = (TextView)listLayout.findViewById(R.id.song_duration);
 
         Song currentSong = songArray.get(position);
 
         songView.setText(currentSong.getTitle()); //pass data to textView objects in each list item
         artistView.setText(currentSong.getArtist());
+        durationView.setText(currentSong.getDuration());
 
         listLayout.setTag(position); //use the song's position in list as a tag
         return listLayout;
