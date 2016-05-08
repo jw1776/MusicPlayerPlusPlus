@@ -37,7 +37,7 @@ public class CreatePlaylistActivity extends Activity {
         checkboxList = new ArrayList<Song_Checkbox>();
 
         for(int i = 0; i < songList.size(); i++) {
-            Song_Checkbox convert_me = new Song_Checkbox(songList.get(i).getID(), songList.get(i).getTitle(), songList.get(i).getArtist(), songList.get(i).getAlbum(), songList.get(i).getAlbumId(), songList.get(i).getDuration());
+            Song_Checkbox convert_me = new Song_Checkbox(songList.get(i).getID(), songList.get(i).getTitle(), songList.get(i).getArtist(), songList.get(i).getAlbum(), songList.get(i).getAlbumId(), songList.get(i).getDuration(), songList.get(i).getGenres());
             checkboxList.add(convert_me);
         }
     }
@@ -57,7 +57,7 @@ public class CreatePlaylistActivity extends Activity {
                 ArrayList<Song> temp = new ArrayList<Song>();
                 for (int i = 0; i < checkboxList.size(); i++) {
                     if (checkboxList.get(i).isSelected()) {
-                        Song convert_me = new Song(checkboxList.get(i).getID(), checkboxList.get(i).getTitle(), checkboxList.get(i).getArtist(), checkboxList.get(i).getAlbum(), checkboxList.get(i).getAlbumId(), checkboxList.get(i).getDuration());
+                        Song convert_me = new Song(checkboxList.get(i).getID(), checkboxList.get(i).getTitle(), checkboxList.get(i).getArtist(), checkboxList.get(i).getAlbum(), checkboxList.get(i).getAlbumId(), checkboxList.get(i).getDuration(), checkboxList.get(i).getGenres());
                         temp.add(convert_me);
                     }
                 }
@@ -65,7 +65,7 @@ public class CreatePlaylistActivity extends Activity {
                 playlistTitle += textInput.getText().toString();
                 Playlist p = new Playlist(playlistTitle, temp);
                 DBHandler db = new DBHandler(CreatePlaylistActivity.this, null, null, 1);
-                db.addPlaylist(p);
+                db.addPlaylist(p, false);
                 finish();
             }
         });

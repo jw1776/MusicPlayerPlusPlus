@@ -24,13 +24,14 @@ import java.util.ArrayList;
 
 public class DBHandler extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 6;
     private static final String DATABASE_NAME = "mpp_data.db";
 
     public static final String TABLE_PLAYLISTS = "playlists"; //name of the table storing information for calendar events
     public static final String PLAYLIST_ID = "_id"; //The following are columns in the table
     public static final String PLAYLIST_TITLE = "title";
     public static final String PLAYLIST_BYTESTREAM = "bytestream";
+    public static final String PLAYLIST_ISDEFAULT ="isdefault";
 
 
     public DBHandler(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
@@ -42,7 +43,8 @@ public class DBHandler extends SQLiteOpenHelper {
         String query_playlists = "CREATE TABLE " + TABLE_PLAYLISTS + "(" +
                 PLAYLIST_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 PLAYLIST_TITLE + " TEXT, " +
-                PLAYLIST_BYTESTREAM + " BLOB" +
+                PLAYLIST_BYTESTREAM + " BLOB, " +
+                PLAYLIST_ISDEFAULT + " INTEGER" +
                 ");";
 
         db.execSQL(query_playlists);
@@ -55,7 +57,7 @@ public class DBHandler extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void addPlaylist(Playlist playlist){ //Add a new playlist row to the database
+    public void addPlaylist(Playlist playlist, boolean isDefault){ //Add a new playlist row to the database
         ContentValues values = new ContentValues();
 
         values.put(PLAYLIST_TITLE, playlist.getTitle()); //fill column with value
@@ -84,6 +86,13 @@ public class DBHandler extends SQLiteOpenHelper {
             }
         }                                                    //CONVERT PLAYLIST TO BYTE ARRAY
 
+        if (isDefault) { //if this is a default playlist
+            values.put(PLAYLIST_ISDEFAULT, 1); //1 represents true
+        }
+        else {
+            values.put(PLAYLIST_ISDEFAULT, 0); //0 represents false
+        }
+
         SQLiteDatabase db = getWritableDatabase();
         db.insert(TABLE_PLAYLISTS, null, values);
         db.close();
@@ -94,6 +103,12 @@ public class DBHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_PLAYLISTS + " WHERE " + PLAYLIST_TITLE + "=\"" + title + "\";");
     }
+
+    public void deleteDefaultPlaylists() {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_PLAYLISTS + " WHERE " + PLAYLIST_ISDEFAULT + "=" + 1);
+    }
+
     public boolean databaseExists(Context context, String dbName) {
         File dbFile = context.getDatabasePath(dbName);
         return dbFile.exists();

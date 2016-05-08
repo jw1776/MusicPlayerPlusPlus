@@ -19,6 +19,11 @@
         android:showAsAction="always"
         android:title="Voice Control" />
 
+    <item
+        android:id="@+id/default_playlists_icon"
+        android:showAsAction="always"
+        android:title="Generate Default Playlists" />
+
 
 
 </menu>

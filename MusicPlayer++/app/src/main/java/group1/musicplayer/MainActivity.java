@@ -30,6 +30,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Random;
+import java.util.Scanner;
 
 import android.net.Uri;
 import android.content.ContentResolver;
@@ -656,6 +657,10 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                     case R.id.voice_icon:
                         voiceSettings();
                         break;
+
+                    case R.id.default_playlists_icon:
+                        generateDefaultPlaylists();
+                        break;
                 }
                 return true;
                 //nicer settings example: http://www.androidhive.info/2011/09/how-to-create-android-menus/
@@ -875,6 +880,11 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private void createList(ContentResolver musicResolver, Uri musicUri, String[] musicContents,
                             String selection, ArrayList<Song> list) {
 
+         String[] genresProjection = {
+                MediaStore.Audio.Genres.NAME,
+                MediaStore.Audio.Genres._ID
+        };
+
         Cursor musicCursor = musicResolver.query(
                 musicUri,//the location of the media
                 musicContents,//the attributes of the song, such as artist, title, album, etc
@@ -900,7 +910,23 @@ public class MainActivity extends Activity implements MediaPlayerControl {
                 long thisAlbumId = musicCursor.getLong(albumIdColumn);
                 String thisDuration = musicCursor.getString(songDurationColumn);
 
-                list.add(new Song(thisId, thisTitle, thisArtist, thisAlbum, thisAlbumId, formatDuration(thisDuration)));
+                int musicId = Integer.parseInt(musicCursor.getString(idColumn));
+
+                Uri uri = MediaStore.Audio.Genres.getContentUriForAudioId("external", musicId);
+                Cursor genresCursor = musicResolver.query(uri,
+                        genresProjection, null, null, null);
+                int genreColumn = genresCursor.getColumnIndexOrThrow(MediaStore.Audio.Genres.NAME);
+
+                String thisGenreString = "";
+
+                if (genresCursor.moveToFirst()) {
+                    do {
+                        thisGenreString += genresCursor.getString(genreColumn) + ",";
+                    } while (genresCursor.moveToNext());
+                }
+
+                System.out.println("GENRE STRING: " + thisGenreString);
+                list.add(new Song(thisId, thisTitle, thisArtist, thisAlbum, thisAlbumId, formatDuration(thisDuration), thisGenreString));
             }
             while (musicCursor.moveToNext()); //while there are still items left
         }
@@ -1235,6 +1261,49 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
         else {
             return "";
+        }
+
+    }
+
+    public void generateDefaultPlaylists() {
+        DBHandler db = new DBHandler(this, null, null, 1);
+        db.deleteDefaultPlaylists(); //clear any previously existing default playlists
+
+        ArrayList<Genre> genreArray = new ArrayList<Genre>();
+        Scanner genreScanner;
+
+        for (int i = 0; i < songList.size(); i++) {
+            String genreString = songList.get(i).getGenres();
+            genreScanner = new Scanner(genreString);
+            genreScanner.useDelimiter(",");
+
+            while (genreScanner.hasNext() && !(genreString.isEmpty())) { //while the genreString still contains valid genreTokens
+
+                String genreToken = genreScanner.next();
+                boolean genreFound = false;
+
+                for (int j = 0; j < genreArray.size(); j++) {
+
+                    if (genreArray.get(j).getGenre().equalsIgnoreCase(genreToken)) { //if the genre already exists in the genreArray
+                        genreArray.get(j).addSong(songList.get(i)); //add it to that genreArray
+                        genreFound = true; //mark the genre as found
+                    }
+                }
+
+                if (!genreFound) { //if the genre of the song does not exist yet
+                    Genre newGenre = new Genre(genreToken); //create a new genre
+                    newGenre.addSong(songList.get(i)); //and add the song to it
+                    genreArray.add(newGenre); //add the new genre to the genreArray
+                }
+
+            }
+
+
+        }
+
+        for (int k = 0; k < genreArray.size(); k++) {
+            Playlist newPlaylist = new Playlist(genreArray.get(k).getGenre(), genreArray.get(k).getSongs()); //create a new Playlist for each Genre
+            db.addPlaylist(newPlaylist, true); //add each Playlist to the database
         }
 
     }

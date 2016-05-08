@@ -12,15 +12,18 @@ public class Song implements Parcelable, Serializable {
     private String album;
     private long albumId;
     private String duration;
+    private String genres;
 
 
-    public Song(long songID, String songTitle, String songArtist, String songAlbum, long songAlbumId, String songDuration){
+    public Song(long songID, String songTitle, String songArtist, String songAlbum, long songAlbumId, String songDuration, String songGenres){
         id=songID;
         title=songTitle;
         artist=songArtist;
         album=songAlbum;
         albumId=songAlbumId;
         duration=songDuration;
+        genres=songGenres;
+
     }
     public Song(Parcel in){
         String [] data = new String[4];
@@ -52,6 +55,8 @@ public class Song implements Parcelable, Serializable {
     public long getAlbumId(){ return albumId; }
 
     public String getDuration() { return duration; }
+
+    public String getGenres() { return genres; }
 
 
     @Override
