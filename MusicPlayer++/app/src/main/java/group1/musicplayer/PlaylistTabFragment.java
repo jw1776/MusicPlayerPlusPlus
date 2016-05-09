@@ -162,15 +162,17 @@ public class PlaylistTabFragment extends Fragment {
     }
 
     public static void refreshPlaylistArray(){
-        DBHandler db = new DBHandler(context, null, null, 1);
-        if (db.databaseExists(context, "mpp_data.db")) {    //check if the database exists
-            playlistsArray = db.pullPlaylists();
-        }
+        if (context != null) {
+            DBHandler db = new DBHandler(context, null, null, 1);
+            if (db.databaseExists(context, "mpp_data.db")) {    //check if the database exists
+                playlistsArray = db.pullPlaylists();
+            }
 
-        theAdapter = new PlaylistAdapter(context, playlistsArray);
-        if(mode == 0){
-            playlistView.setAdapter(theAdapter);
+            theAdapter = new PlaylistAdapter(context, playlistsArray);
+            if (mode == 0) {
+                playlistView.setAdapter(theAdapter);
+            }
+            MainActivity.setPlaylistAdapter(theAdapter);
         }
-        MainActivity.setPlaylistAdapter(theAdapter);
     }
 }

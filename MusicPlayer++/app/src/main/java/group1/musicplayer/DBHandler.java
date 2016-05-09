@@ -118,7 +118,7 @@ public class DBHandler extends SQLiteOpenHelper {
     public boolean databaseExists(Context context, String dbName) {
         SQLiteDatabase checkDB = null;
         try {
-            checkDB = SQLiteDatabase.openDatabase(context.getDatabasePath(dbName).getAbsolutePath(), null,
+            checkDB = SQLiteDatabase.openDatabase(context.getDatabasePath(dbName).getPath(), null,
                     SQLiteDatabase.OPEN_READONLY);
             checkDB.close();
         } catch (SQLiteException e) {
