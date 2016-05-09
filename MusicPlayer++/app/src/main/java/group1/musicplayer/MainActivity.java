@@ -186,9 +186,8 @@ public class MainActivity extends Activity implements MediaPlayerControl, Servic
 
         //receive info being passed from notificationService
         intentFilter = new IntentFilter();
-        intentFilter.addAction("NOTIFICATIONS_READY");
+        intentFilter.addAction("NOTIFICATION_BUTTON_PRESSED");
         registerReceiver(notificationServiceReceiver, intentFilter);
-       // registerReceiver(songChangedReceiver, new IntentFilter("SONG_CHANGED"));
     }
 
     private void setAllTabListeners() {
@@ -359,7 +358,7 @@ public class MainActivity extends Activity implements MediaPlayerControl, Servic
         @Override
         public void onReceive(Context context, Intent intent){
 
-            if(intent.getAction().equals("NOTIFICATIONS_READY")) {
+            if(intent.getAction().equals("NOTIFICATION_BUTTON_PRESSED")) {
 
                 boolean prevPressed = intent.getBooleanExtra("prevPressed", false);//default val is false
                 boolean playPressed = intent.getBooleanExtra("playPressed", false);

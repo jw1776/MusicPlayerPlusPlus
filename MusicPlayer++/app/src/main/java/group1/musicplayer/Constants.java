@@ -29,7 +29,7 @@ public class Constants {
         BitmapFactory.Options options = new BitmapFactory.Options();
         try {
             bm = BitmapFactory.decodeResource(context.getResources(),
-                    R.drawable.default_album_art, options);
+                    R.drawable.default_album, options);
         } catch (Error ee) {
         } catch (Exception e) {
         }

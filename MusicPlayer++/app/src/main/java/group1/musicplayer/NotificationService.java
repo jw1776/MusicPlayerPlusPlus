@@ -42,15 +42,13 @@ public class NotificationService extends Service {
         else {
             //pass info back to MAIN to know what button was pressed
             Intent broadcastNotification = new Intent();
-            broadcastNotification.setAction("NOTIFICATIONS_READY");
+            broadcastNotification.setAction("NOTIFICATION_BUTTON_PRESSED");
 
              //receive info from the musicService when a song is changed
             registerReceiver(songChangedReceiver, new IntentFilter("SONG_CHANGED"));
 
             if (intent.getAction().equals(Constants.ACTION.STARTFOREGROUND_ACTION)) {
-                System.out.println("background pressed***?");
                 showNotification();
-              //  Toast.makeText(this, "Service Started", Toast.LENGTH_SHORT).show();
             }
             else if (intent.getAction().equals(Constants.ACTION.PREV_ACTION)) {
                 broadcastNotification.putExtra("prevPressed", true);
@@ -66,7 +64,6 @@ public class NotificationService extends Service {
                 stopForeground(true);
                 stopSelf();
             }
-
             getApplicationContext().sendBroadcast(broadcastNotification);
         }
         return START_STICKY;
@@ -78,7 +75,7 @@ public class NotificationService extends Service {
         public void onReceive(Context context, Intent intent){
 
             if(intent.getAction().equals("SONG_CHANGED")){//grab song info that was changed in musicService
-                System.out.println("SONG CHANDED im in notif service*****");
+                //System.out.println("SONG CHANDED im in notif service*****");
                 songTitle = intent.getStringExtra("songTitle");
                 songAlbum = intent.getStringExtra("album");
                 songArtist = intent.getStringExtra("artist");

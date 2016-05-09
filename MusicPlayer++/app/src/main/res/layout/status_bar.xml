@@ -26,7 +26,7 @@
             android:id="@+id/status_bar_prev"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/apollo_holo_dark_prev"
+            android:src="@drawable/apollo_holo_dark_prv"
             android:scaleType="fitCenter"
             />
         <ImageButton
