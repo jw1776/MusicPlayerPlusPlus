@@ -6,6 +6,8 @@ import android.content.ContentUris;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -20,6 +22,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -663,15 +666,15 @@ public class MainActivity extends Activity implements MediaPlayerControl, Servic
 
                     case R.id.timer_icon:
                         Intent timerActivity = new Intent(MainActivity.this, CustomTimer.class);
-                        // timerActivity.putExtra("minuteValue", minuteValue);
-                        // timerActivity.putExtra("hourValue", hourValue);
-                        // startActivityForResult(timerActivity, 3);
                         startActivity(timerActivity);
                         break;
 
-                    case R.id.voice_icon:
-                        voiceSettings();
-                        break;
+//                    case R.id.background_icon:
+//
+//                        break;
+//                    case R.id.voice_icon:
+//                        //voiceSettings();
+//                        break;
 
                     case R.id.default_playlists_icon:
                         generateDefaultPlaylists();

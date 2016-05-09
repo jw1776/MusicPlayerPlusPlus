@@ -48,7 +48,7 @@
             android:padding="10.0dip"
             android:layout_width="0.0dip"
             android:layout_height="@dimen/play_controls_notification"
-            android:src="@drawable/apollo_holo_dark_next"
+            android:src="@drawable/apollo_holo_dark_nxt"
             android:scaleType="fitCenter"
             android:layout_weight="1.0" />
     </LinearLayout>

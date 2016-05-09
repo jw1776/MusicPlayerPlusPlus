@@ -3,21 +3,23 @@
 
     <item
         android:id="@+id/add_icon"
-        android:icon="@drawable/plus"
         android:showAsAction="always"
         android:title="Add Audio" />
 
     <item
         android:id="@+id/timer_icon"
-        android:icon="@drawable/timer"
         android:showAsAction="always"
         android:title="Timer" />
 
-    <item
+    <!--<item
         android:id="@+id/voice_icon"
-        android:icon="@drawable/voice"
         android:showAsAction="always"
-        android:title="Voice Control" />
+        android:title="Voice Control" />-->
+
+   <!-- <item
+        android:id="@+id/background_icon"
+        android:showAsAction="always"
+        android:title="Background Color" />-->
 
     <item
         android:id="@+id/default_playlists_icon"
