@@ -5,6 +5,7 @@ package group1.musicplayer;
  */
 
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.Cursor;
 import android.content.Context;
@@ -109,10 +110,23 @@ public class DBHandler extends SQLiteOpenHelper {
         db.execSQL("DELETE FROM " + TABLE_PLAYLISTS + " WHERE " + PLAYLIST_ISDEFAULT + "=" + 1);
     }
 
+    //public boolean databaseExists(Context context, String dbName) {
+    //    File dbFile = context.getDatabasePath(dbName);
+    //    return dbFile.exists();
+    //}
+
     public boolean databaseExists(Context context, String dbName) {
-        File dbFile = context.getDatabasePath(dbName);
-        return dbFile.exists();
+        SQLiteDatabase checkDB = null;
+        try {
+            checkDB = SQLiteDatabase.openDatabase(context.getDatabasePath(dbName).getAbsolutePath(), null,
+                    SQLiteDatabase.OPEN_READONLY);
+            checkDB.close();
+        } catch (SQLiteException e) {
+            // database doesn't exist yet.
+        }
+        return checkDB != null;
     }
+
     public ArrayList<Playlist> pullPlaylists (){
         SQLiteDatabase db = getWritableDatabase();
         String query = "SELECT * FROM " + TABLE_PLAYLISTS + " WHERE 1";
