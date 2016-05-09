@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/song_full_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:onClick="songPicked"
     android:paddingLeft ="5dp"
     android:paddingRight ="5dp"
     android:paddingTop ="7dp"
-    android:paddingBottom ="7dp"
-    >
+    android:paddingBottom ="7dp">
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/title_and_artist"

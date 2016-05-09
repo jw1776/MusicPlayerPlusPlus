@@ -24,6 +24,7 @@ public class SongTabFragment extends Fragment {
 
     private ListView songView;
     private Context context;
+    private SongAdapter theAdapter;
 
     @Override
     public void onAttach(Activity activity) {
@@ -37,8 +38,9 @@ public class SongTabFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.song_tab_layout, container, false);
 
         songView = (ListView) rootView.findViewById(R.id.song_list); //get a reference to the ListView created in song_tab_layout
-        SongAdapter theAdapter = new SongAdapter(context, MainActivity.getSongArray());
+        theAdapter = new SongAdapter(context, MainActivity.getSongArray());
         songView.setAdapter(theAdapter); //pass the ListView object the appropriate adapter
+        MainActivity.setSongTabAdapter(theAdapter);
 
         registerForContextMenu(songView);
 
@@ -51,10 +53,10 @@ public class SongTabFragment extends Fragment {
 
     @Override
     public void onResume(){
-        Log.e("DEBUG", "onResume of LoginFragment");
 
-        SongAdapter theAdapter = new SongAdapter(context, MainActivity.getSongArray());
+        theAdapter = new SongAdapter(context, MainActivity.getSongArray());
         songView.setAdapter(theAdapter); //pass the ListView object the appropriate adapter
+        MainActivity.setSongTabAdapter(theAdapter);
 
         super.onResume();
     }

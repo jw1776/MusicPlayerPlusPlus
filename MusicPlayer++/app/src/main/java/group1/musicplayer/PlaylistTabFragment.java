@@ -26,6 +26,8 @@ public class PlaylistTabFragment extends Fragment {
     private static ArrayList<Playlist> playlistsArray = new ArrayList<Playlist>();
     private static ArrayList<Song> currentSongList;
     private static ArrayList<Song> contextArray;
+    private static SongAdapter_PlaylistTab songAdapter;
+    private static PlaylistAdapter theAdapter;
     private static String currentPlaylist;
     private static Button backButton;
     private static Button addPlaylistButton;
@@ -69,8 +71,9 @@ public class PlaylistTabFragment extends Fragment {
                     addPlaylistButton.setVisibility(View.VISIBLE);
                 }
 
-                PlaylistAdapter theAdapter = new PlaylistAdapter(context, playlistsArray);
+                theAdapter = new PlaylistAdapter(context, playlistsArray);
                 playlistView.setAdapter(theAdapter); //pass the ListView object the appropriate adapter
+                MainActivity.setPlaylistAdapter(theAdapter);
                 break;
             case 1: //Show songs
                 //show header and back button
@@ -82,8 +85,9 @@ public class PlaylistTabFragment extends Fragment {
                 }
                 header.setText(currentPlaylist);
 
-                SongAdapter_PlaylistTab songAdapter = new SongAdapter_PlaylistTab(context, currentSongList);
+                songAdapter = new SongAdapter_PlaylistTab(context, currentSongList);
                 playlistView.setAdapter(songAdapter);
+                MainActivity.setPlaylistTabAdapter(songAdapter);
                 break;
 
             default:
@@ -102,8 +106,9 @@ public class PlaylistTabFragment extends Fragment {
             if (db.databaseExists(context, "mpp_data.db")) {    //check if the database exists
                 playlistsArray = db.pullPlaylists();
             }
-            PlaylistAdapter theAdapter = new PlaylistAdapter(context, playlistsArray);
+            theAdapter = new PlaylistAdapter(context, playlistsArray);
             playlistView.setAdapter(theAdapter); //pass the ListView object the appropriate adapter
+            MainActivity.setPlaylistAdapter(theAdapter);
         }
 
         super.onResume();
@@ -119,8 +124,9 @@ public class PlaylistTabFragment extends Fragment {
             addPlaylistButton.setVisibility(View.VISIBLE);
             }
 
-            PlaylistAdapter theAdapter = new PlaylistAdapter(context, playlistsArray);
+            theAdapter = new PlaylistAdapter(context, playlistsArray);
             playlistView.setAdapter(theAdapter); //pass the ListView object the appropriate adapter
+            MainActivity.setPlaylistAdapter(theAdapter);
 
             mode--;
             if(mode < 0){
@@ -142,8 +148,9 @@ public class PlaylistTabFragment extends Fragment {
         currentSongList = playlistsArray.get(index).getPlaylistSongs();
         header.setText(currentPlaylist);
 
-        SongAdapter_PlaylistTab songAdapter = new SongAdapter_PlaylistTab(context, currentSongList);
+        songAdapter = new SongAdapter_PlaylistTab(context, currentSongList);
         playlistView.setAdapter(songAdapter);
+        MainActivity.setPlaylistTabAdapter(songAdapter);
     }
 
     public static void updateContextArray(){ //called whenever a song is clicked in this fragment
@@ -152,5 +159,18 @@ public class PlaylistTabFragment extends Fragment {
 
     public static ArrayList<Song> getContextArray(){
         return contextArray;
+    }
+
+    public static void refreshPlaylistArray(){
+        DBHandler db = new DBHandler(context, null, null, 1);
+        if (db.databaseExists(context, "mpp_data.db")) {    //check if the database exists
+            playlistsArray = db.pullPlaylists();
+        }
+
+        theAdapter = new PlaylistAdapter(context, playlistsArray);
+        if(mode == 0){
+            playlistView.setAdapter(theAdapter);
+        }
+        MainActivity.setPlaylistAdapter(theAdapter);
     }
 }

@@ -24,6 +24,7 @@ public class AlbumTabFragment extends Fragment {
     private static ArrayList<Album> albumArray;
     private static ArrayList<Song> currentSongList;
     private static ArrayList<Song> contextArray;
+    private static SongAdapter_AlbumTab songAdapter;
     private static String currentAlbum;
     private static ListView albumView;
     private static Button backButton;
@@ -68,8 +69,9 @@ public class AlbumTabFragment extends Fragment {
 
                 header.setText(currentAlbum);
 
-                SongAdapter_AlbumTab songAdapter = new SongAdapter_AlbumTab(context, currentSongList);
+                songAdapter = new SongAdapter_AlbumTab(context, currentSongList);
                 albumView.setAdapter(songAdapter);
+                MainActivity.setAlbumTabAdapter(songAdapter);
                 break;
 
             default:
@@ -106,8 +108,9 @@ public class AlbumTabFragment extends Fragment {
         currentSongList = albumArray.get(index).getSongs();
         header.setText(currentAlbum);
 
-        SongAdapter_AlbumTab songAdapter = new SongAdapter_AlbumTab(context, currentSongList);
+        songAdapter = new SongAdapter_AlbumTab(context, currentSongList);
         albumView.setAdapter(songAdapter);
+        MainActivity.setAlbumTabAdapter(songAdapter);
     }
 
     public static void updateContextArray(){ //called whenever a song is clicked in this fragment

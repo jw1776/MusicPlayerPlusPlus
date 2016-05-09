@@ -1,7 +1,9 @@
 package group1.musicplayer;
 
+import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import java.util.ArrayList;
 import android.content.Context;
@@ -55,6 +57,13 @@ public class SongAdapter extends BaseAdapter {
 
         Song currentSong = songArray.get(position);
 
+        //Highlight the currently playing song
+        if(MainActivity.getMusicServiceObject() != null && MainActivity.getUserAction()){
+            if (currentSong.getID() == MainActivity.getMusicServiceObject().getSongId()) {
+                songView.setTextColor(Color.parseColor("#34B5E5"));
+            }
+        }
+
         songView.setText(currentSong.getTitle()); //pass data to textView objects in each list item
         artistView.setText(currentSong.getArtist());
         durationView.setText(currentSong.getDuration());
@@ -62,4 +71,5 @@ public class SongAdapter extends BaseAdapter {
         listLayout.setTag(position); //use the song's position in list as a tag
         return listLayout;
     }
+
 }

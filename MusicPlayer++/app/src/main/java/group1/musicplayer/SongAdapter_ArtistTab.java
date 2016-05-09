@@ -1,5 +1,6 @@
 package group1.musicplayer;
 
+import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -15,6 +16,7 @@ public class SongAdapter_ArtistTab extends BaseAdapter {
 
     private ArrayList<Song> songArray;
     private LayoutInflater songInf;
+
 
     public SongAdapter_ArtistTab(Context c, ArrayList<Song> newSongArray){
         songArray = newSongArray;
@@ -46,6 +48,13 @@ public class SongAdapter_ArtistTab extends BaseAdapter {
         TextView durationView = (TextView)listLayout.findViewById(R.id.song_duration_artistTab);
 
         Song currentSong = songArray.get(position);
+
+        //Highlight the currently playing song
+        if(MainActivity.getMusicServiceObject() != null && MainActivity.getUserAction()){
+            if (currentSong.getID() == MainActivity.getMusicServiceObject().getSongId()) {
+                titleView.setTextColor(Color.parseColor("#34B5E5"));
+            }
+        }
 
         titleView.setText(currentSong.getTitle()); //pass data to textView objects in each list item
         durationView.setText(currentSong.getDuration());

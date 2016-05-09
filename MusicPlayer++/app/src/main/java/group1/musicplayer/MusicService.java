@@ -23,6 +23,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private ArrayList<Song> songArray;
     private int songPosition;
     private final IBinder musicBind = new MusicBinder();
+    private ServiceCallbacks serviceCallbacks;
     private String songTitle = "";
     private String songArtist = "";
     private String songAlbum = "";
@@ -61,6 +62,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     }// end Binder class
 
     public void playSong(){
+        MainActivity.setUserAction();
         player.reset();
         Song playSong = songArray.get(songPosition);
         MainActivity.setNowPlayingText(playSong);
@@ -70,6 +72,14 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         long currentSong = playSong.getID();
         Uri trackUri = ContentUris.withAppendedId(android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 currentSong);
+
+        //Redraw listviews for each tab so the correct song is highlighted
+        if (serviceCallbacks != null) {
+            serviceCallbacks.notifySongTab();
+            serviceCallbacks.notifyAlbumTab();
+            serviceCallbacks.notifyArtistTab();
+            serviceCallbacks.notifyPlaylistTab();
+        }
 
         System.out.println("Passing song to notification serv***");
         //pass the current song info notifcation seriv
@@ -172,12 +182,14 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         songPosition--;
         if(songPosition < 0) songPosition=songArray.size()-1; //wrap around
         playSong();
+
     }
 
     public void playNext(){
             songPosition++;
             if (songPosition >= songArray.size()) songPosition = 0; //wrap around
             playSong();
+
     }
 
 // Methods below parallel MediaController actions
@@ -209,10 +221,18 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         return songArray;
     }
 
+    public long getSongId() {
+        return songArray.get(songPosition).getID();
+    }
+
     public int getSongPosition() { return songPosition;}
 
     public String getSongTitle() { return songTitle; }
 
     public String getSongArtist() { return songArtist; }
+
+    public void setCallbacks(ServiceCallbacks callbacks) {
+        serviceCallbacks = callbacks;
+    }
 
 }

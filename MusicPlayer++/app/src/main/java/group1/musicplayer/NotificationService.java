@@ -36,7 +36,7 @@ public class NotificationService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         if (intent == null) {
-            System.out.println("***notifcation tray intent is NULL FUCK!");
+            System.out.println("***notifcation tray intent is NULL, shucks!");
         }
 
         else {

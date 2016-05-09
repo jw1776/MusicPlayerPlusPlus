@@ -70,14 +70,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import fm.last.musicbrainz.data.model.Artist;*/
 
-public class MainActivity extends Activity implements MediaPlayerControl {
+public class MainActivity extends Activity implements MediaPlayerControl, ServiceCallbacks {
 
     private static ArrayList<Song> songList, audioList;
     private static ArrayList<Artist> artistArray;
     private static ArrayList<Album> albumArray;
     private LinearLayout controller_layout;
     private static TextView nowPlayingText;
-    private MusicService musicServiceObject;
+    private static MusicService musicServiceObject;
     private Intent playIntent;
     private boolean musicBound = false; //Keeps track of whether or not MainActivity is bound to the MusicService
     private MusicController controller;
@@ -93,6 +93,12 @@ public class MainActivity extends Activity implements MediaPlayerControl {
     private IntentFilter intentFilter;
     private int shufflePos = 0;
     private String URL = "";
+
+    private static SongAdapter songTabAdapter;
+    private static SongAdapter_AlbumTab albumTabAdapter;
+    private static SongAdapter_ArtistTab artistTabAdapter;
+    private static SongAdapter_PlaylistTab playlistTabAdapter;
+    private static PlaylistAdapter playlistAdapter;
 
     private final int REQ_CODE_VIDEO_PLAYER = 20;
     private final int REQ_CODE_SPEECH_INPUT = 3;
@@ -302,6 +308,7 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             musicServiceObject = binder.getService(); //get service
             musicServiceObject.fillList(songList); //Pass the array of songs to the MusicService object
             musicBound = true;
+            musicServiceObject.setCallbacks(MainActivity.this);
 
         }// end onServiceConnected method
 
@@ -425,10 +432,19 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
     @Override
     protected void onDestroy() {
+         super.onDestroy();
+
+        // Unbind from service
+        if (musicBound) {
+            musicServiceObject.setCallbacks(null); // unregister callback interface
+            unbindService(musicConnection);
+            musicBound = false;
+        }
+
         stopService(playIntent);
         stopService(notificationService);
         musicServiceObject = null;
-        super.onDestroy();
+
     }
 
     @Override
@@ -660,6 +676,8 @@ public class MainActivity extends Activity implements MediaPlayerControl {
 
                     case R.id.default_playlists_icon:
                         generateDefaultPlaylists();
+                        PlaylistTabFragment.refreshPlaylistArray();
+                        notifyNewPlaylists();
                         break;
                 }
                 return true;
@@ -950,6 +968,16 @@ public class MainActivity extends Activity implements MediaPlayerControl {
         musicServiceObject.fillList(songList);
         musicServiceObject.setSong(Integer.parseInt(view.getTag().toString()));
         musicServiceObject.playSong();
+
+        /*
+        runOnUiThread(new Runnable() {
+
+            public void run() {
+                songTabAdapter.notifyDataSetChanged();
+            }
+        });
+        */
+
         //if(playbackPaused){
         //    setController();
         //    playbackPaused = false;
@@ -1306,6 +1334,85 @@ public class MainActivity extends Activity implements MediaPlayerControl {
             db.addPlaylist(newPlaylist, true); //add each Playlist to the database
         }
 
+    }
+
+    public static MusicService getMusicServiceObject (){
+        return musicServiceObject;
+    }
+
+    public static void setSongTabAdapter(SongAdapter newSongAdapter){
+        songTabAdapter = newSongAdapter;
+    }
+
+    public static void setAlbumTabAdapter(SongAdapter_AlbumTab newAlbumAdapter){
+        albumTabAdapter = newAlbumAdapter;
+    }
+
+    public static void setArtistTabAdapter(SongAdapter_ArtistTab newArtistAdapter){
+        artistTabAdapter = newArtistAdapter;
+    }
+
+    public static void setPlaylistTabAdapter(SongAdapter_PlaylistTab newPlaylistAdapter){
+        playlistTabAdapter = newPlaylistAdapter;
+    }
+
+    public static void setPlaylistAdapter(PlaylistAdapter newPlaylistAdapter){
+        playlistAdapter = newPlaylistAdapter;
+    }
+
+    public void notifySongTab(){  //ServiceCallbacks method used to redraw listviews
+        if(songTabAdapter != null){
+            runOnUiThread(new Runnable() {
+
+                public void run() {
+                    songTabAdapter.notifyDataSetChanged();
+                }
+            });
+        }
+    }
+
+    public void notifyAlbumTab(){ //ServiceCallbacks method used to redraw listviews
+        if(albumTabAdapter != null){
+
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    albumTabAdapter.notifyDataSetChanged();
+                }
+            });
+        }
+    }
+
+    public void notifyArtistTab(){ //ServiceCallbacks method used to redraw listviews
+        if(artistTabAdapter != null){
+
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    artistTabAdapter.notifyDataSetChanged();
+                }
+            });
+        }
+    }
+
+    public void notifyPlaylistTab(){ //ServiceCallbacks method used to redraw listviews
+        if(playlistTabAdapter != null){
+
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    playlistTabAdapter.notifyDataSetChanged();
+                }
+            });
+        }
+    }
+
+    public void notifyNewPlaylists(){ //Redraws the list of playlists on the playlist tab
+        if(playlistAdapter != null){
+
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    playlistAdapter.notifyDataSetChanged();
+                }
+            });
+        }
     }
 
 }

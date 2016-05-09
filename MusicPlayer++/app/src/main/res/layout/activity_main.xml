@@ -15,7 +15,7 @@
         android:id="@+id/controller_layout"
         android:orientation="vertical"
         android:visibility="gone"
-        android:background="#6FDBFF"
+        android:background="#34B5E5"
         android:layout_width="fill_parent"
         android:layout_alignParentBottom="true"
         android:layout_height="wrap_content"

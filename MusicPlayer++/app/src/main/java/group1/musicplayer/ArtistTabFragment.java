@@ -25,6 +25,7 @@ public class ArtistTabFragment extends Fragment {
     private static ArrayList<Album> currentAlbumList;
     private static ArrayList<Song> currentSongList;
     private static ArrayList<Song> contextArray;
+    private static SongAdapter_ArtistTab songAdapter;
     private static String currentArtist;
     private static String currentAlbum;
     private static ListView artistView;
@@ -75,8 +76,9 @@ public class ArtistTabFragment extends Fragment {
                     headerLayout.setVisibility(View.VISIBLE);
                 }
                 header.setText(currentAlbum);
-                SongAdapter_ArtistTab songAdapter = new SongAdapter_ArtistTab(context, currentSongList);
+                songAdapter = new SongAdapter_ArtistTab(context, currentSongList);
                 artistView.setAdapter(songAdapter);
+                MainActivity.setArtistTabAdapter(songAdapter);
                 break;
             default:
                 break;
@@ -109,8 +111,9 @@ public class ArtistTabFragment extends Fragment {
         currentSongList = currentAlbumList.get(albumPosition).getSongs();
         header.setText(currentAlbum);
 
-        SongAdapter_ArtistTab songAdapter = new SongAdapter_ArtistTab(context, currentSongList);
+        songAdapter = new SongAdapter_ArtistTab(context, currentSongList);
         artistView.setAdapter(songAdapter);
+        MainActivity.setArtistTabAdapter(songAdapter);
     }
 
     public static void backButtonPressed(){
