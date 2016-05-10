@@ -6,8 +6,10 @@ import android.content.ContentUris;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.audiofx.Visualizer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -15,6 +17,7 @@ import android.provider.MediaStore;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.Layout;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -39,6 +42,7 @@ import android.net.Uri;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.os.IBinder;
 import android.content.ComponentName;
@@ -50,6 +54,7 @@ import android.view.View;
 //import fm.last.musicbrainz.data.dao.ArtistDao;
 import group1.musicplayer.MusicService.MusicBinder;
 
+import android.widget.ListView;
 import android.widget.MediaController.MediaPlayerControl;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -96,6 +101,9 @@ public class MainActivity extends Activity implements MediaPlayerControl, Servic
     private IntentFilter intentFilter;
     private int shufflePos = 0;
     private String URL = "";
+    private final int[] colors = {Color.BLUE, Color.BLUE, Color.GREEN, Color.CYAN,
+        Color.MAGENTA, Color.YELLOW, Color.WHITE};
+    private int colorCounter = -1;
 
     private static SongAdapter songTabAdapter;
     private static SongAdapter_AlbumTab albumTabAdapter;
@@ -434,7 +442,7 @@ public class MainActivity extends Activity implements MediaPlayerControl, Servic
 
     @Override
     protected void onDestroy() {
-         super.onDestroy();
+        super.onDestroy();
 
         // Unbind from service
         if (musicBound) {
@@ -669,12 +677,22 @@ public class MainActivity extends Activity implements MediaPlayerControl, Servic
                         startActivity(timerActivity);
                         break;
 
-//                    case R.id.background_icon:
-//
-//                        break;
-//                    case R.id.voice_icon:
-//                        //voiceSettings();
-//                        break;
+                    case R.id.background_icon:
+
+                        ListView listView = (ListView) findViewById(R.id.song_list);
+                        if (colorCounter == colors.length) {
+                            colorCounter = 0;
+                        } else {
+                            colorCounter++;
+                        }
+                        System.out.println(colorCounter + "*************");
+                        listView.setBackgroundColor(colors[colorCounter]);
+
+                        break;
+
+                    case R.id.background_image_icon:
+                        accessPics();
+                        break;
 
                     case R.id.default_playlists_icon:
                         generateDefaultPlaylists();
@@ -900,7 +918,7 @@ public class MainActivity extends Activity implements MediaPlayerControl, Servic
     private void createList(ContentResolver musicResolver, Uri musicUri, String[] musicContents,
                             String selection, ArrayList<Song> list) {
 
-         String[] genresProjection = {
+        String[] genresProjection = {
                 MediaStore.Audio.Genres.NAME,
                 MediaStore.Audio.Genres._ID
         };
@@ -1082,6 +1100,15 @@ public class MainActivity extends Activity implements MediaPlayerControl, Servic
 
     }
 
+    private void accessPics() {//access the users photo gallery
+
+        Intent photoPickerIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        photoPickerIntent.setType("image/*");
+        startActivityForResult(photoPickerIntent, 9000);
+    }
+
+    Bitmap bm;
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -1111,7 +1138,30 @@ public class MainActivity extends Activity implements MediaPlayerControl, Servic
                 // for (int i = 0; i < voiceItems.size(); i++) {
                 //     System.out.println("Voice item " + i + ": " + voiceItems.get(i));
                 // }
-            } else {
+            }
+            else if(requestCode == 9000){
+                Uri selectedImage = data.getData();
+
+                String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+                cursor.moveToFirst();
+                cursor.close();
+
+
+                try {
+                    InputStream inputStream = getContentResolver().openInputStream(selectedImage);
+                    Drawable uploadedPic = Drawable.createFromStream(inputStream, selectedImage.toString());
+
+                    bm = ((BitmapDrawable) uploadedPic).getBitmap();
+                    //resize the pic to avoid any oversized images
+                    uploadedPic = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bm, 1920, 1080, true));
+                   LinearLayout layout = (LinearLayout)findViewById(R.id.song_tab_frag);
+                    layout.setBackground(uploadedPic);
+
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            } else{
                 ArrayList<String> audioListString = data.getStringArrayListExtra("additionalSongs");
 
                 //find the Song objects that were added

@@ -11,15 +11,15 @@
         android:showAsAction="always"
         android:title="Timer" />
 
-    <!--<item
-        android:id="@+id/voice_icon"
+    <item
+        android:id="@+id/background_image_icon"
         android:showAsAction="always"
-        android:title="Voice Control" />-->
+        android:title="Background Image" />
 
-   <!-- <item
+    <item
         android:id="@+id/background_icon"
         android:showAsAction="always"
-        android:title="Background Color" />-->
+        android:title="Background Color" />
 
     <item
         android:id="@+id/default_playlists_icon"

@@ -81,7 +81,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             serviceCallbacks.notifyPlaylistTab();
         }
 
-        System.out.println("Passing song to notification serv***");
         //pass the current song info notifcation seriv
         Intent songChanged = new Intent("SONG_CHANGED");
         songChanged.putExtra("songTitle", songTitle);
