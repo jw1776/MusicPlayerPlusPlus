@@ -22,6 +22,11 @@
         android:title="Background Color" />
 
     <item
+        android:id="@+id/shuffle_icon"
+        android:showAsAction="always"
+        android:title="Toggle Shuffle" />
+
+    <item
         android:id="@+id/default_playlists_icon"
         android:showAsAction="always"
         android:title="Generate Default Playlists" />

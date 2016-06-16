@@ -29,6 +29,7 @@ public class SearchLyrics extends Activity {
 
         webView.getSettings().setJavaScriptEnabled(true); // enable javascript
         webView.getSettings().setBuiltInZoomControls(true); //Set Zoom in/Zoom out
+        webView.getSettings().setDisplayZoomControls(false);
 
         final Activity activity = this;
 

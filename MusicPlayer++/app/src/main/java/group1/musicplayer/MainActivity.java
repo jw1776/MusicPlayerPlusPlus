@@ -500,7 +500,7 @@ public class MainActivity extends Activity implements MediaPlayerControl, Servic
                     }
                     else {
                         //   searchLyrics();
-                        geniusSearch();
+                        azLyricsSearch();
                     }
                 } else {
                     Toast.makeText(getApplicationContext(), "ERROR: Please connect to WIFI or enable"
@@ -630,32 +630,47 @@ public class MainActivity extends Activity implements MediaPlayerControl, Servic
                     startActivity(i);
                 }
                 else{
-                    geniusSearch();
+                    azLyricsSearch();
                 }
             } catch (JSONException e) {
                 Log.e("MYAPP", "unexpected JSON exception", e);
-                //     Toast.makeText(getBaseContext(), "Lyrics do not exist on LyricsnMusic, opening up Genius.com", Toast.LENGTH_LONG).show();
-                geniusSearch();
+                azLyricsSearch();
             }
         }
     }
 
-    private void geniusSearch(){
+    private void azLyricsSearch(){
         String songTitle = musicServiceObject.getSongTitle();
         if(songTitle.contains(" ")){
             songTitle = songTitle.replace(' ', '-');
         }
+        songTitle = removeFeatAndNonAlphaNumerics(songTitle);
         String songArtist = musicServiceObject.getSongArtist();
         if(songArtist.contains(" ")){
             songArtist = songArtist.replace(' ', '-');
         }
-        URL = ("http://genius.com/" + songArtist + "-" + songTitle + "-lyrics");
+        songArtist = removeFeatAndNonAlphaNumerics(songArtist);
+        URL = ("http://www.azlyrics.com/lyrics/" + songArtist + "/" + songTitle + ".html");
         System.out.println("********" + URL);
         Intent i = new Intent(getApplicationContext(), SearchLyrics.class);
         i.putExtra("url", URL);
         startActivity(i);
     }
 
+    //remove feats, feat, ft, (and anything between the ft/feat)and any non alphanumerics from the text
+    private String removeFeatAndNonAlphaNumerics(String s){
+
+        s = s.replaceAll("[^A-Za-z0-9().]", "").toLowerCase();//remove all non alpha-numerics, except parenthesis, for now
+        if(s.contains("feat.") || s.contains("feat")){
+            s = s.substring(0, s.indexOf("feat"));
+        }
+        else if(s.contains("ft.") || s.contains("ft")){
+            s = s.substring(0, s.indexOf("ft"));
+        }
+        System.out.println("----- " + s);
+        return s.replaceAll("[().]","");
+
+    }
     /*display the settings to the user
     * they may either: add additional files, create a timer, edit voice control, etc*/
     private void displaySettingsOption() {
@@ -692,6 +707,11 @@ public class MainActivity extends Activity implements MediaPlayerControl, Servic
 
                     case R.id.background_image_icon:
                         accessPics();
+                        break;
+
+                    case R.id.shuffle_icon:
+                        toggleShuffle();
+                        shuffleSong();
                         break;
 
                     case R.id.default_playlists_icon:
@@ -757,16 +777,6 @@ public class MainActivity extends Activity implements MediaPlayerControl, Servic
         return activeNetworkInfo != null;
     }
 
-//    @Override
-//    public void onBackPressed() {
-//        if(webView != null){
-//            Intent goBack = new Intent(this, MainActivity.class);
-//            startActivity(goBack);
-//        } else {
-//            finish();
-//        }
-//    }
-
     //launches the youtube player for the playing song
     private void startVideo() {
 
@@ -831,12 +841,9 @@ public class MainActivity extends Activity implements MediaPlayerControl, Servic
 
     //add the new songs to the default list
     private void addAdditionalSongs(ArrayList<Song> additionalSongs) {
-
-        // System.out.println("\n*\n*\n**********************BEFORE THE SIZE OF THE SONG LIST IS: " + songList.size());
         for (int i = 0; i < additionalSongs.size(); i++) {
             songList.add(additionalSongs.get(i));
         }
-        // System.out.println("\n*\n*\n**********************AFTER THE SIZE OF THE SONG LIST IS: " + songList.size());
     }
 
     private void removeDuplicates() {//remove duplicate songs based on artist and title
@@ -1342,7 +1349,6 @@ public class MainActivity extends Activity implements MediaPlayerControl, Servic
         else {
             return "";
         }
-
     }
 
     public void generateDefaultPlaylists() {
@@ -1375,17 +1381,13 @@ public class MainActivity extends Activity implements MediaPlayerControl, Servic
                     newGenre.addSong(songList.get(i)); //and add the song to it
                     genreArray.add(newGenre); //add the new genre to the genreArray
                 }
-
             }
-
-
         }
 
         for (int k = 0; k < genreArray.size(); k++) {
             Playlist newPlaylist = new Playlist(genreArray.get(k).getGenre(), genreArray.get(k).getSongs()); //create a new Playlist for each Genre
             db.addPlaylist(newPlaylist, true); //add each Playlist to the database
         }
-
     }
 
     public static MusicService getMusicServiceObject (){

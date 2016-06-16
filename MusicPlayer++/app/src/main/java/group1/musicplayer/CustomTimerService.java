@@ -71,53 +71,6 @@ public class CustomTimerService extends Service {
         //handler.removeCallbacks(updateTimerThread);
         super.onDestroy();
     }
-
-//    private Runnable updateTimerThread = new Runnable() {
-//
-//        //update the time on the screen and constantly pass the values back to CustomTimer
-//        public void run() {
-//
-//            new MoreAccurateTimer (((hourTime * 60 + minuteTime) * 1000), 1000) {//total time, interval
-//
-//                //MINUTES FOR NOW ACT LIKE SECONDS AND HOUR ACTS LIKE MINUTES, JUST FOR TESTING****
-//
-//                public void onTick(long millisUntilFinished) {
-//
-//                    System.out.println(millisUntilFinished + " left****************");
-//
-//                     //   System.out.println(hourTime + " : " + minuteTime);
-//                    long min = (millisUntilFinished / 1000) % 60;//this is actually sec, but used for testing for now...
-//                    long hour = (millisUntilFinished / 1000) / 60;
-//                   // System.out.println(hour + " : " + min);
-//
-////                    if(millisUntilFinished <= 3000 && millisUntilFinished >= 1000){
-////                        new Runnable(){
-////                            @Override
-////                            public void run() {//doesnt show up, prob cuz problem with main thread or something
-////                                Toast.makeText(context, "Timer up. Existing MusicPlayer++...", Toast.LENGTH_LONG).show();
-////                            }
-////                        };
-////                    }
-//                    //constantly pass the minute and hour values back to CustomTimer
-//                    Intent broadcastIntent = new Intent();
-//                    broadcastIntent.setAction("LOCATION_REACHED");
-//                    broadcastIntent.putExtra("minuteValue", Long.toString(min));
-//                    broadcastIntent.putExtra("hourValue", Long.toString(hour));
-//                    getApplicationContext().sendBroadcast(broadcastIntent);
-//                }
-//
-//                public void onFinish() {
-//                    //not showing toast....
-//                   // Toast.makeText(context, "Timer up. Existing MusicPlayer++...", Toast.LENGTH_LONG).show();
-//                    System.exit(0);//this is not that great, in the end call onFinish on all of the activities
-//                }
-//            }.start();
-//
-//            handler.postDelayed(this, 0);
-//        }
-//    };
-//
-
 }
 
 //source for following code:
